@@ -1,6 +1,6 @@
-# india_post_offices
+# India-Post-Offices
 
-A new Flutter project.
+Search India Post Offices by Name or by the PIN Code.
 
 ## Getting Started
 
