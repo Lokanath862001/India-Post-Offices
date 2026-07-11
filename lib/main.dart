@@ -8,7 +8,193 @@ import 'package:excel/excel.dart' hide Border;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'web_helper.dart';
+
+class AppThemeConfig {
+  final Brightness brightness;
+  final Color primary;
+  final Color secondary;
+  final Color scaffoldBgStart;
+  final Color scaffoldBgEnd;
+  final Color cardBg;
+  final Color inputFill;
+  final Color border;
+  final Color textPrimary;
+  final Color textSecondary;
+  final Color textHint;
+  final Color tableHeaderBg;
+  final Color shadow;
+  final Color textOnPrimary;
+
+  const AppThemeConfig({
+    required this.brightness,
+    required this.primary,
+    required this.secondary,
+    required this.scaffoldBgStart,
+    required this.scaffoldBgEnd,
+    required this.cardBg,
+    required this.inputFill,
+    required this.border,
+    required this.textPrimary,
+    required this.textSecondary,
+    required this.textHint,
+    required this.tableHeaderBg,
+    required this.shadow,
+    this.textOnPrimary = Colors.white,
+  });
+}
+
+final Map<String, AppThemeConfig> appThemes = {
+  'light': const AppThemeConfig(
+    brightness: Brightness.light,
+    primary: Color(0xFFFF9933),
+    secondary: Color(0xFF128807),
+    scaffoldBgStart: Color(0xFFF8FAFC),
+    scaffoldBgEnd: Color(0xFFE2E8F0),
+    cardBg: Color(0xFFFFFFFF),
+    inputFill: Color(0xFFF1F5F9),
+    border: Color(0xFFCBD5E1),
+    textPrimary: Color(0xFF0F172A),
+    textSecondary: Color(0xFF475569),
+    textHint: Color(0xFF94A3B8),
+    tableHeaderBg: Color(0xFFE2E8F0),
+    shadow: Color(0x0C000000),
+    textOnPrimary: Colors.white,
+  ),
+  'dark': const AppThemeConfig(
+    brightness: Brightness.dark,
+    primary: Color(0xFFFF9933),
+    secondary: Color(0xFF128807),
+    scaffoldBgStart: Color(0xFF0F172A),
+    scaffoldBgEnd: Color(0xFF0A0F1D),
+    cardBg: Color(0xFF1E293B),
+    inputFill: Color(0xFF0F172A),
+    border: Color(0xFF334155),
+    textPrimary: Colors.white,
+    textSecondary: Color(0xFF94A3B8),
+    textHint: Color(0xFF64748B),
+    tableHeaderBg: Color(0xFF0F172A),
+    shadow: Color(0x33000000),
+    textOnPrimary: Colors.white,
+  ),
+  'red': const AppThemeConfig(
+    brightness: Brightness.dark,
+    primary: Color(0xFFEF4444),
+    secondary: Color(0xFF10B981),
+    scaffoldBgStart: Color(0xFF2C0F10),
+    scaffoldBgEnd: Color(0xFF1A0809),
+    cardBg: Color(0xFF3F1416),
+    inputFill: Color(0xFF2C0F10),
+    border: Color(0xFF631D21),
+    textPrimary: Colors.white,
+    textSecondary: Color(0xFFFCA5A5),
+    textHint: Color(0xFFB91C1C),
+    tableHeaderBg: Color(0xFF2C0F10),
+    shadow: Color(0x4D000000),
+    textOnPrimary: Colors.white,
+  ),
+  'orange': const AppThemeConfig(
+    brightness: Brightness.dark,
+    primary: Color(0xFFFF9933),
+    secondary: Color(0xFF128807),
+    scaffoldBgStart: Color(0xFF2E1205),
+    scaffoldBgEnd: Color(0xFF1A0A02),
+    cardBg: Color(0xFF451A03),
+    inputFill: Color(0xFF2E1205),
+    border: Color(0xFF6C2505),
+    textPrimary: Colors.white,
+    textSecondary: Color(0xFFFFD0B0),
+    textHint: Color(0xFFB45309),
+    tableHeaderBg: Color(0xFF2E1205),
+    shadow: Color(0x4D000000),
+    textOnPrimary: Colors.white,
+  ),
+  'yellow': const AppThemeConfig(
+    brightness: Brightness.dark,
+    primary: Color(0xFFFBBF24),
+    secondary: Color(0xFF10B981),
+    scaffoldBgStart: Color(0xFF241C03),
+    scaffoldBgEnd: Color(0xFF140F01),
+    cardBg: Color(0xFF382B05),
+    inputFill: Color(0xFF241C03),
+    border: Color(0xFF5C4708),
+    textPrimary: Colors.white,
+    textSecondary: Color(0xFFFDE68A),
+    textHint: Color(0xFFB45309),
+    tableHeaderBg: Color(0xFF241C03),
+    shadow: Color(0x4D000000),
+    textOnPrimary: Colors.white,
+  ),
+  'green': const AppThemeConfig(
+    brightness: Brightness.dark,
+    primary: Color(0xFFFF9933),
+    secondary: Color(0xFF00C853),
+    scaffoldBgStart: Color(0xFF04211A),
+    scaffoldBgEnd: Color(0xFF02120E),
+    cardBg: Color(0xFF0B3A30),
+    inputFill: Color(0xFF04211A),
+    border: Color(0xFF125E4F),
+    textPrimary: Colors.white,
+    textSecondary: Color(0xFFA7F3D0),
+    textHint: Color(0xFF1B6B5D),
+    tableHeaderBg: Color(0xFF04211A),
+    shadow: Color(0x4D000000),
+    textOnPrimary: Colors.white,
+  ),
+  'blue': const AppThemeConfig(
+    brightness: Brightness.dark,
+    primary: Color(0xFF0EA5E9),
+    secondary: Color(0xFFFF9933),
+    scaffoldBgStart: Color(0xFF03253A),
+    scaffoldBgEnd: Color(0xFF011420),
+    cardBg: Color(0xFF073857),
+    inputFill: Color(0xFF03253A),
+    border: Color(0xFF0A5889),
+    textPrimary: Colors.white,
+    textSecondary: Color(0xFF7DD3FC),
+    textHint: Color(0xFF0284C7),
+    tableHeaderBg: Color(0xFF03253A),
+    shadow: Color(0x4D000000),
+    textOnPrimary: Colors.white,
+  ),
+  'indigo': const AppThemeConfig(
+    brightness: Brightness.dark,
+    primary: Color(0xFFFF9933),
+    secondary: Color(0xFF00D2FF),
+    scaffoldBgStart: Color(0xFF071F30),
+    scaffoldBgEnd: Color(0xFF030D16),
+    cardBg: Color(0xFF0D324D),
+    inputFill: Color(0xFF071F30),
+    border: Color(0xFF1A5276),
+    textPrimary: Colors.white,
+    textSecondary: Color(0xFFBAE6FD),
+    textHint: Color(0xFF5992B1),
+    tableHeaderBg: Color(0xFF071F30),
+    shadow: Color(0x4D000000),
+    textOnPrimary: Colors.white,
+  ),
+  'violet': const AppThemeConfig(
+    brightness: Brightness.dark,
+    primary: Color(0xFFC084FC),
+    secondary: Color(0xFFFF9933),
+    scaffoldBgStart: Color(0xFF200F35),
+    scaffoldBgEnd: Color(0xFF120820),
+    cardBg: Color(0xFF321752),
+    inputFill: Color(0xFF200F35),
+    border: Color(0xFF55258C),
+    textPrimary: Colors.white,
+    textSecondary: Color(0xFFE9D5FF),
+    textHint: Color(0xFF9333EA),
+    tableHeaderBg: Color(0xFF200F35),
+    shadow: Color(0x4D000000),
+    textOnPrimary: Colors.white,
+  ),
+};
+
+final ValueNotifier<String> themeNotifier = ValueNotifier<String>('dark');
+
+AppThemeConfig get currentTheme => appThemes[themeNotifier.value] ?? appThemes['dark']!;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +207,17 @@ void main() async {
       debugPrint('AdMob initialization error: $e');
     }
   }
+
+  // Load saved theme
+  String savedTheme = 'dark';
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    savedTheme = prefs.getString('app_theme') ?? 'dark';
+  } catch (e) {
+    debugPrint('Error loading saved theme: $e');
+  }
+  themeNotifier.value = savedTheme;
+
   runApp(const MyApp());
 }
 
@@ -29,20 +226,28 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'India Post Offices',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF0F172A), // Slate 900
-        colorScheme: const ColorScheme.dark(
-          primary: Color(0xFFFF9933), // Indian Saffron
-          secondary: Color(0xFF128807), // Indian Green
-          surface: Color(0xFF1E293B), // Slate 800
-        ),
-        useMaterial3: true,
-      ),
-      home: const PostOfficeFinderScreen(),
+    return ValueListenableBuilder<String>(
+      valueListenable: themeNotifier,
+      builder: (context, themeKey, child) {
+        final themeConfig = appThemes[themeKey] ?? appThemes['dark']!;
+        return MaterialApp(
+          title: 'India Post Offices',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            brightness: themeConfig.brightness,
+            scaffoldBackgroundColor: themeConfig.scaffoldBgStart,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: themeConfig.primary,
+              brightness: themeConfig.brightness,
+              primary: themeConfig.primary,
+              secondary: themeConfig.secondary,
+              surface: themeConfig.cardBg,
+            ),
+            useMaterial3: true,
+          ),
+          home: const PostOfficeFinderScreen(),
+        );
+      },
     );
   }
 }
@@ -121,136 +326,38 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
     final name = (po['Name'] ?? '').toString().toUpperCase();
     final branchType = (po['BranchType'] ?? '').toString().toUpperCase();
 
-    // 1. NSH (National Sorting Hub)
-    if (name.contains('NSH') ||
-        name.contains('NATIONAL SORTING HUB') ||
-        branchType.contains('NSH') ||
-        branchType.contains('NATIONAL SORTING HUB')) {
-      return 0;
-    }
-    // 2. Parcel Hubs
-    if (name.contains('PARCEL HUB') ||
-        name.contains('PARCEL') ||
-        branchType.contains('PARCEL HUB') ||
-        branchType.contains('PARCEL')) {
-      return 1;
-    }
-    // 3. ICH (Intra Circle Hub)
-    if (name.contains('ICH') ||
-        name.contains('INTRA-CIRCLE') ||
-        name.contains('INTRA CIRCLE') ||
-        branchType.contains('ICH')) {
-      return 2;
-    }
-    // 4. TMO (Transit Mail Office)
-    if (name.contains('TMO') ||
-        name.contains('TRANSIT MAIL OFFICE') ||
-        branchType.contains('TMO')) {
-      return 3;
-    }
-    // 5. Mail Offices
-    if (name.contains('MAIL OFFICE') ||
-        name.contains(' M.O') ||
-        name.endsWith(' M.O') ||
-        branchType.contains('MAIL OFFICE') ||
-        branchType.contains('MAIL')) {
-      return 4;
-    }
-    // 6. L1U
-    if (name.contains('L1U') ||
-        name.contains('L-1U') ||
-        name.contains('L1 U') ||
-        name.contains('L-1 U') ||
-        name.endsWith(' L1')) {
-      return 5;
-    }
-    // 7. L2U
-    if (name.contains('L2U') ||
-        name.contains('L-2U') ||
-        name.contains('L2 U') ||
-        name.contains('L-2 U') ||
-        name.endsWith(' L2')) {
-      return 6;
-    }
-    // 8. NDSO
-    if (name.contains('NDSO') ||
-        name.contains('NEW DELHI SORTING') ||
-        branchType.contains('NDSO')) {
-      return 7;
-    }
-    // 9. Postal Directorate
-    if (name.contains('DIRECTORATE') ||
-        name.contains('POSTAL DIRECTORATE') ||
-        branchType.contains('DIRECTORATE')) {
-      return 8;
-    }
-    // 10. Printing Press
-    if (name.contains('PRINTING PRESS') ||
-        name.contains('POSTAL PRESS') ||
-        branchType.contains('PRINTING PRESS')) {
-      return 9;
-    }
-    // 11. Foreign Post
-    if (name.contains('FOREIGN POST') ||
-        name.contains('FOREIGN MAIL') ||
-        branchType.contains('FOREIGN POST') ||
-        branchType.contains('FOREIGN MAIL')) {
-      return 10;
-    }
-    // 12. Head Offices
+    // 1. Head Offices
     if (branchType.contains('HEAD') ||
         name.contains('H.O.') ||
         name.endsWith(' H.O') ||
         name.contains(' HPO')) {
-      return 11;
+      return 0;
     }
-    // 13. Sub Offices
+    // 2. Sub Offices
     if (branchType.contains('SUB') ||
         name.contains('S.O.') ||
         name.endsWith(' S.O') ||
         name.contains(' SO ')) {
-      return 12;
+      return 1;
     }
-    // 14. Branch Offices
+    // 3. Branch Offices
     if (branchType.contains('BRANCH') ||
         name.contains('B.O.') ||
         name.endsWith(' B.O') ||
         name.contains(' BO ')) {
-      return 13;
+      return 2;
     }
-    return 14; // Default
+    return -1; // Excluded types
   }
 
   String getOfficeTypeLabel(Map<String, dynamic> po) {
     final rank = getOfficeRank(po);
     switch (rank) {
       case 0:
-        return 'NSH';
-      case 1:
-        return 'Parcel Hub';
-      case 2:
-        return 'ICH';
-      case 3:
-        return 'TMO';
-      case 4:
-        return 'Mail Office';
-      case 5:
-        return 'L1U';
-      case 6:
-        return 'L2U';
-      case 7:
-        return 'NDSO';
-      case 8:
-        return 'Directorate';
-      case 9:
-        return 'Printing Press';
-      case 10:
-        return 'Foreign Post';
-      case 11:
         return 'Head Office';
-      case 12:
+      case 1:
         return 'Sub Office';
-      case 13:
+      case 2:
         return 'Branch Office';
       default:
         return po['BranchType'] ?? 'Unknown';
@@ -259,28 +366,6 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
 
   Color _getBadgeColor(String label) {
     switch (label) {
-      case 'NSH':
-        return const Color(0xFFFF5722); // Deep Orange
-      case 'Parcel Hub':
-        return const Color(0xFFE91E63); // Pink
-      case 'ICH':
-        return const Color(0xFF9C27B0); // Purple
-      case 'TMO':
-        return const Color(0xFF673AB7); // Deep Purple
-      case 'Mail Office':
-        return const Color(0xFF3F51B5); // Indigo
-      case 'L1U':
-        return const Color(0xFF00BCD4); // Cyan
-      case 'L2U':
-        return const Color(0xFF009688); // Teal
-      case 'NDSO':
-        return const Color(0xFF4CAF50); // Green
-      case 'Directorate':
-        return const Color(0xFF8BC34A); // Light Green
-      case 'Printing Press':
-        return const Color(0xFFCDDC39); // Lime
-      case 'Foreign Post':
-        return const Color(0xFFFFEB3B); // Yellow
       case 'Head Office':
         return const Color(0xFFFFB300); // Amber
       case 'Sub Office':
@@ -356,8 +441,14 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
           if (status == 'Success') {
             final List<dynamic> postOffices = data[0]['PostOffice'] ?? [];
 
+            // Filter out offices that are not Head Office, Sub Office, or Branch Office
+            final List<dynamic> filteredOffices = postOffices.where((po) {
+              final rank = getOfficeRank(po);
+              return rank >= 0;
+            }).toList();
+
             // Sort post offices strictly by rank hierarchy, then name
-            postOffices.sort((a, b) {
+            filteredOffices.sort((a, b) {
               int rankA = getOfficeRank(a);
               int rankB = getOfficeRank(b);
               if (rankA != rankB) {
@@ -366,10 +457,10 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
               return (a['Name'] ?? '').toString().compareTo((b['Name'] ?? '').toString());
             });
 
-            _cache[cacheKey] = postOffices;
+            _cache[cacheKey] = filteredOffices;
 
             setState(() {
-              _offices = postOffices;
+              _offices = filteredOffices;
               _isLoading = false;
             });
           } else {
@@ -514,13 +605,13 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0xFF0F172A), // Slate 900
-              Color(0xFF0A0F1D), // Deep dark navy
+              currentTheme.scaffoldBgStart,
+              currentTheme.scaffoldBgEnd,
             ],
           ),
         ),
@@ -550,16 +641,91 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
     );
   }
 
+  Widget _buildThemeSelector() {
+    final themes = [
+      {'key': 'light', 'color': const Color(0xFFF1F5F9), 'label': 'Light'},
+      {'key': 'dark', 'color': const Color(0xFF0F172A), 'label': 'Dark'},
+      {'key': 'blue', 'color': const Color(0xFF0EA5E9), 'label': 'Blue'},
+      {'key': 'green', 'color': const Color(0xFF00C853), 'label': 'Green'},
+      {'key': 'orange', 'color': const Color(0xFFFF9933), 'label': 'Orange'},
+      {'key': 'red', 'color': const Color(0xFFEF4444), 'label': 'Red'},
+      {'key': 'yellow', 'color': const Color(0xFFFBBF24), 'label': 'Yellow'},
+      {'key': 'violet', 'color': const Color(0xFFC084FC), 'label': 'Violet'},
+      {'key': 'indigo', 'color': const Color(0xFF0038A8), 'label': 'Indigo'},
+    ];
+
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 4,
+      runSpacing: 6,
+      children: themes.map((theme) {
+        final String key = theme['key'] as String;
+        final Color color = theme['color'] as Color;
+        final String label = theme['label'] as String;
+        final bool isSelected = themeNotifier.value == key;
+
+        return GestureDetector(
+          onTap: () {
+            themeNotifier.value = key;
+            SharedPreferences.getInstance().then((prefs) {
+              prefs.setString('app_theme', key);
+            });
+          },
+          child: Container(
+            padding: const EdgeInsets.all(3.0),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isSelected ? currentTheme.primary : Colors.transparent,
+                width: 2.0,
+              ),
+            ),
+            child: Tooltip(
+              message: '$label Theme',
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: color,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: key == 'light' ? const Color(0xFF94A3B8) : Colors.transparent,
+                    width: 1,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.15),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: isSelected
+                    ? Icon(
+                        Icons.check,
+                        size: 14,
+                        color: key == 'light' ? Colors.black : Colors.white,
+                      )
+                    : null,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
   Widget _buildAdBanner() {
     if (_isBannerAdReady && _bannerAd != null) {
       return Container(
         width: double.infinity,
         height: _bannerAd!.size.height.toDouble(),
         margin: const EdgeInsets.only(top: 8),
-        decoration: const BoxDecoration(
-          color: Color(0xFF1E293B),
+        decoration: BoxDecoration(
+          color: currentTheme.cardBg,
           border: Border(
-            top: BorderSide(color: Color(0xFF334155), width: 1),
+            top: BorderSide(color: currentTheme.border, width: 1),
           ),
         ),
         alignment: Alignment.center,
@@ -575,48 +741,46 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
       width: double.infinity,
       height: 60,
       margin: const EdgeInsets.only(top: 8),
-      decoration: const BoxDecoration(
-        color: Color(0xFF1E293B), // Slate 800
+      decoration: BoxDecoration(
+        color: currentTheme.cardBg,
         border: Border(
-          top: BorderSide(color: Color(0xFF334155), width: 1), // Slate 700
+          top: BorderSide(color: currentTheme.border, width: 1),
         ),
       ),
       child: Stack(
         children: [
-          // Small "Ad" indicator in the corner
           Positioned(
             left: 8,
             top: 6,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
               decoration: BoxDecoration(
-                border: Border.all(color: const Color(0xFFFFB300), width: 1), // Amber
+                border: Border.all(color: currentTheme.primary, width: 1),
                 borderRadius: BorderRadius.circular(3),
               ),
-              child: const Text(
+              child: Text(
                 'Ad',
                 style: TextStyle(
-                  color: Color(0xFFFFB300),
+                  color: currentTheme.primary,
                   fontSize: 8,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
           ),
-          // Main Ad Content
           Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 36.0, vertical: 8.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.campaign,
-                    color: Color(0xFFFF9933), // Saffron
+                    color: currentTheme.primary,
                     size: 20,
                   ),
                   const SizedBox(width: 8),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -626,7 +790,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: Colors.white,
+                            color: currentTheme.brightness == Brightness.light ? currentTheme.textPrimary : Colors.white,
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
                           ),
@@ -636,7 +800,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: Color(0xFF94A3B8),
+                            color: currentTheme.textSecondary,
                             fontSize: 9,
                           ),
                         ),
@@ -649,7 +813,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                       // Mock ad click
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF128807), // Indian Green
+                      backgroundColor: currentTheme.secondary,
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -677,7 +841,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
       child: Column(
         children: [
           Row(
@@ -687,7 +851,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: const Color(0xFFFF9933),
+                    color: currentTheme.primary,
                     width: 2,
                   ),
                 ),
@@ -705,13 +869,13 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'INDIA POST',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 2,
-                      color: Colors.white,
+                      color: currentTheme.brightness == Brightness.light ? currentTheme.textPrimary : Colors.white,
                     ),
                   ),
                   Text(
@@ -720,7 +884,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.5,
-                      color: const Color(0xFF128807).withOpacity(0.9), // Green
+                      color: currentTheme.secondary.withOpacity(0.9),
                     ),
                   ),
                 ],
@@ -728,13 +892,15 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
             ],
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Search offices by Name or Pincode in real-time',
             style: TextStyle(
               fontSize: 13,
-              color: Color(0xFF94A3B8), // Slate 400
+              color: currentTheme.textSecondary,
             ),
           ),
+          const SizedBox(height: 12),
+          _buildThemeSelector(),
         ],
       ),
     );
@@ -743,15 +909,15 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
   Widget _buildSearchCard() {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B), // Slate 800
+        color: currentTheme.cardBg,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0xFF334155), // Slate 700
+          color: currentTheme.border,
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: currentTheme.shadow,
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -762,21 +928,21 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
         children: [
           TextField(
             controller: _searchController,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+            style: TextStyle(color: currentTheme.textPrimary, fontSize: 16),
             decoration: InputDecoration(
               hintText: 'Enter 6-digit Pincode or Office Name...',
-              hintStyle: const TextStyle(color: Color(0xFF64748B)),
-              prefixIcon: const Icon(Icons.search, color: Color(0xFFFF9933)),
+              hintStyle: TextStyle(color: currentTheme.textHint),
+              prefixIcon: Icon(Icons.search, color: currentTheme.primary),
               suffixIcon: _searchController.text.isNotEmpty
                   ? IconButton(
-                      icon: const Icon(Icons.clear, color: Color(0xFF94A3B8)),
+                      icon: Icon(Icons.clear, color: currentTheme.textSecondary),
                       onPressed: () {
                         _searchController.clear();
                       },
                     )
                   : null,
               filled: true,
-              fillColor: const Color(0xFF0F172A),
+              fillColor: currentTheme.inputFill,
               contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -784,7 +950,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFFFF9933), width: 1.5),
+                borderSide: BorderSide(color: currentTheme.primary, width: 1.5),
               ),
             ),
           ),
@@ -795,20 +961,20 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
               children: [
                 Text(
                   'Showing ${min(_offices.length, 50)} results',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF64748B),
+                    color: currentTheme.textHint,
                     fontStyle: FontStyle.italic,
                   ),
                 ),
                 if (_offices.isNotEmpty)
                   TextButton.icon(
                     onPressed: _exportToExcel,
-                    icon: const Icon(Icons.file_download, size: 16, color: Color(0xFFFF9933)),
-                    label: const Text(
+                    icon: Icon(Icons.file_download, size: 16, color: currentTheme.primary),
+                    label: Text(
                       'Export to Excel',
                       style: TextStyle(
-                        color: Color(0xFFFF9933),
+                        color: currentTheme.primary,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                       ),
@@ -833,14 +999,14 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFF9933)),
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(currentTheme.primary),
             ),
             const SizedBox(height: 16),
             Text(
               'Searching India Post Database...',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.8),
+                color: currentTheme.textPrimary.withOpacity(0.8),
                 fontSize: 14,
               ),
             ),
@@ -909,10 +1075,10 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
     }
 
     if (_offices.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'No office matches found.',
-          style: TextStyle(color: Color(0xFF94A3B8)),
+          style: TextStyle(color: currentTheme.textSecondary),
         ),
       );
     }
@@ -923,10 +1089,10 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
   Widget _buildResponsiveTable() {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
+        color: currentTheme.cardBg,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0xFF334155),
+          color: currentTheme.border,
           width: 1,
         ),
       ),
@@ -936,16 +1102,16 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
         children: [
           // Hint banner for horizontal scrolling
           Container(
-            color: const Color(0xFF0F172A),
+            color: currentTheme.tableHeaderBg,
             padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.swap_horizontal_circle_outlined, size: 14, color: Color(0xFFFF9933)),
-                SizedBox(width: 6),
+                Icon(Icons.swap_horizontal_circle_outlined, size: 14, color: currentTheme.primary),
+                const SizedBox(width: 6),
                 Text(
                   'Swipe horizontally to view more details',
-                  style: TextStyle(fontSize: 10, color: Color(0xFF94A3B8), fontWeight: FontWeight.w500),
+                  style: TextStyle(fontSize: 10, color: currentTheme.textSecondary, fontWeight: FontWeight.w500),
                 ),
               ],
             ),
@@ -957,41 +1123,41 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                 scrollDirection: Axis.horizontal,
                 child: Theme(
                   data: Theme.of(context).copyWith(
-                    dividerColor: const Color(0xFF334155),
+                    dividerColor: currentTheme.border,
                   ),
                   child: DataTable(
-                    headingRowColor: MaterialStateProperty.all(const Color(0xFF0F172A)),
+                    headingRowColor: MaterialStateProperty.all(currentTheme.tableHeaderBg),
                     dataRowMinHeight: 52,
                     dataRowMaxHeight: 68,
-                    columns: const [
+                    columns: [
                       DataColumn(
                         label: Text(
                           'Office Name & Type',
-                          style: TextStyle(color: Color(0xFFFF9933), fontWeight: FontWeight.bold, fontSize: 13),
+                          style: TextStyle(color: currentTheme.primary, fontWeight: FontWeight.bold, fontSize: 13),
                         ),
                       ),
                       DataColumn(
                         label: Text(
                           'Pincode',
-                          style: TextStyle(color: Color(0xFFFF9933), fontWeight: FontWeight.bold, fontSize: 13),
+                          style: TextStyle(color: currentTheme.primary, fontWeight: FontWeight.bold, fontSize: 13),
                         ),
                       ),
                       DataColumn(
                         label: Text(
                           'Division Name',
-                          style: TextStyle(color: Color(0xFFFF9933), fontWeight: FontWeight.bold, fontSize: 13),
+                          style: TextStyle(color: currentTheme.primary, fontWeight: FontWeight.bold, fontSize: 13),
                         ),
                       ),
                       DataColumn(
                         label: Text(
                           'Region Name',
-                          style: TextStyle(color: Color(0xFFFF9933), fontWeight: FontWeight.bold, fontSize: 13),
+                          style: TextStyle(color: currentTheme.primary, fontWeight: FontWeight.bold, fontSize: 13),
                         ),
                       ),
                       DataColumn(
                         label: Text(
                           'Circle Name',
-                          style: TextStyle(color: Color(0xFFFF9933), fontWeight: FontWeight.bold, fontSize: 13),
+                          style: TextStyle(color: currentTheme.primary, fontWeight: FontWeight.bold, fontSize: 13),
                         ),
                       ),
                     ],
@@ -1033,8 +1199,8 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                                 const SizedBox(width: 12),
                                 Text(
                                   name,
-                                  style: const TextStyle(
-                                    color: Colors.white,
+                                  style: TextStyle(
+                                    color: currentTheme.textPrimary,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 13.5,
                                   ),
@@ -1053,13 +1219,13 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                                         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                                         child: Text(
                                           pincode,
-                                          style: const TextStyle(
-                                            color: Color(0xFFFF9933), // Saffron
+                                          style: TextStyle(
+                                            color: currentTheme.primary,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 14,
                                             letterSpacing: 0.5,
                                             decoration: TextDecoration.underline,
-                                            decorationColor: Color(0xFFFF9933),
+                                            decorationColor: currentTheme.primary,
                                             decorationThickness: 1.5,
                                           ),
                                         ),
@@ -1068,17 +1234,17 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                                   )
                                 : Text(
                                     pincode,
-                                    style: const TextStyle(
-                                      color: Color(0xFFFF9933), // Saffron
+                                    style: TextStyle(
+                                      color: currentTheme.primary,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14,
                                       letterSpacing: 0.5,
                                     ),
                                   ),
                           ),
-                          DataCell(Text(division, style: const TextStyle(color: Color(0xFFE2E8F0), fontSize: 13))),
-                          DataCell(Text(region, style: const TextStyle(color: Color(0xFFE2E8F0), fontSize: 13))),
-                          DataCell(Text(circle, style: const TextStyle(color: Color(0xFFE2E8F0), fontSize: 13))),
+                          DataCell(Text(division, style: TextStyle(color: currentTheme.textSecondary, fontSize: 13))),
+                          DataCell(Text(region, style: TextStyle(color: currentTheme.textSecondary, fontSize: 13))),
+                          DataCell(Text(circle, style: TextStyle(color: currentTheme.textSecondary, fontSize: 13))),
                         ],
                       );
                     }).toList(),
@@ -1120,9 +1286,9 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return const Center(
+        return Center(
           child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFF9933)),
+            valueColor: AlwaysStoppedAnimation<Color>(currentTheme.primary),
           ),
         );
       },
@@ -1138,9 +1304,25 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
         final List<dynamic> data = jsonDecode(response.body);
         if (data.isNotEmpty && data[0]['Status'] == 'Success') {
           final List<dynamic> postOffices = data[0]['PostOffice'] ?? [];
-          _cache[pincode.toLowerCase()] = postOffices;
           
-          associatedOffice = _findSOorHO(postOffices, pincode);
+          // Filter out offices that are not Head Office, Sub Office, or Branch Office
+          final List<dynamic> filteredOffices = postOffices.where((po) {
+            final rank = getOfficeRank(po);
+            return rank >= 0;
+          }).toList();
+
+          filteredOffices.sort((a, b) {
+            int rankA = getOfficeRank(a);
+            int rankB = getOfficeRank(b);
+            if (rankA != rankB) {
+              return rankA.compareTo(rankB);
+            }
+            return (a['Name'] ?? '').toString().compareTo((b['Name'] ?? '').toString());
+          });
+
+          _cache[pincode.toLowerCase()] = filteredOffices;
+          
+          associatedOffice = _findSOorHO(filteredOffices, pincode);
           if (associatedOffice != null && context.mounted) {
             _displayOfficeDialog(context, associatedOffice);
             return;
@@ -1202,7 +1384,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
       builder: (BuildContext context) {
         return Dialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          backgroundColor: const Color(0xFF1E293B),
+          backgroundColor: currentTheme.cardBg,
           insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
           child: Container(
             constraints: const BoxConstraints(maxWidth: 500),
@@ -1216,12 +1398,12 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFF9933).withOpacity(0.1),
+                        color: currentTheme.primary.withOpacity(0.1),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.account_balance,
-                        color: Color(0xFFFF9933),
+                        color: currentTheme.primary,
                         size: 24,
                       ),
                     ),
@@ -1230,10 +1412,10 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Associated Main Office',
                             style: TextStyle(
-                              color: Color(0xFF94A3B8),
+                              color: currentTheme.textSecondary,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               letterSpacing: 0.5,
@@ -1242,8 +1424,8 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                           const SizedBox(height: 2),
                           Text(
                             name,
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: currentTheme.textPrimary,
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
@@ -1252,7 +1434,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close, color: Color(0xFF64748B)),
+                      icon: Icon(Icons.close, color: currentTheme.textHint),
                       onPressed: () => Navigator.of(context).pop(),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
@@ -1260,14 +1442,14 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                   ],
                 ),
                 const SizedBox(height: 18),
-                const Divider(color: Color(0xFF334155), height: 1),
+                Divider(color: currentTheme.border, height: 1),
                 const SizedBox(height: 18),
                 _buildDialogRow('Office Type', type, badgeColor: badgeColor),
                 const SizedBox(height: 12),
-                _buildDialogRow('Pincode', pincode, valueColor: const Color(0xFFFF9933)),
+                _buildDialogRow('Pincode', pincode, valueColor: currentTheme.primary),
                 const SizedBox(height: 12),
                 _buildDialogRow('Delivery Status', delivery, 
-                  valueColor: delivery.toLowerCase() == 'delivery' ? const Color(0xFF128807) : const Color(0xFFEF4444)),
+                  valueColor: delivery.toLowerCase() == 'delivery' ? currentTheme.secondary : const Color(0xFFEF4444)),
                 const SizedBox(height: 12),
                 _buildDialogRow('District', district),
                 const SizedBox(height: 12),
@@ -1282,7 +1464,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                 ElevatedButton(
                   onPressed: () => Navigator.of(context).pop(),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF9933),
+                    backgroundColor: currentTheme.primary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
@@ -1315,8 +1497,8 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
           width: 130,
           child: Text(
             label,
-            style: const TextStyle(
-              color: Color(0xFF64748B),
+            style: TextStyle(
+              color: currentTheme.textHint,
               fontSize: 13,
               fontWeight: FontWeight.w500,
             ),
@@ -1346,7 +1528,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
               : Text(
                   value,
                   style: TextStyle(
-                    color: valueColor ?? const Color(0xFFE2E8F0),
+                    color: valueColor ?? currentTheme.textPrimary,
                     fontSize: 13.5,
                     fontWeight: FontWeight.w600,
                   ),
