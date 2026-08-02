@@ -9,6 +9,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'web_helper.dart';
 
 class AppThemeConfig {
@@ -269,20 +271,41 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
   Timer? _debounce;
   BannerAd? _bannerAd;
   bool _isBannerAdReady = false;
+  InterstitialAd? _interstitialAd;
+  bool _isInterstitialAdLoaded = false;
+
+  late FlutterTts _flutterTts;
+  bool _isSpeaking = false;
+  bool _isTtsInitialized = false;
+  int _currentlyReadingIndex = -1;
+  Completer<void>? _speechCompleter;
+
+  static const String _localVersion = '1.0.2';
+  static const int _localBuild = 3;
+
+  bool _isCheckingVersion = true;
+  bool _showUpdatePrompt = false;
+  Map<String, dynamic>? _remoteVersionData;
 
   @override
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
     _loadBannerAd();
+    _loadInterstitialAd();
+    _checkAppVersion();
   }
 
   @override
   void dispose() {
+    if (_isTtsInitialized) {
+      _flutterTts.stop();
+    }
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     _debounce?.cancel();
     _bannerAd?.dispose();
+    _interstitialAd?.dispose();
     super.dispose();
   }
 
@@ -291,7 +314,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
     try {
       if (Platform.isAndroid || Platform.isIOS) {
         _bannerAd = BannerAd(
-          adUnitId: 'ca-app-pub-1945844675060188/2608941912',
+          adUnitId: 'ca-app-pub-1945844675060188/3998004613',
           request: const AdRequest(),
           size: AdSize.banner,
           listener: BannerAdListener(
@@ -312,6 +335,372 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
     } catch (e) {
       debugPrint('AdMob load error: $e');
     }
+  }
+
+  void _loadInterstitialAd() {
+    if (kIsWeb) return;
+    try {
+      if (Platform.isAndroid || Platform.isIOS) {
+        InterstitialAd.load(
+          adUnitId: 'ca-app-pub-1945844675060188/6175631304',
+          request: const AdRequest(),
+          adLoadCallback: InterstitialAdLoadCallback(
+            onAdLoaded: (ad) {
+              _interstitialAd = ad;
+              _isInterstitialAdLoaded = true;
+            },
+            onAdFailedToLoad: (err) {
+              debugPrint('Failed to load InterstitialAd: ${err.message}');
+              _interstitialAd = null;
+              _isInterstitialAdLoaded = false;
+            },
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Interstitial load error: $e');
+    }
+  }
+
+  void _showInterstitialAdIfAvailable(VoidCallback onComplete) {
+    if (_isInterstitialAdLoaded && _interstitialAd != null) {
+      _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+        onAdDismissedFullScreenContent: (ad) {
+          ad.dispose();
+          _interstitialAd = null;
+          _isInterstitialAdLoaded = false;
+          _loadInterstitialAd();
+          onComplete();
+        },
+        onAdFailedToShowFullScreenContent: (ad, err) {
+          ad.dispose();
+          _interstitialAd = null;
+          _isInterstitialAdLoaded = false;
+          _loadInterstitialAd();
+          onComplete();
+        },
+      );
+      _interstitialAd!.show();
+    } else {
+      onComplete();
+    }
+  }
+
+  Future<void> _checkAppVersion() async {
+    const String remoteUrl = 'https://raw.githubusercontent.com/Lokanath862001/India-Post-Offices/main/version.json';
+
+    // We start version checking with a small delay for a smooth transition and visual verification of the checking screen.
+    await Future.delayed(const Duration(milliseconds: 1500));
+
+    try {
+      final response = await http.get(Uri.parse(remoteUrl)).timeout(const Duration(seconds: 5));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final int latestBuild = data['latest_build'] ?? 1;
+        
+        if (latestBuild > _localBuild) {
+          if (mounted) {
+            setState(() {
+              _remoteVersionData = data;
+              _showUpdatePrompt = true;
+              _isCheckingVersion = false;
+            });
+          }
+          return;
+        }
+      }
+    } catch (e) {
+      debugPrint('Version check error: $e');
+    }
+
+    if (mounted) {
+      setState(() {
+        _isCheckingVersion = false;
+      });
+    }
+  }
+
+  Future<void> _launchUpdateUrl(String urlString) async {
+    final Uri url = Uri.parse(urlString);
+    try {
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } else {
+        throw 'Could not launch $urlString';
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not open store: $e'),
+            backgroundColor: const Color(0xFFEF4444),
+          ),
+        );
+      }
+    }
+  }
+
+  Widget _buildCheckingVersionScreen() {
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              currentTheme.scaffoldBgStart,
+              currentTheme.scaffoldBgEnd,
+            ],
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: currentTheme.primary.withOpacity(0.3),
+                      blurRadius: 20,
+                      spreadRadius: 5,
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(50),
+                  child: Image.asset(
+                    'assets/images/logo.jpg',
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
+              Text(
+                'INDIA POST',
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 3,
+                  color: currentTheme.brightness == Brightness.light ? currentTheme.textPrimary : Colors.white,
+                ),
+              ),
+              Text(
+                'OFFICES DIRECTORY',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2,
+                  color: currentTheme.secondary.withOpacity(0.9),
+                ),
+              ),
+              const SizedBox(height: 48),
+              SizedBox(
+                width: 40,
+                height: 40,
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                  valueColor: AlwaysStoppedAnimation<Color>(currentTheme.primary),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Checking for updates...',
+                style: TextStyle(
+                  color: currentTheme.textSecondary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUpdatePromptScreen() {
+    final String latestVersion = _remoteVersionData?['latest_version'] ?? '1.0.2';
+    final String releaseNotes = _remoteVersionData?['release_notes'] ?? 'Improvements & bug fixes.';
+    final String storeUrl = _remoteVersionData?['play_store_url'] ?? 'https://play.google.com/store/apps/details?id=com.oedc.indiaPostOffices';
+
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              currentTheme.scaffoldBgStart,
+              currentTheme.scaffoldBgEnd,
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [
+                        currentTheme.primary.withOpacity(0.2),
+                        currentTheme.secondary.withOpacity(0.2),
+                      ],
+                    ),
+                    border: Border.all(
+                      color: currentTheme.primary.withOpacity(0.3),
+                      width: 2,
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.rocket_launch_rounded,
+                    size: 80,
+                    color: currentTheme.primary,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Text(
+                  'Update Available!',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: currentTheme.brightness == Brightness.light ? currentTheme.textPrimary : Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'A new version of India Post Offices is available.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: currentTheme.textSecondary,
+                  ),
+                ),
+                Text(
+                  'Version $latestVersion is now ready to download (Current: $_localVersion).',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: currentTheme.secondary,
+                  ),
+                ),
+                const Spacer(),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "What's New in this Version:",
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: currentTheme.brightness == Brightness.light ? currentTheme.textPrimary : Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  width: double.infinity,
+                  constraints: const BoxConstraints(maxHeight: 180),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: currentTheme.cardBg.withOpacity(0.7),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: currentTheme.border.withOpacity(0.5),
+                    ),
+                  ),
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Text(
+                      releaseNotes,
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        height: 1.5,
+                        color: currentTheme.textSecondary,
+                      ),
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                        gradient: LinearGradient(
+                          colors: [
+                            currentTheme.primary,
+                            currentTheme.primary.withRed(255).withGreen(140),
+                          ],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: currentTheme.primary.withOpacity(0.3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () => _launchUpdateUrl(storeUrl),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          foregroundColor: Colors.white,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: const Text(
+                          'Update Now',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _showUpdatePrompt = false;
+                        });
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: currentTheme.textSecondary,
+                        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: const Text(
+                        'Later',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   void _onSearchChanged() {
@@ -601,8 +990,284 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
     }
   }
 
+  Future<void> _initTts() async {
+    if (_isTtsInitialized) return;
+    _flutterTts = FlutterTts();
+
+    _flutterTts.setStartHandler(() {
+      if (mounted) {
+        setState(() {
+          _isSpeaking = true;
+        });
+      }
+    });
+
+    _flutterTts.setCompletionHandler(() {
+      if (_speechCompleter != null && !_speechCompleter!.isCompleted) {
+        _speechCompleter!.complete();
+      }
+    });
+
+    _flutterTts.setCancelHandler(() {
+      if (_speechCompleter != null && !_speechCompleter!.isCompleted) {
+        _speechCompleter!.complete();
+      }
+    });
+
+    _flutterTts.setErrorHandler((msg) {
+      if (_speechCompleter != null && !_speechCompleter!.isCompleted) {
+        _speechCompleter!.complete();
+      }
+    });
+
+    try {
+      await _flutterTts.setSpeechRate(0.45);
+      await _flutterTts.setPitch(1.0);
+      await _flutterTts.setLanguage('en-IN');
+      await _flutterTts.awaitSpeakCompletion(true);
+    } catch (_) {}
+
+    _isTtsInitialized = true;
+  }
+
+  Future<void> _stopDictation() async {
+    _isSpeaking = false;
+    if (_speechCompleter != null && !_speechCompleter!.isCompleted) {
+      _speechCompleter!.complete();
+    }
+    if (_isTtsInitialized) {
+      await _flutterTts.stop();
+    }
+    if (mounted) {
+      setState(() {
+        _currentlyReadingIndex = -1;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Dictation stopped'),
+          duration: Duration(seconds: 1),
+        ),
+      );
+    }
+  }
+
+  bool _areAllOfficesSamePincode(List<dynamic> list) {
+    if (list.length <= 1) return true;
+    final firstPin = list[0]['Pincode'];
+    return list.every((po) => po['Pincode'] == firstPin);
+  }
+
+  String _formatPincodeDigitByDigit(String pincode) {
+    final cleanPin = pincode.replaceAll(RegExp(r'\D'), '');
+    if (cleanPin.isEmpty) return pincode;
+    return cleanPin.split('').join(', ');
+  }
+
+  Future<void> _dictateTableData() async {
+    if (_offices.isEmpty) return;
+
+    if (!_isTtsInitialized) {
+      await _initTts();
+    }
+
+    if (_isSpeaking && _currentlyReadingIndex == -1) {
+      await _stopDictation();
+      return;
+    }
+
+    _showInterstitialAdIfAvailable(() {
+      _startDictatingTableData();
+    });
+  }
+
+  Future<void> _startDictatingTableData() async {
+    final int count = _offices.length;
+    final int limit = min(count, 50);
+
+    setState(() {
+      _isSpeaking = true;
+      _currentlyReadingIndex = -1;
+    });
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: const [
+              Icon(Icons.record_voice_over, color: Colors.white, size: 20),
+              SizedBox(width: 8),
+              Expanded(child: Text('Dictating resulted table data... Tap Read / Dictate button again to stop.')),
+            ],
+          ),
+          backgroundColor: const Color(0xFF128807),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+
+    final bool isSamePincode = _areAllOfficesSamePincode(_offices);
+
+    try {
+      if (isSamePincode) {
+        // --- SAME PINCODE LIST ---
+        // Find the primary upper office (Head Office or highest rank office)
+        final upperOffice = _offices.firstWhere(
+          (po) => getOfficeRank(po) <= 1,
+          orElse: () => _offices[0],
+        );
+        final int upperIndex = _offices.indexOf(upperOffice);
+
+        final String upperName = upperOffice['Name'] ?? '';
+        final String upperPin = upperOffice['Pincode'] ?? '';
+        final String formattedPin = _formatPincodeDigitByDigit(upperPin);
+
+        // Step 1: Read the upper office name then pincode digit-by-digit
+        setState(() {
+          _currentlyReadingIndex = upperIndex;
+        });
+
+        String firstSpeech = upperName;
+        if (formattedPin.isNotEmpty) {
+          firstSpeech += ', Pincode $formattedPin.';
+        } else {
+          firstSpeech += '.';
+        }
+
+        _speechCompleter = Completer<void>();
+        await _flutterTts.speak(firstSpeech);
+        await _speechCompleter!.future.timeout(
+          const Duration(seconds: 12),
+          onTimeout: () {},
+        );
+
+        if (!_isSpeaking || !mounted) return;
+        await Future.delayed(const Duration(seconds: 1));
+
+        // Step 2: Read lower office name then upper office name sequentially for each record
+        for (int i = 0; i < limit; i++) {
+          if (!_isSpeaking || !mounted) break;
+
+          final po = _offices[i];
+          if (po == upperOffice) continue; // Upper office was already read first with pincode
+
+          setState(() {
+            _currentlyReadingIndex = i;
+          });
+
+          final String lowerName = po['Name'] ?? '';
+          String assocUpperName = upperName;
+
+          final String pincode = po['Pincode'] ?? '';
+          final cacheKey = pincode.toLowerCase();
+          List<dynamic>? searchList = _cache[cacheKey] ?? _offices;
+
+          for (final item in searchList) {
+            if (item['Pincode'] == pincode && item['Name'] != lowerName) {
+              final rank = getOfficeRank(item);
+              if (rank < getOfficeRank(po)) {
+                assocUpperName = item['Name'] ?? upperName;
+                break;
+              }
+            }
+          }
+
+          String speechText = '$lowerName, $assocUpperName.';
+
+          _speechCompleter = Completer<void>();
+          await _flutterTts.speak(speechText);
+          await _speechCompleter!.future.timeout(
+            const Duration(seconds: 12),
+            onTimeout: () {},
+          );
+
+          if (!_isSpeaking || !mounted) break;
+          await Future.delayed(const Duration(seconds: 1));
+        }
+      } else {
+        // --- DIFFERENT PINCODES LIST ---
+        // Read office name and associated pincode (digit by digit) for each office record
+        for (int i = 0; i < limit; i++) {
+          if (!_isSpeaking || !mounted) break;
+
+          setState(() {
+            _currentlyReadingIndex = i;
+          });
+
+          final po = _offices[i];
+          final String name = po['Name'] ?? '';
+          final String pincode = po['Pincode'] ?? '';
+          final String formattedPin = _formatPincodeDigitByDigit(pincode);
+
+          String speechText = name;
+          if (formattedPin.isNotEmpty) {
+            speechText += ', Pincode $formattedPin.';
+          } else {
+            speechText += '.';
+          }
+
+          _speechCompleter = Completer<void>();
+          await _flutterTts.speak(speechText);
+          await _speechCompleter!.future.timeout(
+            const Duration(seconds: 12),
+            onTimeout: () {},
+          );
+
+          if (!_isSpeaking || !mounted) break;
+          await Future.delayed(const Duration(seconds: 1));
+        }
+      }
+    } catch (e) {
+      debugPrint('TTS Dictation error: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSpeaking = false;
+          _currentlyReadingIndex = -1;
+        });
+      }
+    }
+  }
+
+  Future<void> _dictateSingleOffice(Map<String, dynamic> po, int index) async {
+    if (!_isTtsInitialized) {
+      await _initTts();
+    }
+
+    if (_isSpeaking && _currentlyReadingIndex == index) {
+      await _stopDictation();
+      return;
+    }
+
+    _showInterstitialAdIfAvailable(() {
+      _startDictatingSingleOffice(po, index);
+    });
+  }
+
+  Future<void> _startDictatingSingleOffice(Map<String, dynamic> po, int index) async {
+    final String name = po['Name'] ?? '';
+    final String pincode = po['Pincode'] ?? '';
+    final String formattedPin = _formatPincodeDigitByDigit(pincode);
+
+    String speech = '$name, Pincode $formattedPin.';
+
+    if (mounted) {
+      setState(() {
+        _isSpeaking = true;
+        _currentlyReadingIndex = index;
+      });
+    }
+
+    await _flutterTts.speak(speech);
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_isCheckingVersion) {
+      return _buildCheckingVersionScreen();
+    }
+    if (_showUpdatePrompt) {
+      return _buildUpdatePromptScreen();
+    }
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -845,7 +1510,6 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
       child: Column(
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
                 decoration: BoxDecoration(
@@ -866,28 +1530,39 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                 ),
               ),
               const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'INDIA POST',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 2,
-                      color: currentTheme.brightness == Brightness.light ? currentTheme.textPrimary : Colors.white,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'INDIA POST',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 2,
+                        color: currentTheme.brightness == Brightness.light ? currentTheme.textPrimary : Colors.white,
+                      ),
                     ),
-                  ),
-                  Text(
-                    'OFFICES DIRECTORY',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.5,
-                      color: currentTheme.secondary.withOpacity(0.9),
+                    Text(
+                      'OFFICES DIRECTORY',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.5,
+                        color: currentTheme.secondary.withOpacity(0.9),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: Icon(
+                  Icons.info_outline_rounded,
+                  color: currentTheme.primary,
+                  size: 26,
+                ),
+                tooltip: 'App Info',
+                onPressed: _showAppInfoDialog,
               ),
             ],
           ),
@@ -968,22 +1643,57 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                   ),
                 ),
                 if (_offices.isNotEmpty)
-                  TextButton.icon(
-                    onPressed: _exportToExcel,
-                    icon: Icon(Icons.file_download, size: 16, color: currentTheme.primary),
-                    label: Text(
-                      'Export to Excel',
-                      style: TextStyle(
-                        color: currentTheme.primary,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 4,
+                    children: [
+                      TextButton.icon(
+                        onPressed: _exportToExcel,
+                        icon: Icon(Icons.file_download, size: 16, color: currentTheme.primary),
+                        label: Text(
+                          'Export to Excel',
+                          style: TextStyle(
+                            color: currentTheme.primary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
                       ),
-                    ),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
+                      TextButton.icon(
+                        onPressed: _dictateTableData,
+                        icon: Icon(
+                          _isSpeaking && _currentlyReadingIndex == -1
+                              ? Icons.stop_circle
+                              : Icons.record_voice_over,
+                          size: 16,
+                          color: _isSpeaking && _currentlyReadingIndex == -1
+                              ? Colors.redAccent
+                              : currentTheme.primary,
+                        ),
+                        label: Text(
+                          _isSpeaking && _currentlyReadingIndex == -1
+                              ? 'Stop Dictation'
+                              : 'Read / Dictate Table',
+                          style: TextStyle(
+                            color: _isSpeaking && _currentlyReadingIndex == -1
+                                ? Colors.redAccent
+                                : currentTheme.primary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      ),
+                    ],
                   ),
               ],
             ),
@@ -1160,8 +1870,16 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                           style: TextStyle(color: currentTheme.primary, fontWeight: FontWeight.bold, fontSize: 13),
                         ),
                       ),
+                      DataColumn(
+                        label: Text(
+                          'Dictate',
+                          style: TextStyle(color: currentTheme.primary, fontWeight: FontWeight.bold, fontSize: 13),
+                        ),
+                      ),
                     ],
-                    rows: _offices.map((po) {
+                    rows: _offices.asMap().entries.map((entry) {
+                      final int index = entry.key;
+                      final po = entry.value;
                       final String name = po['Name'] ?? '';
                       final String pincode = po['Pincode'] ?? '';
                       final String division = po['Division'] ?? '';
@@ -1172,6 +1890,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                       final bool isBranchOffice = typeLabel == 'Branch Office';
                       final bool isNonDelivery = (po['DeliveryStatus'] ?? '').toString().trim().toLowerCase() == 'non-delivery';
                       final bool canTriggerPopup = isBranchOffice || isNonDelivery;
+                      final bool isRowSpeaking = _isSpeaking && _currentlyReadingIndex == index;
 
                       return DataRow(
                         cells: [
@@ -1245,6 +1964,17 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                           DataCell(Text(division, style: TextStyle(color: currentTheme.textSecondary, fontSize: 13))),
                           DataCell(Text(region, style: TextStyle(color: currentTheme.textSecondary, fontSize: 13))),
                           DataCell(Text(circle, style: TextStyle(color: currentTheme.textSecondary, fontSize: 13))),
+                          DataCell(
+                            IconButton(
+                              icon: Icon(
+                                isRowSpeaking ? Icons.stop_circle : Icons.volume_up_rounded,
+                                color: isRowSpeaking ? Colors.redAccent : currentTheme.primary,
+                                size: 18,
+                              ),
+                              tooltip: isRowSpeaking ? 'Stop Dictating' : 'Dictate this office',
+                              onPressed: () => _dictateSingleOffice(po, index),
+                            ),
+                          ),
                         ],
                       );
                     }).toList(),
@@ -1461,25 +2191,41 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                 const SizedBox(height: 12),
                 _buildDialogRow('Circle', circle),
                 const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: currentTheme.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          _dictateSingleOffice(po, -2);
+                        },
+                        icon: const Icon(Icons.record_voice_over, size: 18),
+                        label: const Text('Dictate Office'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: currentTheme.secondary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
                     ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Dismiss',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                      letterSpacing: 0.5,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: currentTheme.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text('Close', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
@@ -1540,4 +2286,312 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
 
   // Quick helper to limit shown items to prevent rendering lag with huge datasets
   int min(int a, int b) => a < b ? a : b;
+
+  void _showAppInfoDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          backgroundColor: currentTheme.cardBg,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 480, maxHeight: 540),
+            padding: const EdgeInsets.all(20),
+            child: DefaultTabController(
+              length: 3,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Dialog Header
+                  Row(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: currentTheme.primary,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(18),
+                          child: Image.asset(
+                            'assets/images/logo.jpg',
+                            width: 36,
+                            height: 36,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'India Post Offices',
+                              style: TextStyle(
+                                color: currentTheme.textPrimary,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              'Version $_localVersion (Build $_localBuild)',
+                              style: TextStyle(
+                                color: currentTheme.textHint,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.close, color: currentTheme.textHint),
+                        onPressed: () => Navigator.of(context).pop(),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Divider(color: currentTheme.border, height: 1),
+                  const SizedBox(height: 8),
+                  
+                  // TabBar
+                  TabBar(
+                    labelColor: currentTheme.primary,
+                    unselectedLabelColor: currentTheme.textSecondary,
+                    indicatorColor: currentTheme.primary,
+                    dividerColor: Colors.transparent,
+                    labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    tabs: const [
+                      Tab(text: 'About', icon: Icon(Icons.description_outlined, size: 20)),
+                      Tab(text: 'Features', icon: Icon(Icons.featured_play_list_outlined, size: 20)),
+                      Tab(text: 'Updates', icon: Icon(Icons.update_outlined, size: 20)),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  // TabBarView
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        // Tab 1: About
+                        SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Overview',
+                                style: TextStyle(
+                                  color: currentTheme.textPrimary,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'India Post Offices is a highly optimized utility app that acts as a comprehensive directory for post offices across India. It connects directly to the Indian Postal API to verify, search, and catalog details about Head, Sub, and Branch post offices.',
+                                style: TextStyle(
+                                  color: currentTheme.textSecondary,
+                                  fontSize: 13,
+                                  height: 1.4,
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              Text(
+                                'Data Sources',
+                                style: TextStyle(
+                                  color: currentTheme.textPrimary,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'This app fetches official data under the Open Government Data Platform India (data.gov.in) via the open API protocol.',
+                                style: TextStyle(
+                                  color: currentTheme.textSecondary,
+                                  fontSize: 13,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Tab 2: Features
+                        SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          child: Column(
+                            children: [
+                              _buildFeatureItem(
+                                Icons.search_rounded,
+                                'Instant Search',
+                                'Query post offices by Pincode or Office Name instantly.',
+                              ),
+                              _buildFeatureItem(
+                                Icons.filter_alt_rounded,
+                                'Smart Hierarchy Classification',
+                                'Ranks and badges Offices into Head, Sub, and Branch categories.',
+                              ),
+                              _buildFeatureItem(
+                                Icons.download_for_offline_rounded,
+                                'Excel Export & Sharing',
+                                'Export search tables to Excel files & share with colleagues.',
+                              ),
+                              _buildFeatureItem(
+                                Icons.record_voice_over_rounded,
+                                'Read & Dictate Table',
+                                'Reads resulted table data out loud using built-in Text-To-Speech audio dictation.',
+                              ),
+                              _buildFeatureItem(
+                                Icons.palette_rounded,
+                                'Beautiful Custom Themes',
+                                'Choose from Light, Dark, or 7 vivid accent modes.',
+                              ),
+                              _buildFeatureItem(
+                                Icons.offline_bolt_rounded,
+                                'Dynamic Query Cache',
+                                'Caches results locally to fetch repeat queries offline.',
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Tab 3: Updates
+                        SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildUpdateHeader('v1.0.2 (Build 3)', 'Current Version'),
+                              const SizedBox(height: 4),
+                              _buildUpdatePoint('Added Read / Dictate button after download to dictate resulted table data using Text-To-Speech.'),
+                              _buildUpdatePoint('Integrated 9-theme customize engine (with Light/Dark auto).'),
+                              _buildUpdatePoint('Added Excel (.xlsx) file generation and multi-platform sharing.'),
+                              _buildUpdatePoint('Added automatic update detection checks from GitHub version.json.'),
+                              _buildUpdatePoint('Optimized UI with new card layout and rank sorting hierarchy.'),
+                              const SizedBox(height: 14),
+                              _buildUpdateHeader('v1.0.0 (Build 1)', 'Initial Release'),
+                              const SizedBox(height: 4),
+                              _buildUpdatePoint('Search post offices by entering names or pincodes.'),
+                              _buildUpdatePoint('Basic connection handling and list visualization.'),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildFeatureItem(IconData icon, String title, String desc) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: currentTheme.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: currentTheme.primary, size: 18),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: currentTheme.textPrimary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  desc,
+                  style: TextStyle(
+                    color: currentTheme.textSecondary,
+                    fontSize: 12,
+                    height: 1.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUpdateHeader(String version, String dateInfo) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          version,
+          style: TextStyle(
+            color: currentTheme.primary,
+            fontWeight: FontWeight.bold,
+            fontSize: 13.5,
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          decoration: BoxDecoration(
+            color: currentTheme.secondary.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Text(
+            dateInfo,
+            style: TextStyle(
+              color: currentTheme.secondary,
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildUpdatePoint(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0, top: 4.0, bottom: 2.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '• ',
+            style: TextStyle(color: currentTheme.primary, fontWeight: FontWeight.bold),
+          ),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                color: currentTheme.textSecondary,
+                fontSize: 12,
+                height: 1.3,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
