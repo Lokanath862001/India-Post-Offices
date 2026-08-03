@@ -280,8 +280,8 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
   int _currentlyReadingIndex = -1;
   Completer<void>? _speechCompleter;
 
-  static const String _localVersion = '1.0.3';
-  static const int _localBuild = 4;
+  static const String _localVersion = '1.0.4';
+  static const int _localBuild = 5;
 
   bool _isCheckingVersion = true;
   bool _showUpdatePrompt = false;
@@ -2609,7 +2609,14 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _buildUpdateHeader('v1.0.3 (Build 4)', 'Current Version'),
+                              _buildUpdateHeader('v1.0.4 (Build 5)', 'Current Version'),
+                              const SizedBox(height: 4),
+                              _buildUpdatePoint('Optimized App Bundle compilation for Play Console distribution.'),
+                              _buildUpdatePoint('Integrated in-app Privacy Policy viewer for Google Play policy compliance.'),
+                              _buildUpdatePoint('Enhanced table data dictation (TTS) and Excel export capabilities.'),
+                              _buildUpdatePoint('General performance optimizations and UI fixes.'),
+                              const SizedBox(height: 14),
+                              _buildUpdateHeader('v1.0.3 (Build 4)', 'Previous Version'),
                               const SizedBox(height: 4),
                               _buildUpdatePoint('Integrated dedicated Privacy Policy tab & in-app policy viewer compliant with Play Console rules.'),
                               _buildUpdatePoint('Added official Privacy Policy (PRIVACY_POLICY.md) document to repository.'),
