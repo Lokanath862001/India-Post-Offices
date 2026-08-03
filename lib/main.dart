@@ -2299,7 +2299,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
             constraints: const BoxConstraints(maxWidth: 480, maxHeight: 540),
             padding: const EdgeInsets.all(20),
             child: DefaultTabController(
-              length: 3,
+              length: 4,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -2363,15 +2363,18 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                   
                   // TabBar
                   TabBar(
+                    isScrollable: true,
+                    tabAlignment: TabAlignment.start,
                     labelColor: currentTheme.primary,
                     unselectedLabelColor: currentTheme.textSecondary,
                     indicatorColor: currentTheme.primary,
                     dividerColor: Colors.transparent,
-                    labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5),
                     tabs: const [
-                      Tab(text: 'About', icon: Icon(Icons.description_outlined, size: 20)),
-                      Tab(text: 'Features', icon: Icon(Icons.featured_play_list_outlined, size: 20)),
-                      Tab(text: 'Updates', icon: Icon(Icons.update_outlined, size: 20)),
+                      Tab(text: 'About', icon: Icon(Icons.description_outlined, size: 18)),
+                      Tab(text: 'Privacy', icon: Icon(Icons.privacy_tip_outlined, size: 18)),
+                      Tab(text: 'Features', icon: Icon(Icons.featured_play_list_outlined, size: 18)),
+                      Tab(text: 'Updates', icon: Icon(Icons.update_outlined, size: 18)),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -2420,6 +2423,144 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                                   fontSize: 13,
                                   height: 1.4,
                                 ),
+                              ),
+                              const SizedBox(height: 14),
+                              Text(
+                                'Privacy & Security Summary',
+                                style: TextStyle(
+                                  color: currentTheme.textPrimary,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                '• Developer: Shree Lakshmi Ventures (SLV)\n• Effective Date: August 2, 2026\n• Package Name: com.oedc.indiaPostOffices\n• We do not collect or store personal identity data, bank details, or GPS location.\n• Switch to the "Privacy" tab for the full Privacy Policy.',
+                                style: TextStyle(
+                                  color: currentTheme.textSecondary,
+                                  fontSize: 12.5,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Tab 2: Privacy Policy
+                        SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: currentTheme.primary.withOpacity(0.08),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: currentTheme.primary.withOpacity(0.2)),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Privacy Policy for India Post Offices',
+                                      style: TextStyle(
+                                        color: currentTheme.primary,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13.5,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Effective Date: August 2, 2026\nDeveloper: Shree Lakshmi Ventures (SLV)\nPackage Name: com.oedc.indiaPostOffices',
+                                      style: TextStyle(
+                                        color: currentTheme.textSecondary,
+                                        fontSize: 11.5,
+                                        height: 1.3,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              _buildPrivacySubHeading('1. Overview'),
+                              _buildPrivacyText(
+                                'Shree Lakshmi Ventures ("we", "our", or "us") developed the India Post Offices application to help users search and access information about India Post Offices across India. We value your privacy and are committed to protecting your information.',
+                              ),
+                              const SizedBox(height: 10),
+                              _buildPrivacySubHeading('2. Information We Collect'),
+                              _buildPrivacyText(
+                                '• Account Registration: Not required.\n'
+                                '• Personal Data: We DO NOT collect personal information such as Name, Email, Phone number, Postal address, Aadhaar number, PAN number, Bank details, or Payment info.\n'
+                                '• Location Data: The app does not access your device GPS location.\n'
+                                '• Device Technical Info: Limited technical info (Android version, device model, app version, crash reports) may be collected automatically to improve performance and reliability.',
+                              ),
+                              const SizedBox(height: 10),
+                              _buildPrivacySubHeading('3. Advertisements (Google AdMob)'),
+                              _buildPrivacyText(
+                                'The app may display advertisements using Google AdMob. Google AdMob may collect Advertising ID, device information, approximate location, and ad interactions in accordance with Google\'s Privacy Policy.',
+                              ),
+                              const SizedBox(height: 6),
+                              OutlinedButton.icon(
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  side: BorderSide(color: currentTheme.primary.withOpacity(0.5)),
+                                ),
+                                icon: Icon(Icons.open_in_new, size: 14, color: currentTheme.primary),
+                                label: Text(
+                                  'Google Privacy Policy',
+                                  style: TextStyle(fontSize: 11.5, color: currentTheme.primary),
+                                ),
+                                onPressed: () => _launchUpdateUrl('https://policies.google.com/privacy'),
+                              ),
+                              const SizedBox(height: 10),
+                              _buildPrivacySubHeading('4. Data Storage & Sharing'),
+                              _buildPrivacyText(
+                                'User preferences and settings are stored locally on your device. No personal information is stored on our servers. We do not sell, rent, or share personal information with third parties. Information is only processed by trusted services like Google Play Services and Google AdMob.',
+                              ),
+                              const SizedBox(height: 10),
+                              _buildPrivacySubHeading('5. Permissions'),
+                              _buildPrivacyText(
+                                'The app requests basic Internet and Network Access permissions solely for fetching post office data via API and displaying advertisements.',
+                              ),
+                              const SizedBox(height: 10),
+                              _buildPrivacySubHeading('6. Children\'s Privacy & Security'),
+                              _buildPrivacyText(
+                                'Intended for general audiences. We do not knowingly collect personal information from children under the age of 13. Reasonable technical measures are implemented to safeguard application processing.',
+                              ),
+                              const SizedBox(height: 10),
+                              _buildPrivacySubHeading('7. Government Disclaimer'),
+                              _buildPrivacyText(
+                                'India Post Offices is NOT an official Government of India application. It provides publicly available information for user convenience.',
+                              ),
+                              const SizedBox(height: 6),
+                              OutlinedButton.icon(
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  side: BorderSide(color: currentTheme.secondary.withOpacity(0.5)),
+                                ),
+                                icon: Icon(Icons.language, size: 14, color: currentTheme.secondary),
+                                label: Text(
+                                  'Official India Post Website',
+                                  style: TextStyle(fontSize: 11.5, color: currentTheme.secondary),
+                                ),
+                                onPressed: () => _launchUpdateUrl('https://www.indiapost.gov.in'),
+                              ),
+                              const SizedBox(height: 10),
+                              _buildPrivacySubHeading('8. Contact Us'),
+                              _buildPrivacyText(
+                                'Developer: Shree Lakshmi Ventures\nEmail: madhusmita852011@gmail.com',
+                              ),
+                              const SizedBox(height: 10),
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: currentTheme.primary,
+                                  foregroundColor: currentTheme.textOnPrimary,
+                                  minimumSize: const Size(double.infinity, 36),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
+                                icon: const Icon(Icons.open_in_browser, size: 16),
+                                label: const Text('View PRIVACY_POLICY.md on GitHub', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                onPressed: () => _launchUpdateUrl('https://github.com/Lokanath862001/India-Post-Offices/blob/main/PRIVACY_POLICY.md'),
                               ),
                             ],
                           ),
@@ -2591,6 +2732,28 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPrivacySubHeading(String text) {
+    return Text(
+      text,
+      style: TextStyle(
+        color: currentTheme.textPrimary,
+        fontWeight: FontWeight.bold,
+        fontSize: 13,
+      ),
+    );
+  }
+
+  Widget _buildPrivacyText(String text) {
+    return Text(
+      text,
+      style: TextStyle(
+        color: currentTheme.textSecondary,
+        fontSize: 12,
+        height: 1.35,
       ),
     );
   }
