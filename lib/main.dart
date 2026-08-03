@@ -280,8 +280,8 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
   int _currentlyReadingIndex = -1;
   Completer<void>? _speechCompleter;
 
-  static const String _localVersion = '1.0.2';
-  static const int _localBuild = 3;
+  static const String _localVersion = '1.0.3';
+  static const int _localBuild = 4;
 
   bool _isCheckingVersion = true;
   bool _showUpdatePrompt = false;
@@ -2609,7 +2609,14 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _buildUpdateHeader('v1.0.2 (Build 3)', 'Current Version'),
+                              _buildUpdateHeader('v1.0.3 (Build 4)', 'Current Version'),
+                              const SizedBox(height: 4),
+                              _buildUpdatePoint('Integrated dedicated Privacy Policy tab & in-app policy viewer compliant with Play Console rules.'),
+                              _buildUpdatePoint('Added official Privacy Policy (PRIVACY_POLICY.md) document to repository.'),
+                              _buildUpdatePoint('Added direct links to Google Privacy Policy and official India Post portal.'),
+                              _buildUpdatePoint('Optimized App Info dialog layout with responsive scrollable tab navigation.'),
+                              const SizedBox(height: 14),
+                              _buildUpdateHeader('v1.0.2 (Build 3)', 'Previous Version'),
                               const SizedBox(height: 4),
                               _buildUpdatePoint('Added Read / Dictate button after download to dictate resulted table data using Text-To-Speech.'),
                               _buildUpdatePoint('Integrated 9-theme customize engine (with Light/Dark auto).'),
