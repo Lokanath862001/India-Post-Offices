@@ -6,6 +6,7 @@ void main() {
   testWidgets('App loads search field and header successfully', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
 
     // Verify that the title header exists
     expect(find.text('INDIA POST'), findsOneWidget);

@@ -130,8 +130,8 @@ final Map<String, AppThemeConfig> appThemes = {
   ),
   'green': const AppThemeConfig(
     brightness: Brightness.dark,
-    primary: Color(0xFFFF9933),
-    secondary: Color(0xFF00C853),
+    primary: Color(0xFF00C853),
+    secondary: Color(0xFFFF9933),
     scaffoldBgStart: Color(0xFF04211A),
     scaffoldBgEnd: Color(0xFF02120E),
     cardBg: Color(0xFF0B3A30),
@@ -162,7 +162,7 @@ final Map<String, AppThemeConfig> appThemes = {
   ),
   'indigo': const AppThemeConfig(
     brightness: Brightness.dark,
-    primary: Color(0xFFFF9933),
+    primary: Color(0xFF6366F1),
     secondary: Color(0xFF00D2FF),
     scaffoldBgStart: Color(0xFF071F30),
     scaffoldBgEnd: Color(0xFF030D16),
@@ -290,14 +290,31 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
   @override
   void initState() {
     super.initState();
+    themeNotifier.addListener(_onThemeChanged);
     _searchController.addListener(_onSearchChanged);
     _loadBannerAd();
     _loadInterstitialAd();
     _checkAppVersion();
   }
 
+  void _onThemeChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  void _changeTheme(String key) {
+    if (appThemes.containsKey(key)) {
+      themeNotifier.value = key;
+      SharedPreferences.getInstance().then((prefs) {
+        prefs.setString('app_theme', key);
+      });
+    }
+  }
+
   @override
   void dispose() {
+    themeNotifier.removeListener(_onThemeChanged);
     if (_isTtsInitialized) {
       _flutterTts.stop();
     }
@@ -389,16 +406,27 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
   Future<void> _checkAppVersion() async {
     const String remoteUrl = 'https://raw.githubusercontent.com/Lokanath862001/India-Post-Offices/main/version.json';
 
-    // We start version checking with a small delay for a smooth transition and visual verification of the checking screen.
-    await Future.delayed(const Duration(milliseconds: 1500));
+    if (mounted) {
+      setState(() {
+        _isCheckingVersion = true;
+      });
+    }
+
+    await Future.delayed(const Duration(milliseconds: 800));
 
     try {
       final response = await http.get(Uri.parse(remoteUrl)).timeout(const Duration(seconds: 5));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final int latestBuild = data['latest_build'] ?? 1;
+        final String latestVersion = data['latest_version'] ?? '';
         
-        if (latestBuild > _localBuild) {
+        bool isUpdateAvailable = latestBuild > _localBuild;
+        if (!isUpdateAvailable && latestVersion.isNotEmpty && latestVersion != _localVersion) {
+          isUpdateAvailable = true;
+        }
+
+        if (isUpdateAvailable) {
           if (mounted) {
             setState(() {
               _remoteVersionData = data;
@@ -415,6 +443,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
 
     if (mounted) {
       setState(() {
+        _showUpdatePrompt = false;
         _isCheckingVersion = false;
       });
     }
@@ -523,179 +552,217 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
   }
 
   Widget _buildUpdatePromptScreen() {
-    final String latestVersion = _remoteVersionData?['latest_version'] ?? '1.0.2';
-    final String releaseNotes = _remoteVersionData?['release_notes'] ?? 'Improvements & bug fixes.';
+    final String latestVersion = _remoteVersionData?['latest_version'] ?? '1.0.4';
+    final String releaseNotes = _remoteVersionData?['release_notes'] ?? 'New features, security updates, and performance optimizations are available.';
     final String storeUrl = _remoteVersionData?['play_store_url'] ?? 'https://play.google.com/store/apps/details?id=com.oedc.indiaPostOffices';
 
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              currentTheme.scaffoldBgStart,
-              currentTheme.scaffoldBgEnd,
-            ],
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                currentTheme.scaffoldBgStart,
+                currentTheme.scaffoldBgEnd,
+              ],
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Spacer(),
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [
-                        currentTheme.primary.withOpacity(0.2),
-                        currentTheme.secondary.withOpacity(0.2),
-                      ],
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [
+                          currentTheme.primary.withOpacity(0.25),
+                          currentTheme.secondary.withOpacity(0.25),
+                        ],
+                      ),
+                      border: Border.all(
+                        color: currentTheme.primary.withOpacity(0.4),
+                        width: 2,
+                      ),
                     ),
-                    border: Border.all(
-                      color: currentTheme.primary.withOpacity(0.3),
-                      width: 2,
+                    child: Icon(
+                      Icons.system_update_rounded,
+                      size: 72,
+                      color: currentTheme.primary,
                     ),
                   ),
-                  child: Icon(
-                    Icons.rocket_launch_rounded,
-                    size: 80,
-                    color: currentTheme.primary,
+                  const SizedBox(height: 24),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEF4444).withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFFEF4444).withOpacity(0.5)),
+                    ),
+                    child: const Text(
+                      'MANDATORY UPDATE REQUIRED',
+                      style: TextStyle(
+                        color: Color(0xFFEF4444),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 32),
-                Text(
-                  'Update Available!',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: currentTheme.brightness == Brightness.light ? currentTheme.textPrimary : Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'A new version of India Post Offices is available.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: currentTheme.textSecondary,
-                  ),
-                ),
-                Text(
-                  'Version $latestVersion is now ready to download (Current: $_localVersion).',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: currentTheme.secondary,
-                  ),
-                ),
-                const Spacer(),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "What's New in this Version:",
+                  const SizedBox(height: 12),
+                  Text(
+                    'App Update Required',
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: 26,
                       fontWeight: FontWeight.bold,
                       color: currentTheme.brightness == Brightness.light ? currentTheme.textPrimary : Colors.white,
                     ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                Container(
-                  width: double.infinity,
-                  constraints: const BoxConstraints(maxHeight: 180),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: currentTheme.cardBg.withOpacity(0.7),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: currentTheme.border.withOpacity(0.5),
+                  const SizedBox(height: 8),
+                  Text(
+                    'A new release of India Post Offices is available on Google Play. Access to installed older versions has been disabled to ensure security and compliance.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      height: 1.4,
+                      color: currentTheme.textSecondary,
                     ),
                   ),
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: currentTheme.border.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          'Installed: v$_localVersion',
+                          style: TextStyle(fontSize: 12, color: currentTheme.textHint, fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Icon(Icons.arrow_forward_rounded, size: 16, color: Colors.grey),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: currentTheme.secondary.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: currentTheme.secondary.withOpacity(0.4)),
+                        ),
+                        child: Text(
+                          'Latest: v$latestVersion',
+                          style: TextStyle(fontSize: 12, color: currentTheme.secondary, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  Align(
+                    alignment: Alignment.centerLeft,
                     child: Text(
-                      releaseNotes,
+                      "What's New in this Release:",
                       style: TextStyle(
-                        fontSize: 13.5,
-                        height: 1.5,
-                        color: currentTheme.textSecondary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: currentTheme.brightness == Brightness.light ? currentTheme.textPrimary : Colors.white,
                       ),
                     ),
                   ),
-                ),
-                const Spacer(),
-                Column(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(14),
-                        gradient: LinearGradient(
-                          colors: [
-                            currentTheme.primary,
-                            currentTheme.primary.withRed(255).withGreen(140),
+                  const SizedBox(height: 8),
+                  Container(
+                    width: double.infinity,
+                    constraints: const BoxConstraints(maxHeight: 160),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: currentTheme.cardBg.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: currentTheme.border.withOpacity(0.5),
+                      ),
+                    ),
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Text(
+                        releaseNotes,
+                        style: TextStyle(
+                          fontSize: 13,
+                          height: 1.4,
+                          color: currentTheme.textSecondary,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  Column(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        height: 54,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          gradient: LinearGradient(
+                            colors: [
+                              currentTheme.primary,
+                              currentTheme.primary.withRed(255).withGreen(140),
+                            ],
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: currentTheme.primary.withOpacity(0.35),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
                           ],
                         ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: currentTheme.primary.withOpacity(0.3),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
+                        child: ElevatedButton.icon(
+                          onPressed: () => _launchUpdateUrl(storeUrl),
+                          icon: const Icon(Icons.get_app_rounded, size: 22),
+                          label: const Text(
+                            'Update Now on Play Store',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                            ),
                           ),
-                        ],
-                      ),
-                      child: ElevatedButton(
-                        onPressed: () => _launchUpdateUrl(storeUrl),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          foregroundColor: Colors.white,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            foregroundColor: Colors.white,
+                            shadowColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
                           ),
                         ),
-                        child: const Text(
-                          'Update Now',
+                      ),
+                      const SizedBox(height: 10),
+                      TextButton.icon(
+                        onPressed: _checkAppVersion,
+                        icon: Icon(Icons.refresh_rounded, size: 16, color: currentTheme.textSecondary),
+                        label: Text(
+                          'Already Updated? Check Status',
                           style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
+                            fontSize: 13,
+                            color: currentTheme.textSecondary,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-                          _showUpdatePrompt = false;
-                        });
-                      },
-                      style: TextButton.styleFrom(
-                        foregroundColor: currentTheme.textSecondary,
-                        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: const Text(
-                        'Later',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -880,6 +947,13 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  void _handleExportWithAd() {
+    if (_offices.isEmpty) return;
+    _showInterstitialAdIfAvailable(() {
+      _exportToExcel();
+    });
   }
 
   Future<void> _exportToExcel() async {
@@ -1316,68 +1390,260 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
       {'key': 'red', 'color': const Color(0xFFEF4444), 'label': 'Red'},
       {'key': 'yellow', 'color': const Color(0xFFFBBF24), 'label': 'Yellow'},
       {'key': 'violet', 'color': const Color(0xFFC084FC), 'label': 'Violet'},
-      {'key': 'indigo', 'color': const Color(0xFF0038A8), 'label': 'Indigo'},
+      {'key': 'indigo', 'color': const Color(0xFF6366F1), 'label': 'Indigo'},
     ];
 
-    return Wrap(
-      alignment: WrapAlignment.center,
-      spacing: 4,
-      runSpacing: 6,
-      children: themes.map((theme) {
-        final String key = theme['key'] as String;
-        final Color color = theme['color'] as Color;
-        final String label = theme['label'] as String;
-        final bool isSelected = themeNotifier.value == key;
+    return ValueListenableBuilder<String>(
+      valueListenable: themeNotifier,
+      builder: (context, currentKey, child) {
+        return Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 6,
+          runSpacing: 6,
+          children: themes.map((theme) {
+            final String key = theme['key'] as String;
+            final Color color = theme['color'] as Color;
+            final String label = theme['label'] as String;
+            final bool isSelected = currentKey == key;
 
-        return GestureDetector(
-          onTap: () {
-            themeNotifier.value = key;
-            SharedPreferences.getInstance().then((prefs) {
-              prefs.setString('app_theme', key);
-            });
-          },
-          child: Container(
-            padding: const EdgeInsets.all(3.0),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: isSelected ? currentTheme.primary : Colors.transparent,
-                width: 2.0,
-              ),
-            ),
-            child: Tooltip(
-              message: '$label Theme',
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: 24,
-                height: 24,
+            return GestureDetector(
+              onTap: () => _changeTheme(key),
+              child: Container(
+                padding: const EdgeInsets.all(3.0),
                 decoration: BoxDecoration(
-                  color: color,
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: key == 'light' ? const Color(0xFF94A3B8) : Colors.transparent,
-                    width: 1,
+                    color: isSelected ? currentTheme.primary : Colors.transparent,
+                    width: 2.0,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
+                ),
+                child: Tooltip(
+                  message: '$label Theme',
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 26,
+                    height: 26,
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: key == 'light' ? const Color(0xFF94A3B8) : Colors.transparent,
+                        width: 1,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.15),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
+                    child: isSelected
+                        ? Icon(
+                            Icons.check,
+                            size: 14,
+                            color: key == 'light' ? Colors.black : Colors.white,
+                          )
+                        : null,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        );
+      },
+    );
+  }
+
+  Widget _buildThemeSelectorGrid() {
+    final themesList = [
+      {'key': 'light', 'name': 'Light Mode', 'color': const Color(0xFFF8FAFC), 'primary': const Color(0xFFFF9933)},
+      {'key': 'dark', 'name': 'Dark Slate', 'color': const Color(0xFF0F172A), 'primary': const Color(0xFFFF9933)},
+      {'key': 'blue', 'name': 'Ocean Blue', 'color': const Color(0xFF03253A), 'primary': const Color(0xFF0EA5E9)},
+      {'key': 'green', 'name': 'Emerald Green', 'color': const Color(0xFF04211A), 'primary': const Color(0xFF00C853)},
+      {'key': 'orange', 'name': 'Amber Orange', 'color': const Color(0xFF2E1205), 'primary': const Color(0xFFFF9933)},
+      {'key': 'red', 'name': 'Crimson Red', 'color': const Color(0xFF2C0F10), 'primary': const Color(0xFFEF4444)},
+      {'key': 'yellow', 'name': 'Royal Yellow', 'color': const Color(0xFF241C03), 'primary': const Color(0xFFFBBF24)},
+      {'key': 'violet', 'name': 'Deep Violet', 'color': const Color(0xFF200F35), 'primary': const Color(0xFFC084FC)},
+      {'key': 'indigo', 'name': 'Indigo Blue', 'color': const Color(0xFF071F30), 'primary': const Color(0xFF6366F1)},
+    ];
+
+    return ValueListenableBuilder<String>(
+      valueListenable: themeNotifier,
+      builder: (context, currentKey, child) {
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 8,
+            childAspectRatio: 1.05,
+          ),
+          itemCount: themesList.length,
+          itemBuilder: (context, index) {
+            final item = themesList[index];
+            final String key = item['key'] as String;
+            final String name = item['name'] as String;
+            final Color bgColor = item['color'] as Color;
+            final Color primaryColor = item['primary'] as Color;
+            final bool isSelected = currentKey == key;
+
+            return InkWell(
+              onTap: () => _changeTheme(key),
+              borderRadius: BorderRadius.circular(12),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                decoration: BoxDecoration(
+                  color: bgColor,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isSelected ? primaryColor : currentTheme.border,
+                    width: isSelected ? 2.5 : 1,
+                  ),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: primaryColor.withOpacity(0.3),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          )
+                        ]
+                      : [],
+                ),
+                child: Stack(
+                  children: [
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 22,
+                            height: 22,
+                            decoration: BoxDecoration(
+                              color: primaryColor,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  blurRadius: 3,
+                                )
+                              ],
+                            ),
+                            child: isSelected
+                                ? const Icon(Icons.check, size: 13, color: Colors.white)
+                                : null,
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            name,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                              color: key == 'light' ? Colors.black87 : Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (isSelected)
+                      Positioned(
+                        top: 4,
+                        right: 4,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: primaryColor,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.star, size: 9, color: Colors.white),
+                        ),
+                      ),
                   ],
                 ),
-                child: isSelected
-                    ? Icon(
-                        Icons.check,
-                        size: 14,
-                        color: key == 'light' ? Colors.black : Colors.white,
-                      )
-                    : null,
               ),
-            ),
-          ),
+            );
+          },
         );
-      }).toList(),
+      },
+    );
+  }
+
+  void _showThemeSelectorDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return ValueListenableBuilder<String>(
+          valueListenable: themeNotifier,
+          builder: (context, currentKey, child) {
+            return Dialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              backgroundColor: currentTheme.cardBg,
+              insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 440),
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: currentTheme.primary.withOpacity(0.12),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.palette_outlined,
+                            color: currentTheme.primary,
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Color Themes',
+                                style: TextStyle(
+                                  color: currentTheme.textPrimary,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                'Tap any theme to update immediately',
+                                style: TextStyle(
+                                  color: currentTheme.textSecondary,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.close, color: currentTheme.textHint),
+                          onPressed: () => Navigator.of(context).pop(),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    Divider(color: currentTheme.border, height: 1),
+                    const SizedBox(height: 14),
+                    _buildThemeSelectorGrid(),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -1557,6 +1823,15 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
               ),
               IconButton(
                 icon: Icon(
+                  Icons.palette_outlined,
+                  color: currentTheme.primary,
+                  size: 26,
+                ),
+                tooltip: 'Color Themes',
+                onPressed: _showThemeSelectorDialog,
+              ),
+              IconButton(
+                icon: Icon(
                   Icons.info_outline_rounded,
                   color: currentTheme.primary,
                   size: 26,
@@ -1648,7 +1923,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                     spacing: 4,
                     children: [
                       TextButton.icon(
-                        onPressed: _exportToExcel,
+                        onPressed: _handleExportWithAd,
                         icon: Icon(Icons.file_download, size: 16, color: currentTheme.primary),
                         label: Text(
                           'Export to Excel',
@@ -2112,25 +2387,28 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          backgroundColor: currentTheme.cardBg,
-          insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 500),
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
+        return ValueListenableBuilder<String>(
+          valueListenable: themeNotifier,
+          builder: (context, themeKey, child) {
+            return Dialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              backgroundColor: currentTheme.cardBg,
+              insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 500),
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: currentTheme.primary.withOpacity(0.1),
-                        shape: BoxShape.circle,
-                      ),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: currentTheme.primary.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
                       child: Icon(
                         Icons.account_balance,
                         color: currentTheme.primary,
@@ -2233,7 +2511,9 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
         );
       },
     );
-  }
+  },
+);
+}
 
   Widget _buildDialogRow(String label, String value, {Color? valueColor, Color? badgeColor}) {
     return Row(
@@ -2291,16 +2571,19 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          backgroundColor: currentTheme.cardBg,
-          insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 480, maxHeight: 540),
-            padding: const EdgeInsets.all(20),
-            child: DefaultTabController(
-              length: 4,
-              child: Column(
+        return ValueListenableBuilder<String>(
+          valueListenable: themeNotifier,
+          builder: (context, themeKey, child) {
+            return Dialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              backgroundColor: currentTheme.cardBg,
+              insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 480, maxHeight: 540),
+                padding: const EdgeInsets.all(20),
+                child: DefaultTabController(
+                  length: 5,
+                  child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -2372,6 +2655,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                     labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5),
                     tabs: const [
                       Tab(text: 'About', icon: Icon(Icons.description_outlined, size: 18)),
+                      Tab(text: 'Themes', icon: Icon(Icons.palette_outlined, size: 18)),
                       Tab(text: 'Privacy', icon: Icon(Icons.privacy_tip_outlined, size: 18)),
                       Tab(text: 'Features', icon: Icon(Icons.featured_play_list_outlined, size: 18)),
                       Tab(text: 'Updates', icon: Icon(Icons.update_outlined, size: 18)),
@@ -2442,6 +2726,33 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                                   height: 1.4,
                                 ),
                               ),
+                            ],
+                          ),
+                        ),
+                        // Tab 2: Themes
+                        SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Color Palette & Themes',
+                                style: TextStyle(
+                                  color: currentTheme.textPrimary,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Select any color theme below to update the app colors in real-time.',
+                                style: TextStyle(
+                                  color: currentTheme.textSecondary,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              _buildThemeSelectorGrid(),
                             ],
                           ),
                         ),
@@ -2648,7 +2959,9 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
         );
       },
     );
-  }
+  },
+);
+}
 
   Widget _buildFeatureItem(IconData icon, String title, String desc) {
     return Padding(
