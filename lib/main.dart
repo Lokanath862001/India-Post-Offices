@@ -494,12 +494,18 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
   }
 
   Widget _buildUpdatePromptScreen() {
-    final String latestVersion = _remoteVersionData?['latest_version'] ?? '1.0.4';
+    final String latestVersion = _remoteVersionData?['latest_version'] ?? '1.0.5';
     final String releaseNotes = _remoteVersionData?['release_notes'] ?? 'New features, security updates, and performance optimizations are available.';
     final String storeUrl = _remoteVersionData?['play_store_url'] ?? 'https://play.google.com/store/apps/details?id=com.oedc.indiaPostOffices';
 
     return PopScope(
-      canPop: false,
+      canPop: true,
+      onPopInvoked: (didPop) {
+        if (didPop) return;
+        setState(() {
+          _showUpdatePrompt = false;
+        });
+      },
       child: Scaffold(
         body: Container(
           decoration: BoxDecoration(
@@ -544,14 +550,14 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEF4444).withOpacity(0.15),
+                      color: currentTheme.primary.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFEF4444).withOpacity(0.5)),
+                      border: Border.all(color: currentTheme.primary.withOpacity(0.5)),
                     ),
-                    child: const Text(
-                      'MANDATORY UPDATE REQUIRED',
+                    child: Text(
+                      'NEW UPDATE AVAILABLE',
                       style: TextStyle(
-                        color: Color(0xFFEF4444),
+                        color: currentTheme.primary,
                         fontSize: 11,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 1.2,
@@ -560,7 +566,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'App Update Required',
+                    'App Update Available',
                     style: TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.bold,
@@ -569,7 +575,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'A new release of India Post Offices is available on Google Play. Access to installed older versions has been disabled to ensure security and compliance.',
+                    'A new version of India Post Offices is available on Google Play with new features and performance enhancements.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 13.5,
@@ -690,10 +696,14 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                       ),
                       const SizedBox(height: 10),
                       TextButton.icon(
-                        onPressed: _checkAppVersion,
-                        icon: Icon(Icons.refresh_rounded, size: 16, color: currentTheme.textSecondary),
+                        onPressed: () {
+                          setState(() {
+                            _showUpdatePrompt = false;
+                          });
+                        },
+                        icon: Icon(Icons.arrow_forward_rounded, size: 16, color: currentTheme.textSecondary),
                         label: Text(
-                          'Already Updated? Check Status',
+                          'Skip for Now & Continue to App',
                           style: TextStyle(
                             fontSize: 13,
                             color: currentTheme.textSecondary,
