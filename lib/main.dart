@@ -323,8 +323,8 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
   int _currentlyReadingIndex = -1;
   Completer<void>? _speechCompleter;
 
-  static const String _localVersion = '1.0.7';
-  static const int _localBuild = 8;
+  static const String _localVersion = '1.0.5';
+  static const int _localBuild = 6;
 
   bool _showUpdatePrompt = false;
   Map<String, dynamic>? _remoteVersionData;
