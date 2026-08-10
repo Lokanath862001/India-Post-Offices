@@ -1,7 +1,7 @@
 {
-  "latest_version": "1.0.4",
-  "latest_build": 5,
+  "latest_version": "1.0.5",
+  "latest_build": 6,
   "force_update": false,
   "play_store_url": "https://play.google.com/store/apps/details?id=com.oedc.indiaPostOffices",
-  "release_notes": "Added Play Store release build v1.0.4 with enhanced stability, responsive navigation, and performance optimizations."
+  "release_notes": "v1.0.5: Added Office Type filter dropdown (All Offices, NSH, ICH, PH, L1 Offices, L2 Offices, Head Office, Sub Office, Branch Office), search result deduplication, 3+ digit pincode search, local office dataset integration (17,217 offices), full screen ad frequency every 10 searches, and silent app update checks."
 }

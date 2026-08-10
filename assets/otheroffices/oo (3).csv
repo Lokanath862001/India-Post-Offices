@@ -1,0 +1,875 @@
+Sortplan Id,L1 Office Name,L2 Office Name,Hub Level,Circel Name,From Pin,To Pin
+7,Hyderabad PH,Hyderabad PH,L1,Telangana Circle,509000,509999
+7,Hyderabad PH,Hyderabad PH,L1,Telangana Circle,500000,502999
+7,Tirupathi PH,Tirupathi PH,L1,Andhra Pradesh Circle,517000,517999
+7,Vijayawada PH,Vijayawada PH,L1,Andhra Pradesh Circle,520000,521999
+7,Visakhapatnam PH,Visakhapatnam PH,L1,Andhra Pradesh Circle,535000,535999
+7,Visakhapatnam PH,Visakhapatnam PH,L1,Andhra Pradesh Circle,530000,531999
+7,Silchar PH,Silchar PH,L1,Assam Circle,788000,788999
+7,PH DIBRUGARH,PH DIBRUGARH,L1,Assam Circle,786000,786999
+7,PH DIBRUGARH,PH DIBRUGARH,L1,Assam Circle,792000,792999
+7,Guwahati PH,Guwahati PH,L1,Assam Circle,780000,780999
+7,Guwahati PH,Guwahati PH,L1,Assam Circle,794000,794999
+7,Guwahati PH,Guwahati PH,L1,Assam Circle,781000,783999
+7,Muzaffarpur PH,Muzaffarpur PH,L1,Bihar Circle,845000,845999
+7,Muzaffarpur PH,Muzaffarpur PH,L1,Bihar Circle,848000,848999
+7,Muzaffarpur PH,Muzaffarpur PH,L1,Bihar Circle,842000,843999
+7,Muzaffarpur PH,Muzaffarpur PH,L1,Bihar Circle,846000,847999
+7,Patna PH,Patna PH,L1,Bihar Circle,844000,844999
+7,Patna PH,Patna PH,L1,Bihar Circle,800000,801999
+7,Patna PH,Patna PH,L1,Bihar Circle,802101,802131
+7,Patna PH,Patna PH,L1,Bihar Circle,802133,802199
+7,Patna PH,Patna PH,L1,Bihar Circle,802201,802210
+7,Patna PH,Patna PH,L1,Bihar Circle,802222,802225
+7,Patna PH,Patna PH,L1,Bihar Circle,802227,802999
+7,Patna PH,Patna PH,L1,Bihar Circle,803000,804999
+7,Raipur PH,Raipur PH,L1,Chhattisgarh Circle,492000,494999
+7,Integrated Parcel Hub AMPC,Integrated Parcel Hub AMPC,L1,Delhi Circle,110000,110999
+7,1 CBPO PH,1 CBPO PH,L1,APS CIRCLE,900000,909999
+7,Ahmedabad PH,Ahmedabad PH,L1,Gujarat Circle,380000,380999
+7,Ahmedabad PH,Ahmedabad PH,L1,Gujarat Circle,382000,382999
+7,Ahmedabad PH,Ahmedabad PH,L1,Gujarat Circle,383000,383999
+7,Ahmedabad PH,Ahmedabad PH,L1,Gujarat Circle,363700,363799
+7,Ahmedabad PH,Ahmedabad PH,L1,Gujarat Circle,363000,363599
+7,Rajkot PH,Rajkot PH,L1,Gujarat Circle,360000,360499
+7,Rajkot PH,Rajkot PH,L1,Gujarat Circle,363621,363650
+7,Rajkot PH,Rajkot PH,L1,Gujarat Circle,363660,363670
+7,Surat PH,Surat PH,L1,Gujarat Circle,395000,395999
+7,Surat PH,Surat PH,L1,Gujarat Circle,396510,396510
+7,Surat PH,Surat PH,L1,Gujarat Circle,394101,394114
+7,Surat PH,Surat PH,L1,Gujarat Circle,394117,394799
+7,Vadodara PH,Vadodara PH,L1,Gujarat Circle,389000,389999
+7,Vadodara PH,Vadodara PH,L1,Gujarat Circle,390000,390999
+7,Vadodara PH,Vadodara PH,L1,Gujarat Circle,388700,388799
+7,Vadodara PH,Vadodara PH,L1,Gujarat Circle,392300,392399
+7,Vadodara PH,Vadodara PH,L1,Gujarat Circle,388270,388270
+7,Vadodara PH,Vadodara PH,L1,Gujarat Circle,391100,391799
+7,Ambala PH,Ambala PH,L1,Haryana Circle,173000,173999
+7,Ambala PH,Ambala PH,L1,Haryana Circle,174000,174099
+7,Ambala PH,Ambala PH,L1,Haryana Circle,174100,174199
+7,Ambala PH,Ambala PH,L1,Haryana Circle,171102,171102
+7,Ambala PH,Ambala PH,L1,Haryana Circle,174201,174201
+7,Ambala PH,Ambala PH,L1,Haryana Circle,174310,174310
+7,Ambala PH,Ambala PH,L1,Haryana Circle,133000,135999
+7,Ambala PH,Ambala PH,L1,Haryana Circle,174101,174102
+7,Gurgaon PH,Gurgaon PH,L1,Haryana Circle,122001,123999
+7,Rohtak PH,Rohtak PH,L1,Haryana Circle,124000,124999
+7,Rohtak PH,Rohtak PH,L1,Haryana Circle,126101,127999
+7,Pathankot PH,Pathankot PH,L1,Himachal Pradesh Circle,174500,174599
+7,Pathankot PH,Pathankot PH,L1,Himachal Pradesh Circle,176600,176699
+7,Pathankot PH,Pathankot PH,L1,Himachal Pradesh Circle,174503,174503
+7,Pathankot PH,Pathankot PH,L1,Himachal Pradesh Circle,174301,174302
+7,Pathankot PH,Pathankot PH,L1,Himachal Pradesh Circle,174306,174308
+7,Pathankot PH,Pathankot PH,L1,Himachal Pradesh Circle,174314,174321
+7,Pathankot PH,Pathankot PH,L1,Himachal Pradesh Circle,176000,176599
+7,NPH Parwanoo,NPH Parwanoo,L1,Himachal Pradesh Circle,171001,172999
+7,PH Leh,PH Leh,L1,Jammu and Kashmir Circle,194106,194106
+7,PH Leh,PH Leh,L1,Jammu and Kashmir Circle,194107,194107
+7,PH Leh,PH Leh,L1,Jammu and Kashmir Circle,194109,194109
+7,PH Leh,PH Leh,L1,Jammu and Kashmir Circle,194401,194401
+7,PH Leh,PH Leh,L1,Jammu and Kashmir Circle,194101,194104
+7,PH Leh,PH Leh,L1,Jammu and Kashmir Circle,194201,194202
+7,PH Leh,PH Leh,L1,Jammu and Kashmir Circle,194301,194303
+7,Jammu PH,Jammu PH,L1,Jammu and Kashmir Circle,180000,185999
+7,Srinagar PH,Srinagar PH,L1,Jammu and Kashmir Circle,194105,194105
+7,Srinagar PH,Srinagar PH,L1,Jammu and Kashmir Circle,190000,193999
+7,Jamshedpur PH,Jamshedpur PH,L1,Jharkhand Circle,831000,833999
+7,Ranchi PH,Ranchi PH,L1,Jharkhand Circle,822101,822134
+7,Ranchi PH,Ranchi PH,L1,Jharkhand Circle,825101,825421
+7,Ranchi PH,Ranchi PH,L1,Jharkhand Circle,829101,829301
+7,Ranchi PH,Ranchi PH,L1,Jharkhand Circle,834001,834014
+7,Ranchi PH,Ranchi PH,L1,Jharkhand Circle,835101,835325
+7,L1 PH B.Deoghar,L1 PH B.Deoghar,L1,Jharkhand Circle,813208,813208
+7,L1 PH B.Deoghar,L1 PH B.Deoghar,L1,Jharkhand Circle,814101,814167
+7,L1 PH B.Deoghar,L1 PH B.Deoghar,L1,Jharkhand Circle,815351,815359
+7,L1 PH B.Deoghar,L1 PH B.Deoghar,L1,Jharkhand Circle,816101,816129
+7,Bengaluru Parcel Hub,Bengaluru Parcel Hub,L1,Karnataka Circle,560000,563999
+7,Hubballi PH,Hubballi PH,L1,Karnataka Circle,580000,582999
+7,Belagavi PH,Belagavi PH,L1,Karnataka Circle,590000,591999
+7,Arsikere PH,Arsikere PH,L1,Karnataka Circle,577228,577228
+7,Arsikere PH,Arsikere PH,L1,Karnataka Circle,573101,573220
+7,Arsikere PH,Arsikere PH,L1,Karnataka Circle,577101,577182
+7,Arsikere PH,Arsikere PH,L1,Karnataka Circle,577201,577245
+7,Arsikere PH,Arsikere PH,L1,Karnataka Circle,577301,577302
+7,Arsikere PH,Arsikere PH,L1,Karnataka Circle,577401,577453
+7,Arsikere PH,Arsikere PH,L1,Karnataka Circle,577547,577550
+7,Mangaluru PH,Mangaluru PH,L1,Karnataka Circle,574000,576999
+7,Mysuru PH,Mysuru PH,L1,Karnataka Circle,570000,571999
+7,Kochi PH,Kochi PH,L1,Kerala Circle,685000,685999
+7,Kochi PH,Kochi PH,L1,Kerala Circle,688000,688999
+7,Kochi PH,Kochi PH,L1,Kerala Circle,682000,683999
+7,Kochi PH,Kochi PH,L1,Kerala Circle,686661,686691
+7,Thrissur PH,Thrissur PH,L1,Kerala Circle,680000,680999
+7,Thrissur PH,Thrissur PH,L1,Kerala Circle,679313,679313
+7,Thrissur PH,Thrissur PH,L1,Kerala Circle,679330,679330
+7,Thrissur PH,Thrissur PH,L1,Kerala Circle,679332,679332
+7,Thrissur PH,Thrissur PH,L1,Kerala Circle,679357,679357
+7,Thrissur PH,Thrissur PH,L1,Kerala Circle,679505,679505
+7,Thrissur PH,Thrissur PH,L1,Kerala Circle,679523,679523
+7,Thrissur PH,Thrissur PH,L1,Kerala Circle,679591,679591
+7,Thrissur PH,Thrissur PH,L1,Kerala Circle,679105,679106
+7,Thrissur PH,Thrissur PH,L1,Kerala Circle,679121,679123
+7,Thrissur PH,Thrissur PH,L1,Kerala Circle,679303,679309
+7,Thrissur PH,Thrissur PH,L1,Kerala Circle,679321,679327
+7,Thrissur PH,Thrissur PH,L1,Kerala Circle,679336,679341
+7,Thrissur PH,Thrissur PH,L1,Kerala Circle,679531,679532
+7,Thrissur PH,Thrissur PH,L1,Kerala Circle,679533,679536
+7,Thrissur PH,Thrissur PH,L1,Kerala Circle,679551,679554
+7,Thrissur PH,Thrissur PH,L1,Kerala Circle,679561,679564
+7,Thrissur PH,Thrissur PH,L1,Kerala Circle,679571,679587
+7,Thiruvananthapuram PH,Thiruvananthapuram PH,L1,Kerala Circle,695000,695999
+7,Bhopal PH,Bhopal PH,L1,Madhya Pradesh Circle,466000,466999
+7,Bhopal PH,Bhopal PH,L1,Madhya Pradesh Circle,465223,465223
+7,Bhopal PH,Bhopal PH,L1,Madhya Pradesh Circle,465227,465227
+7,Bhopal PH,Bhopal PH,L1,Madhya Pradesh Circle,470113,470113
+7,Bhopal PH,Bhopal PH,L1,Madhya Pradesh Circle,470124,470124
+7,Bhopal PH,Bhopal PH,L1,Madhya Pradesh Circle,462000,464999
+7,Bhopal PH,Bhopal PH,L1,Madhya Pradesh Circle,465116,465118
+7,Bhopal PH,Bhopal PH,L1,Madhya Pradesh Circle,465333,465339
+7,Bhopal PH,Bhopal PH,L1,Madhya Pradesh Circle,465661,465699
+7,Gwalior PH,Gwalior PH,L1,Madhya Pradesh Circle,471000,477999
+7,Jabalpur PH,Jabalpur PH,L1,Madhya Pradesh Circle,487000,487999
+7,Jabalpur PH,Jabalpur PH,L1,Madhya Pradesh Circle,480000,480333
+7,Jabalpur PH,Jabalpur PH,L1,Madhya Pradesh Circle,480335,480337
+7,Jabalpur PH,Jabalpur PH,L1,Madhya Pradesh Circle,480339,482999
+7,Jabalpur PH,Jabalpur PH,L1,Madhya Pradesh Circle,483222,483999
+7,Indore PH,Indore PH,L1,Madhya Pradesh Circle,450000,455999
+7,Indore PH,Indore PH,L1,Madhya Pradesh Circle,456000,456220
+7,Indore PH,Indore PH,L1,Madhya Pradesh Circle,456222,456223
+7,Indore PH,Indore PH,L1,Madhya Pradesh Circle,456225,456312
+7,Indore PH,Indore PH,L1,Madhya Pradesh Circle,456314,456330
+7,Indore PH,Indore PH,L1,Madhya Pradesh Circle,456332,456775
+7,Indore PH,Indore PH,L1,Madhya Pradesh Circle,456777,456999
+7,Indore PH,Indore PH,L1,Madhya Pradesh Circle,465000,465115
+7,Indore PH,Indore PH,L1,Madhya Pradesh Circle,465119,465222
+7,Indore PH,Indore PH,L1,Madhya Pradesh Circle,465224,465226
+7,Indore PH,Indore PH,L1,Madhya Pradesh Circle,465228,465332
+7,Indore PH,Indore PH,L1,Madhya Pradesh Circle,465340,465660
+7,NPH Panaji,NPH Panaji,L1,Maharashtra Circle,403000,403999
+7,NPH Panaji,NPH Panaji,L1,Maharashtra Circle,416703,416703
+7,NPH Panaji,NPH Panaji,L1,Maharashtra Circle,416510,416525
+7,NPH Panaji,NPH Panaji,L1,Maharashtra Circle,416528,416534
+7,NPH Panaji,NPH Panaji,L1,Maharashtra Circle,416549,416550
+7,NPH Panaji,NPH Panaji,L1,Maharashtra Circle,416601,416632
+7,NPH Panaji,NPH Panaji,L1,Maharashtra Circle,416801,416813
+7,Mumbai PH,Mumbai PH,L1,Maharashtra Circle,401000,401999
+7,Mumbai PH,Mumbai PH,L1,Maharashtra Circle,402000,402999
+7,Mumbai PH,Mumbai PH,L1,Maharashtra Circle,421000,421999
+7,Mumbai PH,Mumbai PH,L1,Maharashtra Circle,400700,400799
+7,Mumbai PH,Mumbai PH,L1,Maharashtra Circle,400614,400614
+7,Mumbai PH,Mumbai PH,L1,Maharashtra Circle,400615,400615
+7,Mumbai PH,Mumbai PH,L1,Maharashtra Circle,415213,415213
+7,Mumbai PH,Mumbai PH,L1,Maharashtra Circle,400000,400199
+7,Mumbai PH,Mumbai PH,L1,Maharashtra Circle,400601,400612
+7,Mumbai PH,Mumbai PH,L1,Maharashtra Circle,410100,410299
+7,Nagpur PH,Nagpur PH,L1,Maharashtra Circle,440000,440999
+7,Nagpur PH,Nagpur PH,L1,Maharashtra Circle,445000,445999
+7,Nagpur PH,Nagpur PH,L1,Maharashtra Circle,441000,441199
+7,Nagpur PH,Nagpur PH,L1,Maharashtra Circle,441201,441204
+7,Nagpur PH,Nagpur PH,L1,Maharashtra Circle,441300,441599
+7,Nagpur PH,Nagpur PH,L1,Maharashtra Circle,441600,441999
+7,Nagpur PH,Nagpur PH,L1,Maharashtra Circle,442000,442399
+7,Pune PH,Pune PH,L1,Maharashtra Circle,411000,411999
+7,Pune PH,Pune PH,L1,Maharashtra Circle,413800,413899
+7,Pune PH,Pune PH,L1,Maharashtra Circle,413110,413110
+7,Pune PH,Pune PH,L1,Maharashtra Circle,413120,413120
+7,Pune PH,Pune PH,L1,Maharashtra Circle,410300,412499
+7,Pune PH,Pune PH,L1,Maharashtra Circle,413102,413106
+7,Pune PH,Pune PH,L1,Maharashtra Circle,413114,413116
+7,Pune PH,Pune PH,L1,Maharashtra Circle,413130,413133
+7,Chhatrapati Sambhaji Nagar PH,Chhatrapati Sambhaji Nagar PH,L1,Maharashtra Circle,413207,413207
+7,Chhatrapati Sambhaji Nagar PH,Chhatrapati Sambhaji Nagar PH,L1,Maharashtra Circle,413229,413229
+7,Chhatrapati Sambhaji Nagar PH,Chhatrapati Sambhaji Nagar PH,L1,Maharashtra Circle,413249,413249
+7,Chhatrapati Sambhaji Nagar PH,Chhatrapati Sambhaji Nagar PH,L1,Maharashtra Circle,431504,431504
+7,Chhatrapati Sambhaji Nagar PH,Chhatrapati Sambhaji Nagar PH,L1,Maharashtra Circle,431507,431507
+7,Chhatrapati Sambhaji Nagar PH,Chhatrapati Sambhaji Nagar PH,L1,Maharashtra Circle,414202,414208
+7,Chhatrapati Sambhaji Nagar PH,Chhatrapati Sambhaji Nagar PH,L1,Maharashtra Circle,423701,423703
+7,Chhatrapati Sambhaji Nagar PH,Chhatrapati Sambhaji Nagar PH,L1,Maharashtra Circle,431000,431299
+7,Chhatrapati Sambhaji Nagar PH,Chhatrapati Sambhaji Nagar PH,L1,Maharashtra Circle,431501,431502
+7,Imphal PH,Imphal PH,L1,North Eastern Circle,795000,795999
+7,L1 Parcel Hub Aizawl,L1 Parcel Hub Aizawl,L1,North Eastern Circle,796000,796999
+7,Dimapur PH,Dimapur PH,L1,North Eastern Circle,797001,797999
+7,Dimapur PH,Dimapur PH,L1,North Eastern Circle,798601,798699
+7,Agartala PH,Agartala PH,L1,North Eastern Circle,799001,799999
+7,PH ITANAGAR,PH ITANAGAR,L1,North Eastern Circle,790000,790999
+7,PH ITANAGAR,PH ITANAGAR,L1,North Eastern Circle,791000,791999
+7,Shillong PH,Shillong PH,L1,North Eastern Circle,793001,793999
+7,Bhubaneswar PH,Bhubaneswar PH,L1,Odisha Circle,759000,759999
+7,Bhubaneswar PH,Bhubaneswar PH,L1,Odisha Circle,752100,752199
+7,Bhubaneswar PH,Bhubaneswar PH,L1,Odisha Circle,751000,753999
+7,Bhubaneswar PH,Bhubaneswar PH,L1,Odisha Circle,754000,754022
+7,Bhubaneswar PH,Bhubaneswar PH,L1,Odisha Circle,754025,754081
+7,Bhubaneswar PH,Bhubaneswar PH,L1,Odisha Circle,754083,754199
+7,Bhubaneswar PH,Bhubaneswar PH,L1,Odisha Circle,754294,754295
+7,Sambalpur PH,Sambalpur PH,L1,Odisha Circle,768000,770999
+7,Berhampur PH,Berhampur PH,L1,Odisha Circle,765000,765999
+7,Berhampur PH,Berhampur PH,L1,Odisha Circle,764062,764062
+7,Berhampur PH,Berhampur PH,L1,Odisha Circle,760000,762999
+7,Chandigarh PH,Chandigarh PH,L1,Punjab Circle,160000,160999
+7,Chandigarh PH,Chandigarh PH,L1,Punjab Circle,140500,140599
+7,Chandigarh PH,Chandigarh PH,L1,Punjab Circle,140900,140999
+7,Chandigarh PH,Chandigarh PH,L1,Punjab Circle,140413,140413
+7,Chandigarh PH,Chandigarh PH,L1,Punjab Circle,144533,144533
+7,Chandigarh PH,Chandigarh PH,L1,Punjab Circle,140000,140399
+7,Chandigarh PH,Chandigarh PH,L1,Punjab Circle,140603,140604
+7,Ludhiana PH,Ludhiana PH,L1,Punjab Circle,141000,141999
+7,Ludhiana PH,Ludhiana PH,L1,Punjab Circle,148000,148999
+7,Ludhiana PH,Ludhiana PH,L1,Punjab Circle,140800,140899
+7,Ludhiana PH,Ludhiana PH,L1,Punjab Circle,152028,152028
+7,Ludhiana PH,Ludhiana PH,L1,Punjab Circle,152033,152033
+7,Ludhiana PH,Ludhiana PH,L1,Punjab Circle,142001,142038
+7,Ludhiana PH,Ludhiana PH,L1,Punjab Circle,142039,142060
+7,Ludhiana PH,Ludhiana PH,L1,Punjab Circle,152001,152024
+7,Ludhiana PH,Ludhiana PH,L1,Punjab Circle,152123,152124
+7,Jalandhar PH,Jalandhar PH,L1,Punjab Circle,146000,146999
+7,Jalandhar PH,Jalandhar PH,L1,Punjab Circle,144200,144299
+7,Jalandhar PH,Jalandhar PH,L1,Punjab Circle,144300,144399
+7,Jalandhar PH,Jalandhar PH,L1,Punjab Circle,144400,144499
+7,Jalandhar PH,Jalandhar PH,L1,Punjab Circle,144500,144599
+7,Jalandhar PH,Jalandhar PH,L1,Punjab Circle,144000,144199
+7,Jalandhar PH,Jalandhar PH,L1,Punjab Circle,144600,144899
+7,Ajmer PH,Ajmer PH,L1,Rajasthan Circle,305001,305025
+7,Ajmer PH,Ajmer PH,L1,Rajasthan Circle,305027,305920
+7,Ajmer PH,Ajmer PH,L1,Rajasthan Circle,305922,305999
+7,Ajmer PH,Ajmer PH,L1,Rajasthan Circle,311000,312999
+7,Jaipur PH,Jaipur PH,L1,Rajasthan Circle,302000,302999
+7,Jaipur PH,Jaipur PH,L1,Rajasthan Circle,304000,304999
+7,Jaipur PH,Jaipur PH,L1,Rajasthan Circle,322000,322999
+7,Jaipur PH,Jaipur PH,L1,Rajasthan Circle,303000,303199
+7,Jaipur PH,Jaipur PH,L1,Rajasthan Circle,303300,303999
+7,Jaipur PH,Jaipur PH,L1,Rajasthan Circle,321608,321613
+7,JODHPUR PH,JODHPUR PH,L1,Rajasthan Circle,342001,342901
+7,JODHPUR PH,JODHPUR PH,L1,Rajasthan Circle,342903,342999
+7,JODHPUR PH,JODHPUR PH,L1,Rajasthan Circle,344000,345999
+7,Chennai PH,Chennai PH,L1,Tamilnadu Circle,600000,603999
+7,Coimbatore PH,Coimbatore PH,L1,Tamilnadu Circle,641000,641599
+7,Coimbatore PH,Coimbatore PH,L1,Tamilnadu Circle,642000,643999
+7,Salem PH,Salem PH,L1,Tamilnadu Circle,637000,637999
+7,Salem PH,Salem PH,L1,Tamilnadu Circle,636000,636699
+7,Madurai PH,Madurai PH,L1,Tamilnadu Circle,623000,623999
+7,Madurai PH,Madurai PH,L1,Tamilnadu Circle,625000,626999
+7,Trichy PH,Trichy PH,L1,Tamilnadu Circle,639000,639999
+7,Trichy PH,Trichy PH,L1,Tamilnadu Circle,614624,614624
+7,Trichy PH,Trichy PH,L1,Tamilnadu Circle,614801,614801
+7,Trichy PH,Trichy PH,L1,Tamilnadu Circle,614805,614805
+7,Trichy PH,Trichy PH,L1,Tamilnadu Circle,612901,612905
+7,Trichy PH,Trichy PH,L1,Tamilnadu Circle,614616,614622
+7,Trichy PH,Trichy PH,L1,Tamilnadu Circle,614629,614630
+7,Trichy PH,Trichy PH,L1,Tamilnadu Circle,620000,622999
+7,Agra PH,Agra PH,L1,Uttar Pradesh Circle,205000,206999
+7,Agra PH,Agra PH,L1,Uttar Pradesh Circle,281000,285999
+7,Prayagraj PH,Prayagraj PH,L1,Uttar Pradesh Circle,211000,211999
+7,Prayagraj PH,Prayagraj PH,L1,Uttar Pradesh Circle,212100,212599
+7,Prayagraj PH,Prayagraj PH,L1,Uttar Pradesh Circle,229408,229413
+7,Prayagraj PH,Prayagraj PH,L1,Uttar Pradesh Circle,230000,231999
+7,Varanasi PH,Varanasi PH,L1,Uttar Pradesh Circle,231005,231005
+7,Varanasi PH,Varanasi PH,L1,Uttar Pradesh Circle,221000,221499
+7,Varanasi PH,Varanasi PH,L1,Uttar Pradesh Circle,232100,232399
+7,Varanasi PH,Varanasi PH,L1,Uttar Pradesh Circle,232000,233999
+7,Varanasi PH,Varanasi PH,L1,Uttar Pradesh Circle,275202,275205
+7,Bareilly PH,Bareilly PH,L1,Uttar Pradesh Circle,262406,262406
+7,Bareilly PH,Bareilly PH,L1,Uttar Pradesh Circle,207001,207999
+7,Bareilly PH,Bareilly PH,L1,Uttar Pradesh Circle,242001,242999
+7,Bareilly PH,Bareilly PH,L1,Uttar Pradesh Circle,243001,243999
+7,Bareilly PH,Bareilly PH,L1,Uttar Pradesh Circle,262001,262305
+7,Gorakhpur PH,Gorakhpur PH,L1,Uttar Pradesh Circle,272001,272999
+7,Gorakhpur PH,Gorakhpur PH,L1,Uttar Pradesh Circle,273001,273999
+7,Gorakhpur PH,Gorakhpur PH,L1,Uttar Pradesh Circle,274001,274999
+7,Kanpur PH,Kanpur PH,L1,Uttar Pradesh Circle,208000,208999
+7,Kanpur PH,Kanpur PH,L1,Uttar Pradesh Circle,210000,210999
+7,Kanpur PH,Kanpur PH,L1,Uttar Pradesh Circle,209101,209999
+7,Kanpur PH,Kanpur PH,L1,Uttar Pradesh Circle,212601,212665
+7,Lucknow PH,Lucknow PH,L1,Uttar Pradesh Circle,228000,228999
+7,Lucknow PH,Lucknow PH,L1,Uttar Pradesh Circle,241000,241999
+7,Lucknow PH,Lucknow PH,L1,Uttar Pradesh Circle,222301,222303
+7,Lucknow PH,Lucknow PH,L1,Uttar Pradesh Circle,225000,226999
+7,Lucknow PH,Lucknow PH,L1,Uttar Pradesh Circle,227304,227999
+7,Lucknow PH,Lucknow PH,L1,Uttar Pradesh Circle,229001,229407
+7,Lucknow PH,Lucknow PH,L1,Uttar Pradesh Circle,229414,229999
+7,Ghaziabad PH,Ghaziabad PH,L1,Uttar Pradesh Circle,201000,201999
+7,Ghaziabad PH,Ghaziabad PH,L1,Uttar Pradesh Circle,203000,203999
+7,Ghaziabad PH,Ghaziabad PH,L1,Uttar Pradesh Circle,245100,245999
+7,Rudrapur PH,Rudrapur PH,L1,Uttarakhand Circle,263000,263999
+7,Rudrapur PH,Rudrapur PH,L1,Uttarakhand Circle,262500,262599
+7,Rudrapur PH,Rudrapur PH,L1,Uttarakhand Circle,244715,244715
+7,Rudrapur PH,Rudrapur PH,L1,Uttarakhand Circle,244717,244717
+7,Rudrapur PH,Rudrapur PH,L1,Uttarakhand Circle,262405,262405
+7,Rudrapur PH,Rudrapur PH,L1,Uttarakhand Circle,244712,244713
+7,Rudrapur PH,Rudrapur PH,L1,Uttarakhand Circle,262308,262311
+7,Rudrapur PH,Rudrapur PH,L1,Uttarakhand Circle,262401,262402
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,246141,246141
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,246171,246171
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,246174,246174
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,246178,246178
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,246401,246401
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,246419,246419
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,246431,246431
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,246435,246435
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,246453,246453
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,246455,246455
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,246469,246469
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,246495,246495
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,248011,248011
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,248121,248121
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,248140,248140
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,248165,248165
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,248171,248171
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,248179,248179
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,249126,249126
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,249128,249128
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,249141,249141
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,249152,249152
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,249161,249161
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,249171,249171
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,249196,249196
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,249301,249301
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,246421,246422
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,246424,246429
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,246439,246446
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,246448,246449
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,246471,246475
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,246481,246483
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,246486,246488
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,248001,248003
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,248005,248009
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,248012,248014
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,248015,248018
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,248122,248125
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,248142,248143
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,248145,248146
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,248158,248159
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,248195,248199
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,249135,249136
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,249185,249186
+7,Dehradun PH,Dehradun PH,L1,Uttarakhand Circle,249192,249194
+7,Port Blair  PH,Port Blair  PH,L1,West Bengal Circle,744000,744999
+7,Siliguri PH,Siliguri PH,L1,West Bengal Circle,733200,733999
+7,Siliguri PH,Siliguri PH,L1,West Bengal Circle,734000,737999
+7,KOLKATA PH,KOLKATA PH,L1,West Bengal Circle,700000,700999
+7,2 CBPO PH,2 CBPO PH,L1,APS CIRCLE,909900,909999
+7,Hyderabad PH,PH Karimnagar,L2,Telangana Circle,505000,505999
+7,Hyderabad PH,PH Warangal,L2,Telangana Circle,504000,504999
+7,Hyderabad PH,PH Nalgonda,L2,Telangana Circle,508000,508999
+7,Hyderabad PH,PH Nizamabad,L2,Telangana Circle,503000,503999
+7,Hyderabad PH,Kurnool PH,L2,Andhra Pradesh Circle,518000,518999
+7,Hyderabad PH,Gulbarga PH,L2,Karnataka Circle,585000,585999
+7,Hyderabad PH,Raichur PH,L2,Karnataka Circle,584000,584999
+7,Tirupathi PH,Cuddapah PH,L2,Andhra Pradesh Circle,516000,516999
+7,Tirupathi PH,Nellore PH,L2,Andhra Pradesh Circle,524000,524999
+7,Vijayawada PH,Guntur PH,L2,Andhra Pradesh Circle,522000,522999
+7,Vijayawada PH,Ongole PH,L2,Andhra Pradesh Circle,523000,523999
+7,Vijayawada PH,Eluru PH,L2,Andhra Pradesh Circle,534000,534999
+7,Vijayawada PH,Rajamundry PH,L2,Andhra Pradesh Circle,533000,533999
+7,Visakhapatnam PH,Srikakulam Road  PH,L2,Andhra Pradesh Circle,532000,532999
+7,Visakhapatnam PH,Jeypore(K) PH,L2,Odisha Circle,763000,763999
+7,PH DIBRUGARH,Jorhat PH,L2,Assam Circle,785000,785999
+7,Guwahati PH,Tezpur PH,L2,Assam Circle,787000,787999
+7,Guwahati PH,Tezpur PH,L2,Assam Circle,784190,784190
+7,Guwahati PH,Tezpur PH,L2,Assam Circle,784513,784513
+7,Guwahati PH,Tezpur PH,L2,Assam Circle,784514,784514
+7,Patna PH,Chapra PH,L2,Bihar Circle,841000,841999
+7,Patna PH,Bhagalpur PH,L2,Bihar Circle,853000,853999
+7,Patna PH,Gaya PH,L2,Bihar Circle,821000,821999
+7,Patna PH,Gaya PH,L2,Bihar Circle,802132,802132
+7,Patna PH,Gaya PH,L2,Bihar Circle,802226,802226
+7,Rajkot PH,Bhavnagar PH,L2,Gujarat Circle,364000,364999
+7,Rajkot PH,Bhavnagar PH,L2,Gujarat Circle,365000,365999
+7,Rajkot PH,Bhuj PH,L2,Gujarat Circle,370000,370999
+7,Rajkot PH,Jamnagar PH,L2,Gujarat Circle,361000,361999
+7,Rajkot PH,Jamnagar PH,L2,Gujarat Circle,363655,363655
+7,Vadodara PH,Anand PH,L2,Gujarat Circle,387000,387999
+7,Vadodara PH,Bharuch PH,L2,Gujarat Circle,393000,393999
+7,Vadodara PH,Bharuch PH,L2,Gujarat Circle,391800,391899
+7,Vadodara PH,Bharuch PH,L2,Gujarat Circle,394800,394899
+7,Ambala PH,Karnal PH,L2,Haryana Circle,132000,132999
+7,Ambala PH,Karnal PH,L2,Haryana Circle,136000,136999
+7,Ambala PH,Mandi PH,L2,Himachal Pradesh Circle,175000,175999
+7,Rohtak PH,Sonepat PH,L2,Haryana Circle,131000,131999
+7,Rohtak PH,Hisar PH,L2,Haryana Circle,125000,125999
+7,Pathankot PH,Hamirpur PH,L2,Himachal Pradesh Circle,177000,177999
+7,Pathankot PH,Hamirpur PH,L2,Himachal Pradesh Circle,174400,174499
+7,Pathankot PH,Hamirpur PH,L2,Himachal Pradesh Circle,174309,174309
+7,Pathankot PH,Hamirpur PH,L2,Himachal Pradesh Circle,174311,174311
+7,Pathankot PH,Hamirpur PH,L2,Himachal Pradesh Circle,174312,174312
+7,Pathankot PH,Hamirpur PH,L2,Himachal Pradesh Circle,174505,174505
+7,Bengaluru Parcel Hub,Ananthapur PH,L2,Andhra Pradesh Circle,515000,515999
+7,Bengaluru Parcel Hub,Davanagere PH,L2,Karnataka Circle,577000,577099
+7,Bengaluru Parcel Hub,Tumakuru PH,L2,Karnataka Circle,572000,572999
+7,Bengaluru Parcel Hub,Tumakuru PH,L2,Karnataka Circle,561202,561202
+7,Hubballi PH,Hosapete PH,L2,Karnataka Circle,583000,583999
+7,Kochi PH,Kottayam PH,L2,Kerala Circle,686512,686512
+7,Kochi PH,Kottayam PH,L2,Kerala Circle,686513,686513
+7,Kochi PH,Kottayam PH,L2,Kerala Circle,686518,686518
+7,Kochi PH,Kottayam PH,L2,Kerala Circle,686519,686519
+7,Kochi PH,Kottayam PH,L2,Kerala Circle,686520,686520
+7,Kochi PH,Kottayam PH,L2,Kerala Circle,686536,686536
+7,Thiruvananthapuram PH,Kollam PH,L2,Kerala Circle,690000,690999
+7,Thiruvananthapuram PH,Kollam PH,L2,Kerala Circle,691000,691999
+7,Bhopal PH,Itarsi PH,L2,Madhya Pradesh Circle,480334,480334
+7,Bhopal PH,Itarsi PH,L2,Madhya Pradesh Circle,480338,480338
+7,Jabalpur PH,Katni PH,L2,Madhya Pradesh Circle,484000,484999
+7,Jabalpur PH,Satna PH,L2,Madhya Pradesh Circle,488000,488999
+7,Indore PH,Ratlam PH,L2,Madhya Pradesh Circle,456221,456221
+7,Indore PH,Ratlam PH,L2,Madhya Pradesh Circle,456224,456224
+7,Indore PH,Ratlam PH,L2,Madhya Pradesh Circle,456313,456313
+7,Indore PH,Ratlam PH,L2,Madhya Pradesh Circle,456331,456331
+7,Indore PH,Ratlam PH,L2,Madhya Pradesh Circle,456776,456776
+7,Mumbai PH,Ratnagiri PH,L2,Maharashtra Circle,415208,415208
+7,Mumbai PH,Ratnagiri PH,L2,Maharashtra Circle,415214,415214
+7,Mumbai PH,Jalgaon PH,L2,Maharashtra Circle,425500,425599
+7,Mumbai PH,Jalgaon PH,L2,Maharashtra Circle,424119,424119
+7,Mumbai PH,Jalgaon PH,L2,Maharashtra Circle,425327,425327
+7,Mumbai PH,Jalgaon PH,L2,Maharashtra Circle,425420,425420
+7,Mumbai PH,Jalgaon PH,L2,Maharashtra Circle,425524,425524
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,422308,422308
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,422606,422606
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,423108,423108
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,423117,423117
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,424109,424109
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,424318,424318
+7,Nagpur PH,Akola PH,L2,Maharashtra Circle,443000,443999
+7,Nagpur PH,Akola PH,L2,Maharashtra Circle,444200,444299
+7,Pune PH,Miraj PH,L2,Maharashtra Circle,415400,415499
+7,Pune PH,Miraj PH,L2,Maharashtra Circle,415101,415101
+7,Pune PH,Satara PH,L2,Maharashtra Circle,412800,412899
+7,Pune PH,Satara PH,L2,Maharashtra Circle,415000,415099
+7,Pune PH,Satara PH,L2,Maharashtra Circle,415500,415599
+7,Pune PH,Satara PH,L2,Maharashtra Circle,415312,415312
+7,Pune PH,Ahilyanagar PH,L2,Maharashtra Circle,423600,423699
+7,Pune PH,Ahilyanagar PH,L2,Maharashtra Circle,413201,413201
+7,Pune PH,Ahilyanagar PH,L2,Maharashtra Circle,414201,414201
+7,Pune PH,Ahilyanagar PH,L2,Maharashtra Circle,423107,423107
+7,Pune PH,Ahilyanagar PH,L2,Maharashtra Circle,423109,423109
+7,Pune PH,Solapur PH,L2,Maharashtra Circle,413000,413099
+7,Pune PH,Solapur PH,L2,Maharashtra Circle,413101,413101
+7,Pune PH,Solapur PH,L2,Maharashtra Circle,413118,413118
+7,Pune PH,Solapur PH,L2,Maharashtra Circle,413206,413206
+7,Pune PH,Solapur PH,L2,Maharashtra Circle,413248,413248
+7,Pune PH,Solapur PH,L2,Maharashtra Circle,413544,413544
+7,Pune PH,Solapur PH,L2,Maharashtra Circle,431522,431522
+7,Chhatrapati Sambhaji Nagar PH,Nanded PH,L2,Maharashtra Circle,431600,431699
+7,Chhatrapati Sambhaji Nagar PH,Nanded PH,L2,Maharashtra Circle,431800,431899
+7,Chhatrapati Sambhaji Nagar PH,Nanded PH,L2,Maharashtra Circle,431503,431503
+7,Chhatrapati Sambhaji Nagar PH,Nanded PH,L2,Maharashtra Circle,431523,431523
+7,Chhatrapati Sambhaji Nagar PH,Nanded PH,L2,Maharashtra Circle,431530,431530
+7,Bhubaneswar PH,Balasore PH,L2,Odisha Circle,757000,757999
+7,Bhubaneswar PH,Balasore PH,L2,Odisha Circle,756000,756099
+7,Bhubaneswar PH,Jajpur Road  PH,L2,Odisha Circle,755000,755999
+7,Bhubaneswar PH,Jajpur Road  PH,L2,Odisha Circle,758000,758999
+7,Bhubaneswar PH,Jajpur Road  PH,L2,Odisha Circle,756100,756199
+7,Bhubaneswar PH,Jajpur Road  PH,L2,Odisha Circle,754082,754082
+7,Bhubaneswar PH,Jajpur Road  PH,L2,Odisha Circle,754296,754296
+7,Chandigarh PH,Patiala PH,L2,Punjab Circle,147000,147999
+7,Chandigarh PH,Patiala PH,L2,Punjab Circle,140700,140799
+7,Chandigarh PH,Patiala PH,L2,Punjab Circle,140417,140417
+7,Chandigarh PH,Patiala PH,L2,Punjab Circle,140802,140802
+7,Chandigarh PH,Patiala PH,L2,Punjab Circle,141411,141411
+7,Chandigarh PH,Patiala PH,L2,Punjab Circle,141801,141801
+7,Ludhiana PH,Bathinda PH,L2,Punjab Circle,151000,151999
+7,Jalandhar PH,Amritsar PH,L2,Punjab Circle,143000,143999
+7,Jalandhar PH,Amritsar PH,L2,Punjab Circle,145000,145999
+7,Ajmer PH,Udaipur PH,L2,Rajasthan Circle,327000,327999
+7,Ajmer PH,Udaipur PH,L2,Rajasthan Circle,305921,305921
+7,Ajmer PH,Udaipur PH,L2,Rajasthan Circle,307025,307025
+7,Ajmer PH,Falna PH,L2,Rajasthan Circle,306000,306999
+7,Ajmer PH,Falna PH,L2,Rajasthan Circle,343000,343999
+7,Jaipur PH,Alwar PH,L2,Rajasthan Circle,301000,301999
+7,Jaipur PH,Alwar PH,L2,Rajasthan Circle,321633,321633
+7,Jaipur PH,Bharatpur PH,L2,Rajasthan Circle,328000,328999
+7,Jaipur PH,Sikar PH,L2,Rajasthan Circle,331802,331802
+7,JODHPUR PH,BIKANER PH,L2,Rajasthan Circle,334000,334999
+7,JODHPUR PH,BIKANER PH,L2,Rajasthan Circle,341000,341999
+7,JODHPUR PH,BIKANER PH,L2,Rajasthan Circle,305026,305026
+7,JODHPUR PH,BIKANER PH,L2,Rajasthan Circle,331801,331801
+7,JODHPUR PH,BIKANER PH,L2,Rajasthan Circle,331803,331803
+7,JODHPUR PH,BIKANER PH,L2,Rajasthan Circle,331811,331811
+7,JODHPUR PH,BIKANER PH,L2,Rajasthan Circle,342902,342902
+7,JODHPUR PH,SRIGANGANAGAR  PH,L2,Rajasthan Circle,335000,335999
+7,Chennai PH,Jolarpettai PH,L2,Tamilnadu Circle,635100,635199
+7,Chennai PH,Jolarpettai PH,L2,Tamilnadu Circle,635304,635304
+7,Chennai PH,Villupuram PH,L2,Tamilnadu Circle,606200,606299
+7,Chennai PH,Villupuram PH,L2,Tamilnadu Circle,607107,607107
+7,Chennai PH,Villupuram PH,L2,Tamilnadu Circle,607209,607209
+7,Chennai PH,Vriddhachalam PH,L2,Tamilnadu Circle,608000,608999
+7,Chennai PH,Vriddhachalam PH,L2,Tamilnadu Circle,606300,606399
+7,Chennai PH,Vriddhachalam PH,L2,Tamilnadu Circle,607205,607205
+7,Salem PH,Dharmapuri PH,L2,Tamilnadu Circle,635201,635201
+7,Salem PH,Dharmapuri PH,L2,Tamilnadu Circle,635202,635202
+7,Salem PH,Dharmapuri PH,L2,Tamilnadu Circle,635205,635205
+7,Salem PH,Dharmapuri PH,L2,Tamilnadu Circle,635305,635305
+7,Salem PH,Erode PH,L2,Tamilnadu Circle,638000,638999
+7,Madurai PH,Tirunelveli PH,L2,Tamilnadu Circle,627000,627999
+7,Madurai PH,Dindigul PH,L2,Tamilnadu Circle,624000,624999
+7,Madurai PH,Karaikudi PH,L2,Tamilnadu Circle,630000,630999
+7,Madurai PH,NAGERCOIL PH,L2,Tamilnadu Circle,629000,629999
+7,Madurai PH,Tuticorin PH,L2,Tamilnadu Circle,628000,628999
+7,Trichy PH,Thanjavur PH,L2,Tamilnadu Circle,613700,613799
+7,Trichy PH,Thanjavur PH,L2,Tamilnadu Circle,614623,614623
+7,Trichy PH,Thanjavur PH,L2,Tamilnadu Circle,614701,614701
+7,Trichy PH,Thanjavur PH,L2,Tamilnadu Circle,614723,614723
+7,Agra PH,PH Jhansi,L2,Uttar Pradesh Circle,284419,284419
+7,Agra PH,PH Jhansi,L2,Uttar Pradesh Circle,284501,284501
+7,Agra PH,PH Jhansi,L2,Uttar Pradesh Circle,285001,285001
+7,Agra PH,PH Jhansi,L2,Uttar Pradesh Circle,285223,285223
+7,Agra PH,Aligarh PH,L2,Uttar Pradesh Circle,202000,202999
+7,Agra PH,Aligarh PH,L2,Uttar Pradesh Circle,204000,204999
+7,Lucknow PH,Ayodhya PH,L2,Uttar Pradesh Circle,224000,224999
+7,Lucknow PH,Kheri PH,L2,Uttar Pradesh Circle,261000,261999
+7,Ghaziabad PH,Saharanpur PH,L2,Uttar Pradesh Circle,247662,247662
+7,Ghaziabad PH,Saharanpur PH,L2,Uttar Pradesh Circle,247669,247669
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,246001,246001
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,246113,246113
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,246121,246121
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,246142,246142
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,246144,246144
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,246155,246155
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,246169,246169
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,246179,246179
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,246278,246278
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,246279,246279
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,246285,246285
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,247661,247661
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,249001,249001
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,249127,249127
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,249137,249137
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,249155,249155
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,249165,249165
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,249175,249175
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,249199,249199
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,249302,249302
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,249304,249304
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,249306,249306
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,249401,249401
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,249402,249402
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,249405,249405
+7,Siliguri PH,Malda PH,L2,West Bengal Circle,732000,732999
+7,Siliguri PH,Malda PH,L2,West Bengal Circle,733100,733199
+7,KOLKATA PH,Burdwan PH,L2,West Bengal Circle,713000,713999
+7,KOLKATA PH,Burdwan PH,L2,West Bengal Circle,731000,731999
+7,KOLKATA PH,Kharagpur PH,L2,West Bengal Circle,721000,721999
+7,KOLKATA PH,Berhampore WB PH,L2,West Bengal Circle,742000,742999
+7,KOLKATA PH,Sealdah PH,L2,West Bengal Circle,741000,741999
+7,KOLKATA PH,Sealdah PH,L2,West Bengal Circle,743000,743999
+7,Chandigarh PH,Patiala PH,L2,Punjab Circle,140401,140412
+7,Chandigarh PH,Patiala PH,L2,Punjab Circle,140601,140602
+7,Ludhiana PH,Bathinda PH,L2,Punjab Circle,152025,152026
+7,Ludhiana PH,Bathinda PH,L2,Punjab Circle,152031,152032
+7,Ludhiana PH,Bathinda PH,L2,Punjab Circle,152101,152122
+7,Ludhiana PH,Bathinda PH,L2,Punjab Circle,152128,152132
+7,Pathankot PH,Hamirpur PH,L2,Himachal Pradesh Circle,174303,174305
+7,Pathankot PH,Hamirpur PH,L2,Himachal Pradesh Circle,176039,176045
+7,Pathankot PH,Hamirpur PH,L2,Himachal Pradesh Circle,176048,176049
+7,Pathankot PH,Hamirpur PH,L2,Himachal Pradesh Circle,176108,176111
+7,Prayagraj PH,Varanasi PH,L2,Uttar Pradesh Circle,221001,221600
+7,Prayagraj PH,Mau PH,L2,Uttar Pradesh Circle,221601,221999
+7,Prayagraj PH,Varanasi PH,L2,Uttar Pradesh Circle,222001,222300
+7,Prayagraj PH,Varanasi PH,L2,Uttar Pradesh Circle,222304,222999
+7,Prayagraj PH,Varanasi PH,L2,Uttar Pradesh Circle,223101,223105
+7,Prayagraj PH,Mau PH,L2,Uttar Pradesh Circle,223221,223227
+7,Prayagraj PH,Varanasi PH,L2,Uttar Pradesh Circle,232101,232999
+7,Prayagraj PH,Varanasi PH,L2,Uttar Pradesh Circle,233001,233999
+7,Bareilly PH,Moradabad PH,L2,Uttar Pradesh Circle,244001,244701
+7,Bareilly PH,Moradabad PH,L2,Uttar Pradesh Circle,244901,244999
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,246123,246125
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,246127,246131
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,246146,246150
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,246161,246167
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,246172,246173
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,246175,246177
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,246193,246194
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,246275,246277
+7,Ghaziabad PH,Saharanpur PH,L2,Uttar Pradesh Circle,246701,246764
+7,Ghaziabad PH,Saharanpur PH,L2,Uttar Pradesh Circle,247001,247600
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,247650,247656
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,247663,247665
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,247667,247668
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,247670,247671
+7,Ghaziabad PH,Meerut Cantt RMS PH,L2,Uttar Pradesh Circle,247771,247778
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,249121,249125
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,249130,249132
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,249145,249146
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,249180,249181
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,249201,249205
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,249403,249404
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,249407,249408
+7,Dehradun PH,Haridwar PH,L2,Uttarakhand Circle,249411,249412
+7,Ghaziabad PH,Meerut Cantt RMS PH,L2,Uttar Pradesh Circle,250000,251999
+7,Lucknow PH,Kheri PH,L2,Uttar Pradesh Circle,262700,262999
+7,Gorakhpur PH,Gonda PH,L2,Uttar Pradesh Circle,271001,271999
+7,Prayagraj PH,Mau PH,L2,Uttar Pradesh Circle,275101,275200
+7,Prayagraj PH,Varanasi PH,L2,Uttar Pradesh Circle,275201,275205
+7,Prayagraj PH,Mau PH,L2,Uttar Pradesh Circle,275206,275999
+7,Prayagraj PH,Mau PH,L2,Uttar Pradesh Circle,276001,276999
+7,Prayagraj PH,Mau PH,L2,Uttar Pradesh Circle,277001,277999
+7,Agra PH,PH Jhansi,L2,Uttar Pradesh Circle,284001,284003
+7,Agra PH,PH Jhansi,L2,Uttar Pradesh Circle,284120,284126
+7,Agra PH,PH Jhansi,L2,Uttar Pradesh Circle,284127,284128
+7,Agra PH,PH Jhansi,L2,Uttar Pradesh Circle,284135,284136
+7,Agra PH,PH Jhansi,L2,Uttar Pradesh Circle,284201,284206
+7,Agra PH,PH Jhansi,L2,Uttar Pradesh Circle,284301,284306
+7,Agra PH,PH Jhansi,L2,Uttar Pradesh Circle,284401,284406
+7,Agra PH,PH Jhansi,L2,Uttar Pradesh Circle,285121,285130
+7,Agra PH,PH Jhansi,L2,Uttar Pradesh Circle,285201,285206
+7,Ajmer PH,Falna PH,L2,Rajasthan Circle,307001,307024
+7,Ajmer PH,Falna PH,L2,Rajasthan Circle,307026,307999
+7,Ajmer PH,Udaipur PH,L2,Rajasthan Circle,313000,314999
+7,Jaipur PH,Bharatpur PH,L2,Rajasthan Circle,321001,321602
+7,Jaipur PH,Alwar PH,L2,Rajasthan Circle,321605,321607
+7,Jaipur PH,Bharatpur PH,L2,Rajasthan Circle,321614,321632
+7,Jaipur PH,Bharatpur PH,L2,Rajasthan Circle,321634,321999
+7,Jaipur PH,Kota PH,L2,Rajasthan Circle,323000,326999
+7,Jaipur PH,Sikar PH,L2,Rajasthan Circle,331001,331800
+7,Jaipur PH,Sikar PH,L2,Rajasthan Circle,331804,331810
+7,Jaipur PH,Sikar PH,L2,Rajasthan Circle,331812,331999
+7,Jaipur PH,Sikar PH,L2,Rajasthan Circle,332000,333999
+7,Rajkot PH,Jamnagar PH,L2,Gujarat Circle,360510,360540
+7,Rajkot PH,Junagadh PH,L2,Gujarat Circle,360545,360590
+7,Rajkot PH,Junagadh PH,L2,Gujarat Circle,362001,362999
+7,Ahmedabad PH,Mehasana PH,L2,Gujarat Circle,384000,385999
+7,Vadodara PH,Anand PH,L2,Gujarat Circle,388000,388269
+7,Vadodara PH,Anand PH,L2,Gujarat Circle,388271,388699
+7,Vadodara PH,Bharuch PH,L2,Gujarat Circle,392000,392299
+7,Vadodara PH,Bharuch PH,L2,Gujarat Circle,394115,394116
+7,Surat PH,Valsad PH,L2,Gujarat Circle,396000,396499
+7,Surat PH,Valsad PH,L2,Gujarat Circle,396521,396590
+7,Pune PH,Solapur PH,L2,Maharashtra Circle,413107,413109
+7,Pune PH,Solapur PH,L2,Maharashtra Circle,413111,413113
+7,Pune PH,Solapur PH,L2,Maharashtra Circle,413202,413203
+7,Pune PH,Ahilyanagar PH,L2,Maharashtra Circle,413204,413205
+7,Pune PH,Solapur PH,L2,Maharashtra Circle,413208,413228
+7,Pune PH,Solapur PH,L2,Maharashtra Circle,413250,413255
+7,Pune PH,Solapur PH,L2,Maharashtra Circle,413300,413499
+7,Pune PH,Solapur PH,L2,Maharashtra Circle,413501,413534
+7,Pune PH,Solapur PH,L2,Maharashtra Circle,413581,413582
+7,Pune PH,Solapur PH,L2,Maharashtra Circle,413601,413608
+7,Pune PH,Solapur PH,L2,Maharashtra Circle,413623,413624
+7,Pune PH,Ahilyanagar PH,L2,Maharashtra Circle,413701,413739
+7,Pune PH,Ahilyanagar PH,L2,Maharashtra Circle,414000,414199
+7,Pune PH,Ahilyanagar PH,L2,Maharashtra Circle,414300,414799
+7,Pune PH,Satara PH,L2,Maharashtra Circle,415102,415124
+7,Mumbai PH,Ratnagiri PH,L2,Maharashtra Circle,415202,415203
+7,Pune PH,Satara PH,L2,Maharashtra Circle,415205,415207
+7,Pune PH,Satara PH,L2,Maharashtra Circle,415209,415212
+7,Pune PH,Miraj PH,L2,Maharashtra Circle,415301,415311
+7,Pune PH,Miraj PH,L2,Maharashtra Circle,415313,415315
+7,Mumbai PH,Ratnagiri PH,L2,Maharashtra Circle,415600,415899
+7,Pune PH,Miraj PH,L2,Maharashtra Circle,416001,416013
+7,Pune PH,Miraj PH,L2,Maharashtra Circle,416101,416122
+7,Pune PH,Miraj PH,L2,Maharashtra Circle,416138,416146
+7,Pune PH,Miraj PH,L2,Maharashtra Circle,416201,416236
+7,Pune PH,Miraj PH,L2,Maharashtra Circle,416300,416499
+7,Pune PH,Miraj PH,L2,Maharashtra Circle,416501,416509
+7,Pune PH,Miraj PH,L2,Maharashtra Circle,416526,416527
+7,Pune PH,Miraj PH,L2,Maharashtra Circle,416551,416552
+7,Mumbai PH,Ratnagiri PH,L2,Maharashtra Circle,416701,416702
+7,Mumbai PH,Ratnagiri PH,L2,Maharashtra Circle,416704,416713
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,422001,422013
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,422101,422105
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,422112,422113
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,422201,422215
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,422221,422222
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,422301,422306
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,422401,422403
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,422501,422502
+7,Pune PH,Ahilyanagar PH,L2,Maharashtra Circle,422601,422605
+7,Pune PH,Ahilyanagar PH,L2,Maharashtra Circle,422608,422622
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,423101,423102
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,423104,423106
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,423110,423111
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,423201,423213
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,423301,423303
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,423401,423403
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,423501,423502
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,424001,424006
+7,Mumbai PH,Jalgaon PH,L2,Maharashtra Circle,424101,424108
+7,Mumbai PH,Jalgaon PH,L2,Maharashtra Circle,424201,424208
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,424301,424311
+7,Mumbai PH,Jalgaon PH,L2,Maharashtra Circle,425001,425004
+7,Mumbai PH,Jalgaon PH,L2,Maharashtra Circle,425101,425116
+7,Mumbai PH,Jalgaon PH,L2,Maharashtra Circle,425201,425203
+7,Mumbai PH,Jalgaon PH,L2,Maharashtra Circle,425200,425399
+7,Mumbai PH,Jalgaon PH,L2,Maharashtra Circle,425301,425311
+7,Mumbai PH,Jalgaon PH,L2,Maharashtra Circle,425401,425402
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,425403,425419
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,425421,425432
+7,Mumbai PH,Nashik Road  PH,L2,Maharashtra Circle,425442,425452
+7,Mumbai PH,Jalgaon PH,L2,Maharashtra Circle,425501,425508
+7,Chhatrapati Sambhaji Nagar PH,Nanded PH,L2,Maharashtra Circle,431401,431402
+7,Chhatrapati Sambhaji Nagar PH,Nanded PH,L2,Maharashtra Circle,431505,431506
+7,Chhatrapati Sambhaji Nagar PH,Nanded PH,L2,Maharashtra Circle,431508,431521
+7,Chhatrapati Sambhaji Nagar PH,Nanded PH,L2,Maharashtra Circle,431536,431542
+7,Chhatrapati Sambhaji Nagar PH,Nanded PH,L2,Maharashtra Circle,431701,431714
+7,Chhatrapati Sambhaji Nagar PH,Nanded PH,L2,Maharashtra Circle,431741,431750
+7,Nagpur PH,Chandrapur PH,L2,Maharashtra Circle,441205,441226
+7,Nagpur PH,Chandrapur PH,L2,Maharashtra Circle,442400,442999
+7,Nagpur PH,Akola PH,L2,Maharashtra Circle,444000,444199
+7,Nagpur PH,Akola PH,L2,Maharashtra Circle,444301,444312
+7,Nagpur PH,Akola PH,L2,Maharashtra Circle,444400,444599
+7,Nagpur PH,Amravati PH,L2,Maharashtra Circle,444600,444999
+7,Nagpur PH,Amravati PH,L2,Maharashtra Circle,444601,444915
+7,Indore PH,Ratlam PH,L2,Madhya Pradesh Circle,457000,458999
+7,Bhopal PH,Itarsi PH,L2,Madhya Pradesh Circle,460000,461999
+7,Jabalpur PH,Katni PH,L2,Madhya Pradesh Circle,470000,470112
+7,Jabalpur PH,Katni PH,L2,Madhya Pradesh Circle,470114,470123
+7,Jabalpur PH,Katni PH,L2,Madhya Pradesh Circle,470125,470999
+7,Jabalpur PH,Katni PH,L2,Madhya Pradesh Circle,483001,483221
+7,Jabalpur PH,Satna PH,L2,Madhya Pradesh Circle,485000,486999
+7,Raipur PH,Durg PH,L2,Chhattisgarh Circle,490000,491999
+7,Raipur PH,Bilaspur Chhattisgarh  PH,L2,Chhattisgarh Circle,495000,497999
+7,Hyderabad PH,PH Warangal,L2,Telangana Circle,506000,507999
+7,Bengaluru Parcel Hub,Davanagere PH,L2,Karnataka Circle,577501,577543
+7,Bengaluru Parcel Hub,Davanagere PH,L2,Karnataka Circle,577545,577546
+7,Bengaluru Parcel Hub,Davanagere PH,L2,Karnataka Circle,577553,577700
+7,Hubballi PH,Bagalkot PH,L2,Karnataka Circle,586000,587999
+7,Chennai PH,Villupuram PH,L2,Tamilnadu Circle,604000,605999
+7,Chennai PH,Vriddhachalam PH,L2,Tamilnadu Circle,606000,606199
+7,Chennai PH,Villupuram PH,L2,Tamilnadu Circle,606400,606999
+7,Chennai PH,Vriddhachalam PH,L2,Tamilnadu Circle,607000,607106
+7,Chennai PH,Vriddhachalam PH,L2,Tamilnadu Circle,607108,607200
+7,Chennai PH,Villupuram PH,L2,Tamilnadu Circle,607201,607204
+7,Chennai PH,Vriddhachalam PH,L2,Tamilnadu Circle,607210,607401
+7,Chennai PH,Villupuram PH,L2,Tamilnadu Circle,607402,607403
+7,Chennai PH,Vriddhachalam PH,L2,Tamilnadu Circle,607404,607999
+7,Trichy PH,Mayiladuturai PH,L2,Tamilnadu Circle,609000,611999
+7,Trichy PH,Thanjavur PH,L2,Tamilnadu Circle,612000,612900
+7,Trichy PH,Thanjavur PH,L2,Tamilnadu Circle,613000,613699
+7,Trichy PH,Thanjavur PH,L2,Tamilnadu Circle,614000,614615
+7,Trichy PH,Thanjavur PH,L2,Tamilnadu Circle,614625,614628
+7,Trichy PH,Thanjavur PH,L2,Tamilnadu Circle,614631,614699
+7,Trichy PH,Mayiladuturai PH,L2,Tamilnadu Circle,614702,614722
+7,Trichy PH,Mayiladuturai PH,L2,Tamilnadu Circle,614724,614799
+7,Trichy PH,Thanjavur PH,L2,Tamilnadu Circle,614802,614804
+7,Trichy PH,Mayiladuturai PH,L2,Tamilnadu Circle,614806,614810
+7,Trichy PH,Thanjavur PH,L2,Tamilnadu Circle,614811,614999
+7,Chennai PH,Vellore PH,L2,Tamilnadu Circle,631000,632999
+7,Chennai PH,Jolarpettai PH,L2,Tamilnadu Circle,635203,635204
+7,Chennai PH,Jolarpettai PH,L2,Tamilnadu Circle,635206,635299
+7,Salem PH,Dharmapuri PH,L2,Tamilnadu Circle,635301,635303
+7,Chennai PH,Jolarpettai PH,L2,Tamilnadu Circle,635306,635399
+7,Chennai PH,Jolarpettai PH,L2,Tamilnadu Circle,635400,635999
+7,Salem PH,Dharmapuri PH,L2,Tamilnadu Circle,636700,636999
+7,Coimbatore PH,Tirupur PH,L2,Tamilnadu Circle,641600,641999
+7,Mangaluru PH,Kannur PH,L2,Kerala Circle,670000,671999
+7,Kochi PH,Kottayam PH,L2,Kerala Circle,686000,686099
+7,Kochi PH,Kottayam PH,L2,Kerala Circle,686101,686106
+7,Kochi PH,Kottayam PH,L2,Kerala Circle,686121,686199
+7,Kochi PH,Kottayam PH,L2,Kerala Circle,686501,686508
+7,Kochi PH,Kottayam PH,L2,Kerala Circle,686509,686511
+7,Kochi PH,Kottayam PH,L2,Kerala Circle,686514,686517
+7,Kochi PH,Kottayam PH,L2,Kerala Circle,686521,686522
+7,Kochi PH,Kottayam PH,L2,Kerala Circle,686531,686535
+7,Kochi PH,Kottayam PH,L2,Kerala Circle,686537,686539
+7,Kochi PH,Kottayam PH,L2,Kerala Circle,686540,686548
+7,Kochi PH,Kottayam PH,L2,Kerala Circle,686555,686660
+7,Kochi PH,Kottayam PH,L2,Kerala Circle,686692,686999
+7,Thiruvananthapuram PH,Tiruvalla PH,L2,Kerala Circle,689100,689693
+7,Thiruvananthapuram PH,Tiruvalla PH,L2,Kerala Circle,689694,689696
+7,Thiruvananthapuram PH,Tiruvalla PH,L2,Kerala Circle,689698,689999
+7,KOLKATA PH,Howrah PH,L2,West Bengal Circle,711000,712999
+7,KOLKATA PH,Bankura PH,L2,West Bengal Circle,722000,723999
+7,Bhubaneswar PH,Jajpur Road  PH,L2,Odisha Circle,754023,754024
+7,Bhubaneswar PH,Cuttack PH,L2,Odisha Circle,754200,754293
+7,Bhubaneswar PH,Cuttack PH,L2,Odisha Circle,754297,754299
+7,Visakhapatnam PH,Jeypore(K) PH,L2,Odisha Circle,764000,764061
+7,Visakhapatnam PH,Jeypore(K) PH,L2,Odisha Circle,764063,764999
+7,Sambalpur PH,Balangir PH,L2,Odisha Circle,766000,767999
+7,Guwahati PH,Tezpur PH,L2,Assam Circle,784001,784189
+7,Guwahati PH,Tezpur PH,L2,Assam Circle,784501,784510
+7,Guwahati PH,Tezpur PH,L2,Assam Circle,784521,784529
+7,Patna PH,Gaya PH,L2,Bihar Circle,802211,802221
+7,Patna PH,Kiul PH,L2,Bihar Circle,805000,811999
+7,Patna PH,Bhagalpur PH,L2,Bihar Circle,812000,813999
+7,Ranchi PH,Dhanbad PH,L2,Jharkhand Circle,815301,815318
+7,Patna PH,Gaya PH,L2,Bihar Circle,823000,824999
+7,Ranchi PH,Dhanbad PH,L2,Jharkhand Circle,826001,828404
+7,Patna PH,Barauni PH,L2,Bihar Circle,851000,852999
+7,Patna PH,Barauni PH,L2,Bihar Circle,854000,855999
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673001,673012
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673014,673021
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673027,673029
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673032,673032
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673101,673106
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673121,673124
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673301,673313
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673315,673317
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673323,673323
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673328,673328
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673501,673509
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673513,673513
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673517,673517
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673521,673529
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673541,673542
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673570,673577
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673579,673582
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673585,673586
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673591,673593
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673595,673596
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673601,673604
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673611,673614
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673616,673616
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673620,673620
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673631,673642
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673645,673645
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673647,673647
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673655,673655
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673661,673661
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,673314,673314
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,676101,676109
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,676301,676309
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,676311,676312
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,676317,676317
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,676319,676320
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,676501,676503
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,676508,676508
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,676510,676510
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,676528,676528
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,676551,676553
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,676561,676562
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,676121,676123
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,676504,676507
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,676509,676509
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,676517,676517
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,676519,676519
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,676521,676523
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,676525,676525
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,676541,676542
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,679321,679332
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,679333,679334
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,679338,679341
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,679357,679357
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,679571,679587
+7,Kozhikode PH,Kozhikode PH,L1,Kerala Circle,679591,679591
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,678001,678014
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,678101,678104
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,678501,678508
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,678510,678510
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,678512,678512
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,678531,678534
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,678541,678546
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,678551,678557
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,678571,678574
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,678581,678583
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,678591,678598
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,678601,678601
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,678611,678613
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,678621,678624
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,678631,678633
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,678641,678642
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,678651,678651
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,678661,678661
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,678671,678671
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,678681,678688
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,678701,678706
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,678721,678722
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,678731,678732
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,678762,678762
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,679101,679104
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,679121,679123
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,679301,679309
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,679313,679313
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,679335,679337
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,679501,679506
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,679511,679516
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,679521,679523
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,679533,679536
+7,Coimbatore PH,Palakkad PH,L2,Kerala Circle,679551,679554

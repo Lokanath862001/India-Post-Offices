@@ -14,7 +14,7 @@ void main() {
 
     // Verify that the search input field is present
     expect(find.byType(TextField), findsOneWidget);
-    expect(find.text('Enter 6-digit Pincode or Office Name...'), findsOneWidget);
+    expect(find.text('Enter 3+ digit Pincode or Office Name...'), findsOneWidget);
 
     // Verify that the initial search state is "Ready to Search"
     expect(find.text('Ready to Search'), findsOneWidget);

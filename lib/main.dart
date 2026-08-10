@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:excel/excel.dart' hide Border;
 import 'package:path_provider/path_provider.dart';
@@ -266,7 +267,49 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
   final Map<String, List<dynamic>> _cache = {};
   
   List<dynamic> _offices = [];
+  List<Map<String, dynamic>> _localOfficesData = [];
+  int _searchCount = 0;
+  String _selectedOfficeTypeFilter = 'All Offices';
   bool _isLoading = false;
+
+  List<dynamic> get _displayOffices {
+    if (_selectedOfficeTypeFilter == 'All Offices' || _selectedOfficeTypeFilter == 'All') return _offices;
+
+    return _offices.where((po) {
+      final typeLabel = getOfficeTypeLabel(po).toUpperCase();
+      final hub = (po['HubLevel'] ?? po['hubLevel'] ?? '').toString().toUpperCase();
+      final l1 = (po['L1OfficeName'] ?? po['l1OfficeName'] ?? '').toString().toUpperCase();
+      final l2 = (po['L2OfficeName'] ?? po['l2OfficeName'] ?? '').toString().toUpperCase();
+      final name = (po['Name'] ?? po['name'] ?? '').toString().toUpperCase();
+      final branchType = (po['BranchType'] ?? '').toString().toUpperCase();
+
+      if (_selectedOfficeTypeFilter == 'NSH') {
+        return l1.contains('NSH') || l2.contains('NSH') || name.contains('NSH') || typeLabel.contains('NSH') || branchType.contains('NSH');
+      }
+      if (_selectedOfficeTypeFilter == 'ICH') {
+        return l1.contains('ICH') || l2.contains('ICH') || name.contains('ICH') || typeLabel.contains('ICH') || branchType.contains('ICH');
+      }
+      if (_selectedOfficeTypeFilter == 'PH') {
+        return l1.contains('PH') || l2.contains('PH') || name.contains(' PH') || name.endsWith('PH') || typeLabel.contains('PH') || branchType.contains('PH');
+      }
+      if (_selectedOfficeTypeFilter == 'L1 Offices') {
+        return hub == 'L1' || typeLabel.contains('L1');
+      }
+      if (_selectedOfficeTypeFilter == 'L2 Offices') {
+        return hub == 'L2' || typeLabel.contains('L2');
+      }
+      if (_selectedOfficeTypeFilter == 'Head Office') {
+        return typeLabel == 'HEAD OFFICE' || getOfficeRank(po) == 0;
+      }
+      if (_selectedOfficeTypeFilter == 'Sub Office') {
+        return typeLabel == 'SUB OFFICE' || getOfficeRank(po) == 1;
+      }
+      if (_selectedOfficeTypeFilter == 'Branch Office') {
+        return typeLabel == 'BRANCH OFFICE' || getOfficeRank(po) == 2;
+      }
+      return true;
+    }).toList();
+  }
   String? _errorMessage;
   Timer? _debounce;
   BannerAd? _bannerAd;
@@ -280,10 +323,9 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
   int _currentlyReadingIndex = -1;
   Completer<void>? _speechCompleter;
 
-  static const String _localVersion = '1.0.4';
-  static const int _localBuild = 5;
+  static const String _localVersion = '1.0.5';
+  static const int _localBuild = 6;
 
-  bool _isCheckingVersion = true;
   bool _showUpdatePrompt = false;
   Map<String, dynamic>? _remoteVersionData;
 
@@ -292,6 +334,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
     super.initState();
     themeNotifier.addListener(_onThemeChanged);
     _searchController.addListener(_onSearchChanged);
+    _loadLocalOffices();
     _loadBannerAd();
     _loadInterstitialAd();
     _checkAppVersion();
@@ -406,14 +449,6 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
   Future<void> _checkAppVersion() async {
     const String remoteUrl = 'https://raw.githubusercontent.com/Lokanath862001/India-Post-Offices/main/version.json';
 
-    if (mounted) {
-      setState(() {
-        _isCheckingVersion = true;
-      });
-    }
-
-    await Future.delayed(const Duration(milliseconds: 800));
-
     try {
       final response = await http.get(Uri.parse(remoteUrl)).timeout(const Duration(seconds: 5));
       if (response.statusCode == 200) {
@@ -426,26 +461,15 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
           isUpdateAvailable = true;
         }
 
-        if (isUpdateAvailable) {
-          if (mounted) {
-            setState(() {
-              _remoteVersionData = data;
-              _showUpdatePrompt = true;
-              _isCheckingVersion = false;
-            });
-          }
-          return;
+        if (isUpdateAvailable && mounted) {
+          setState(() {
+            _remoteVersionData = data;
+            _showUpdatePrompt = true;
+          });
         }
       }
     } catch (e) {
       debugPrint('Version check error: $e');
-    }
-
-    if (mounted) {
-      setState(() {
-        _showUpdatePrompt = false;
-        _isCheckingVersion = false;
-      });
     }
   }
 
@@ -467,88 +491,6 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
         );
       }
     }
-  }
-
-  Widget _buildCheckingVersionScreen() {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              currentTheme.scaffoldBgStart,
-              currentTheme.scaffoldBgEnd,
-            ],
-          ),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: currentTheme.primary.withOpacity(0.3),
-                      blurRadius: 20,
-                      spreadRadius: 5,
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(50),
-                  child: Image.asset(
-                    'assets/images/logo.jpg',
-                    width: 100,
-                    height: 100,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 32),
-              Text(
-                'INDIA POST',
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 3,
-                  color: currentTheme.brightness == Brightness.light ? currentTheme.textPrimary : Colors.white,
-                ),
-              ),
-              Text(
-                'OFFICES DIRECTORY',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2,
-                  color: currentTheme.secondary.withOpacity(0.9),
-                ),
-              ),
-              const SizedBox(height: 48),
-              SizedBox(
-                width: 40,
-                height: 40,
-                child: CircularProgressIndicator(
-                  strokeWidth: 3,
-                  valueColor: AlwaysStoppedAnimation<Color>(currentTheme.primary),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Checking for updates...',
-                style: TextStyle(
-                  color: currentTheme.textSecondary,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   Widget _buildUpdatePromptScreen() {
@@ -777,8 +719,105 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
     });
   }
 
+  Future<void> _loadLocalOffices() async {
+    if (_localOfficesData.isNotEmpty) return;
+    try {
+      final jsonStr = await rootBundle.loadString('assets/otheroffices/other_offices.json');
+      final List<dynamic> parsed = jsonDecode(jsonStr);
+      _localOfficesData = parsed.cast<Map<String, dynamic>>();
+    } catch (e) {
+      debugPrint('Error loading local offices JSON: $e');
+    }
+  }
+
+  Map<String, dynamic> _formatLocalOffice(Map<String, dynamic> item) {
+    final l1 = (item['l1OfficeName'] ?? '').toString().trim();
+    final l2 = (item['l2OfficeName'] ?? '').toString().trim();
+    final hub = (item['hubLevel'] ?? '').toString().trim();
+    final circle = (item['circleName'] ?? '').toString().trim();
+    final fromPin = (item['fromPin'] ?? '').toString().trim();
+    final toPin = (item['toPin'] ?? '').toString().trim();
+    final sortplanId = (item['sortplanId'] ?? '').toString().trim();
+
+    final pinDisplay = (fromPin == toPin || toPin.isEmpty) ? fromPin : '$fromPin - $toPin';
+    final nameDisplay = l2.isNotEmpty ? '$l2 ($l1)' : l1;
+
+    return {
+      'isLocal': true,
+      'Name': nameDisplay,
+      'Pincode': pinDisplay,
+      'Division': l2.isNotEmpty ? l2 : l1,
+      'Region': '$l1 (Hub: $hub)',
+      'Circle': circle,
+      'BranchType': hub.isNotEmpty ? 'Local ($hub)' : 'Local Data',
+      'SortplanId': sortplanId,
+      'L1OfficeName': l1,
+      'L2OfficeName': l2,
+      'HubLevel': hub,
+      'FromPin': fromPin,
+      'ToPin': toPin,
+      'DeliveryStatus': 'Local Data',
+      'District': l2.isNotEmpty ? l2 : l1,
+      'State': circle,
+    };
+  }
+
+  List<Map<String, dynamic>> _searchLocalOfficesByPin(String query) {
+    if (_localOfficesData.isEmpty) return [];
+
+    final int? qMin = int.tryParse(query.padRight(6, '0'));
+    final int? qMax = int.tryParse(query.padRight(6, '9'));
+
+    final List<Map<String, dynamic>> results = [];
+
+    for (final item in _localOfficesData) {
+      final String fpStr = (item['fromPin'] ?? '').toString().trim();
+      final String tpStr = (item['toPin'] ?? '').toString().trim();
+      final int? fp = int.tryParse(fpStr);
+      final int? tp = int.tryParse(tpStr);
+
+      bool isMatch = false;
+      if (qMin != null && qMax != null && fp != null && tp != null) {
+        if (fp <= qMax && tp >= qMin) {
+          isMatch = true;
+        }
+      }
+      if (!isMatch) {
+        if (fpStr.startsWith(query) || tpStr.startsWith(query)) {
+          isMatch = true;
+        }
+      }
+
+      if (isMatch) {
+        results.add(_formatLocalOffice(item));
+      }
+    }
+
+    return results;
+  }
+
+  List<Map<String, dynamic>> _searchLocalOfficesByText(String query) {
+    if (_localOfficesData.isEmpty) return [];
+
+    final String q = query.toLowerCase();
+    final List<Map<String, dynamic>> results = [];
+
+    for (final item in _localOfficesData) {
+      final String l1 = (item['l1OfficeName'] ?? '').toString().toLowerCase();
+      final String l2 = (item['l2OfficeName'] ?? '').toString().toLowerCase();
+      final String circle = (item['circleName'] ?? '').toString().toLowerCase();
+
+      if (l1.contains(q) || l2.contains(q) || circle.contains(q)) {
+        results.add(_formatLocalOffice(item));
+      }
+    }
+
+    return results;
+  }
+
   // Classification logic for sorting
   int getOfficeRank(Map<String, dynamic> po) {
+    if (po['isLocal'] == true) return -2;
     final name = (po['Name'] ?? '').toString().toUpperCase();
     final branchType = (po['BranchType'] ?? '').toString().toUpperCase();
 
@@ -807,6 +846,10 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
   }
 
   String getOfficeTypeLabel(Map<String, dynamic> po) {
+    if (po['isLocal'] == true) {
+      final hub = po['HubLevel'] ?? '';
+      return hub.isNotEmpty ? 'Local ($hub)' : 'Local Data';
+    }
     final rank = getOfficeRank(po);
     switch (rank) {
       case 0:
@@ -821,6 +864,9 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
   }
 
   Color _getBadgeColor(String label) {
+    if (label.startsWith('Local')) {
+      return const Color(0xFFAB47BC); // Purple / Magenta for local dataset matches
+    }
     switch (label) {
       case 'Head Office':
         return const Color(0xFFFFB300); // Amber
@@ -830,6 +876,40 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
         return const Color(0xFF00E676); // Light Green
       default:
         return Colors.grey;
+    }
+  }
+
+  List<dynamic> _deduplicateOffices(List<dynamic> list) {
+    final List<dynamic> uniqueList = [];
+    final Set<String> seenKeys = {};
+
+    for (final po in list) {
+      final name = (po['Name'] ?? '').toString().trim().toLowerCase();
+      final pin = (po['Pincode'] ?? '').toString().trim().toLowerCase();
+      final type = getOfficeTypeLabel(po).trim().toLowerCase();
+      final key = '$name|$pin|$type';
+
+      if (!seenKeys.contains(key)) {
+        seenKeys.add(key);
+        uniqueList.add(po);
+      }
+    }
+
+    return uniqueList;
+  }
+
+  void _setSearchResults(String cacheKey, List<dynamic> results) {
+    _cache[cacheKey] = results;
+    setState(() {
+      _offices = results;
+      _isLoading = false;
+    });
+
+    if (results.isNotEmpty) {
+      _searchCount++;
+      if (_searchCount % 10 == 0) {
+        _showInterstitialAdIfAvailable(() {});
+      }
     }
   }
 
@@ -844,14 +924,16 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
       return;
     }
 
+    await _loadLocalOffices();
+
     final isNumeric = RegExp(r'^\d+$').hasMatch(trimmed);
 
-    // Validate inputs for API call
+    // Validate inputs
     if (isNumeric) {
-      if (trimmed.length != 6) {
+      if (trimmed.length < 3) {
         setState(() {
           _isLoading = false;
-          _errorMessage = 'Please enter a valid 6-digit Pincode';
+          _errorMessage = 'Please enter at least 3 digits of Pincode';
           _offices = [];
         });
         return;
@@ -874,37 +956,83 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
 
     final cacheKey = trimmed.toLowerCase();
     if (_cache.containsKey(cacheKey)) {
-      setState(() {
-        _offices = _cache[cacheKey]!;
-        _isLoading = false;
-      });
+      _setSearchResults(cacheKey, _cache[cacheKey]!);
       return;
     }
 
     try {
-      final url = isNumeric
-          ? 'https://api.postalpincode.in/pincode/$trimmed'
-          : 'https://api.postalpincode.in/postoffice/$trimmed';
+      if (isNumeric) {
+        final List<Map<String, dynamic>> localMatches = _searchLocalOfficesByPin(trimmed);
 
-      final response = await http.get(Uri.parse(url));
+        if (trimmed.length == 6) {
+          // Fetch 6-digit pincode API data
+          final url = 'https://api.postalpincode.in/pincode/$trimmed';
+          final response = await http.get(Uri.parse(url));
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        if (data.isNotEmpty) {
-          final status = data[0]['Status'];
-          final message = data[0]['Message'];
+          List<dynamic> apiFilteredOffices = [];
+          if (response.statusCode == 200) {
+            final List<dynamic> data = jsonDecode(response.body);
+            if (data.isNotEmpty && data[0]['Status'] == 'Success') {
+              final List<dynamic> postOffices = data[0]['PostOffice'] ?? [];
+              apiFilteredOffices = postOffices.where((po) {
+                final rank = getOfficeRank(po);
+                return rank >= 0;
+              }).toList();
 
-          if (status == 'Success') {
+              apiFilteredOffices.sort((a, b) {
+                int rankA = getOfficeRank(a);
+                int rankB = getOfficeRank(b);
+                if (rankA != rankB) {
+                  return rankA.compareTo(rankB);
+                }
+                return (a['Name'] ?? '').toString().compareTo((b['Name'] ?? '').toString());
+              });
+            }
+          }
+
+          // Combine: Local data FIRST, then HO, SO, and BO from API, deduplicated for a unique offices list
+          final List<dynamic> combined = _deduplicateOffices([...localMatches, ...apiFilteredOffices]);
+
+          if (combined.isNotEmpty) {
+            _setSearchResults(cacheKey, combined);
+          } else {
+            setState(() {
+              _offices = [];
+              _errorMessage = 'No matches found for Pincode $trimmed';
+              _isLoading = false;
+            });
+          }
+        } else {
+          // 3, 4, or 5 digit pincode search -> display local matches
+          final List<dynamic> combined = _deduplicateOffices(localMatches);
+          if (combined.isNotEmpty) {
+            _setSearchResults(cacheKey, combined);
+          } else {
+            setState(() {
+              _offices = [];
+              _errorMessage = 'No local matches found for Pincode prefix "$trimmed"';
+              _isLoading = false;
+            });
+          }
+        }
+      } else {
+        // Text query
+        final List<Map<String, dynamic>> localMatches = _searchLocalOfficesByText(trimmed);
+
+        final url = 'https://api.postalpincode.in/postoffice/$trimmed';
+        final response = await http.get(Uri.parse(url));
+
+        List<dynamic> apiFilteredOffices = [];
+        if (response.statusCode == 200) {
+          final List<dynamic> data = jsonDecode(response.body);
+          if (data.isNotEmpty && data[0]['Status'] == 'Success') {
             final List<dynamic> postOffices = data[0]['PostOffice'] ?? [];
-
-            // Filter out offices that are not Head Office, Sub Office, or Branch Office
-            final List<dynamic> filteredOffices = postOffices.where((po) {
+            apiFilteredOffices = postOffices.where((po) {
               final rank = getOfficeRank(po);
               return rank >= 0;
             }).toList();
 
-            // Sort post offices strictly by rank hierarchy, then name
-            filteredOffices.sort((a, b) {
+            apiFilteredOffices.sort((a, b) {
               int rankA = getOfficeRank(a);
               int rankB = getOfficeRank(b);
               if (rankA != rankB) {
@@ -912,52 +1040,49 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
               }
               return (a['Name'] ?? '').toString().compareTo((b['Name'] ?? '').toString());
             });
-
-            _cache[cacheKey] = filteredOffices;
-
-            setState(() {
-              _offices = filteredOffices;
-              _isLoading = false;
-            });
-          } else {
-            setState(() {
-              _offices = [];
-              _errorMessage = message ?? 'No records found';
-              _isLoading = false;
-            });
           }
+        }
+
+        final List<dynamic> combined = _deduplicateOffices([...localMatches, ...apiFilteredOffices]);
+
+        if (combined.isNotEmpty) {
+          _setSearchResults(cacheKey, combined);
         } else {
           setState(() {
             _offices = [];
-            _errorMessage = 'Invalid response structure from server';
+            _errorMessage = 'No records found for "$trimmed"';
             _isLoading = false;
           });
         }
+      }
+    } catch (e) {
+      final localMatches = isNumeric
+          ? _searchLocalOfficesByPin(trimmed)
+          : _searchLocalOfficesByText(trimmed);
+
+      final combined = _deduplicateOffices(localMatches);
+
+      if (combined.isNotEmpty) {
+        _setSearchResults(cacheKey, combined);
       } else {
         setState(() {
           _offices = [];
-          _errorMessage = 'Server returned error code: ${response.statusCode}';
+          _errorMessage = 'Failed to connect. Please check your internet connection.';
           _isLoading = false;
         });
       }
-    } catch (e) {
-      setState(() {
-        _offices = [];
-        _errorMessage = 'Failed to connect. Please check your internet connection.';
-        _isLoading = false;
-      });
     }
   }
 
   void _handleExportWithAd() {
-    if (_offices.isEmpty) return;
+    if (_displayOffices.isEmpty) return;
     _showInterstitialAdIfAvailable(() {
       _exportToExcel();
     });
   }
 
   Future<void> _exportToExcel() async {
-    if (_offices.isEmpty) return;
+    if (_displayOffices.isEmpty) return;
 
     setState(() {
       _isLoading = true;
@@ -982,7 +1107,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
       ]);
 
       // Add data rows
-      for (final po in _offices) {
+      for (final po in _displayOffices) {
         final String name = po['Name'] ?? '';
         final String type = getOfficeTypeLabel(po);
         final String pincode = po['Pincode'] ?? '';
@@ -1138,7 +1263,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
   }
 
   Future<void> _dictateTableData() async {
-    if (_offices.isEmpty) return;
+    if (_displayOffices.isEmpty) return;
 
     if (!_isTtsInitialized) {
       await _initTts();
@@ -1155,7 +1280,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
   }
 
   Future<void> _startDictatingTableData() async {
-    final int count = _offices.length;
+    final int count = _displayOffices.length;
     final int limit = min(count, 50);
 
     setState(() {
@@ -1179,17 +1304,17 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
       );
     }
 
-    final bool isSamePincode = _areAllOfficesSamePincode(_offices);
+    final bool isSamePincode = _areAllOfficesSamePincode(_displayOffices);
 
     try {
       if (isSamePincode) {
         // --- SAME PINCODE LIST ---
         // Find the primary upper office (Head Office or highest rank office)
-        final upperOffice = _offices.firstWhere(
+        final upperOffice = _displayOffices.firstWhere(
           (po) => getOfficeRank(po) <= 1,
-          orElse: () => _offices[0],
+          orElse: () => _displayOffices[0],
         );
-        final int upperIndex = _offices.indexOf(upperOffice);
+        final int upperIndex = _displayOffices.indexOf(upperOffice);
 
         final String upperName = upperOffice['Name'] ?? '';
         final String upperPin = upperOffice['Pincode'] ?? '';
@@ -1221,7 +1346,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
         for (int i = 0; i < limit; i++) {
           if (!_isSpeaking || !mounted) break;
 
-          final po = _offices[i];
+          final po = _displayOffices[i];
           if (po == upperOffice) continue; // Upper office was already read first with pincode
 
           setState(() {
@@ -1233,7 +1358,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
 
           final String pincode = po['Pincode'] ?? '';
           final cacheKey = pincode.toLowerCase();
-          List<dynamic>? searchList = _cache[cacheKey] ?? _offices;
+          List<dynamic>? searchList = _cache[cacheKey] ?? _displayOffices;
 
           for (final item in searchList) {
             if (item['Pincode'] == pincode && item['Name'] != lowerName) {
@@ -1267,7 +1392,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
             _currentlyReadingIndex = i;
           });
 
-          final po = _offices[i];
+          final po = _displayOffices[i];
           final String name = po['Name'] ?? '';
           final String pincode = po['Pincode'] ?? '';
           final String formattedPin = _formatPincodeDigitByDigit(pincode);
@@ -1336,9 +1461,6 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isCheckingVersion) {
-      return _buildCheckingVersionScreen();
-    }
     if (_showUpdatePrompt) {
       return _buildUpdatePromptScreen();
     }
@@ -1880,7 +2002,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
             controller: _searchController,
             style: TextStyle(color: currentTheme.textPrimary, fontSize: 16),
             decoration: InputDecoration(
-              hintText: 'Enter 6-digit Pincode or Office Name...',
+              hintText: 'Enter 3+ digit Pincode or Office Name...',
               hintStyle: TextStyle(color: currentTheme.textHint),
               prefixIcon: Icon(Icons.search, color: currentTheme.primary),
               suffixIcon: _searchController.text.isNotEmpty
@@ -1910,7 +2032,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Showing ${min(_offices.length, 50)} results',
+                  'Showing ${min(_displayOffices.length, 50)} results',
                   style: TextStyle(
                     fontSize: 12,
                     color: currentTheme.textHint,
@@ -1921,7 +2043,48 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                   Wrap(
                     crossAxisAlignment: WrapCrossAlignment.center,
                     spacing: 4,
+                    runSpacing: 4,
                     children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        margin: const EdgeInsets.only(right: 2),
+                        decoration: BoxDecoration(
+                          color: currentTheme.primary.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: currentTheme.primary.withOpacity(0.3), width: 1),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: _selectedOfficeTypeFilter,
+                            isDense: true,
+                            icon: Icon(Icons.filter_list_rounded, size: 14, color: currentTheme.primary),
+                            dropdownColor: currentTheme.cardBg,
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.bold,
+                              color: currentTheme.primary,
+                            ),
+                            items: const [
+                              DropdownMenuItem(value: 'All Offices', child: Text('All Offices')),
+                              DropdownMenuItem(value: 'NSH', child: Text('NSH')),
+                              DropdownMenuItem(value: 'ICH', child: Text('ICH')),
+                              DropdownMenuItem(value: 'PH', child: Text('PH')),
+                              DropdownMenuItem(value: 'L1 Offices', child: Text('L1 Offices')),
+                              DropdownMenuItem(value: 'L2 Offices', child: Text('L2 Offices')),
+                              DropdownMenuItem(value: 'Head Office', child: Text('Head Office')),
+                              DropdownMenuItem(value: 'Sub Office', child: Text('Sub Office')),
+                              DropdownMenuItem(value: 'Branch Office', child: Text('Branch Office')),
+                            ],
+                            onChanged: (String? newValue) {
+                              if (newValue != null) {
+                                setState(() {
+                                  _selectedOfficeTypeFilter = newValue;
+                                });
+                              }
+                            },
+                          ),
+                        ),
+                      ),
                       TextButton.icon(
                         onPressed: _handleExportWithAd,
                         icon: Icon(Icons.file_download, size: 16, color: currentTheme.primary),
@@ -2068,6 +2231,15 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
       );
     }
 
+    if (_displayOffices.isEmpty) {
+      return Center(
+        child: Text(
+          'No offices found for selected type filter "$_selectedOfficeTypeFilter".',
+          style: TextStyle(color: currentTheme.textSecondary, fontWeight: FontWeight.w500),
+        ),
+      );
+    }
+
     return _buildResponsiveTable();
   }
 
@@ -2152,7 +2324,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                         ),
                       ),
                     ],
-                    rows: _offices.asMap().entries.map((entry) {
+                    rows: _displayOffices.asMap().entries.map((entry) {
                       final int index = entry.key;
                       final po = entry.value;
                       final String name = po['Name'] ?? '';
