@@ -323,11 +323,8 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
   int _currentlyReadingIndex = -1;
   Completer<void>? _speechCompleter;
 
-  static const String _localVersion = '1.0.5';
-  static const int _localBuild = 7;
-
-  bool _showUpdatePrompt = false;
-  Map<String, dynamic>? _remoteVersionData;
+  static const String _localVersion = '1.1.2';
+  static const int _localBuild = 12;
 
   @override
   void initState() {
@@ -337,7 +334,6 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
     _loadLocalOffices();
     _loadBannerAd();
     _loadInterstitialAd();
-    _checkAppVersion();
   }
 
   void _onThemeChanged() {
@@ -446,281 +442,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
     }
   }
 
-  Future<void> _checkAppVersion() async {
-    const String remoteUrl = 'https://raw.githubusercontent.com/Lokanath862001/India-Post-Offices/main/version.json';
 
-    try {
-      final response = await http.get(Uri.parse(remoteUrl)).timeout(const Duration(seconds: 5));
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final int latestBuild = data['latest_build'] ?? 1;
-        final String latestVersion = data['latest_version'] ?? '';
-        
-        bool isUpdateAvailable = latestBuild > _localBuild;
-        if (!isUpdateAvailable && latestVersion.isNotEmpty && latestVersion != _localVersion) {
-          isUpdateAvailable = true;
-        }
-
-        if (isUpdateAvailable && mounted) {
-          setState(() {
-            _remoteVersionData = data;
-            _showUpdatePrompt = true;
-          });
-        }
-      }
-    } catch (e) {
-      debugPrint('Version check error: $e');
-    }
-  }
-
-  Future<void> _launchUpdateUrl(String urlString) async {
-    final Uri url = Uri.parse(urlString);
-    try {
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-      } else {
-        throw 'Could not launch $urlString';
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Could not open store: $e'),
-            backgroundColor: const Color(0xFFEF4444),
-          ),
-        );
-      }
-    }
-  }
-
-  Widget _buildUpdatePromptScreen() {
-    final String latestVersion = _remoteVersionData?['latest_version'] ?? '1.0.5';
-    final String releaseNotes = _remoteVersionData?['release_notes'] ?? 'New features, security updates, and performance optimizations are available.';
-    final String storeUrl = _remoteVersionData?['play_store_url'] ?? 'https://play.google.com/store/apps/details?id=com.oedc.indiaPostOffices';
-
-    return PopScope(
-      canPop: true,
-      onPopInvoked: (didPop) {
-        if (didPop) return;
-        setState(() {
-          _showUpdatePrompt = false;
-        });
-      },
-      child: Scaffold(
-        body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                currentTheme.scaffoldBgStart,
-                currentTheme.scaffoldBgEnd,
-              ],
-            ),
-          ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: [
-                          currentTheme.primary.withOpacity(0.25),
-                          currentTheme.secondary.withOpacity(0.25),
-                        ],
-                      ),
-                      border: Border.all(
-                        color: currentTheme.primary.withOpacity(0.4),
-                        width: 2,
-                      ),
-                    ),
-                    child: Icon(
-                      Icons.system_update_rounded,
-                      size: 72,
-                      color: currentTheme.primary,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: currentTheme.primary.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: currentTheme.primary.withOpacity(0.5)),
-                    ),
-                    child: Text(
-                      'NEW UPDATE AVAILABLE',
-                      style: TextStyle(
-                        color: currentTheme.primary,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'App Update Available',
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      color: currentTheme.brightness == Brightness.light ? currentTheme.textPrimary : Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'A new version of India Post Offices is available on Google Play with new features and performance enhancements.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 13.5,
-                      height: 1.4,
-                      color: currentTheme.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: currentTheme.border.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          'Installed: v$_localVersion',
-                          style: TextStyle(fontSize: 12, color: currentTheme.textHint, fontWeight: FontWeight.w500),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Icon(Icons.arrow_forward_rounded, size: 16, color: Colors.grey),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: currentTheme.secondary.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: currentTheme.secondary.withOpacity(0.4)),
-                        ),
-                        child: Text(
-                          'Latest: v$latestVersion',
-                          style: TextStyle(fontSize: 12, color: currentTheme.secondary, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Spacer(),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "What's New in this Release:",
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: currentTheme.brightness == Brightness.light ? currentTheme.textPrimary : Colors.white,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    width: double.infinity,
-                    constraints: const BoxConstraints(maxHeight: 160),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: currentTheme.cardBg.withOpacity(0.7),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: currentTheme.border.withOpacity(0.5),
-                      ),
-                    ),
-                    child: SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      child: Text(
-                        releaseNotes,
-                        style: TextStyle(
-                          fontSize: 13,
-                          height: 1.4,
-                          color: currentTheme.textSecondary,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
-                  Column(
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        height: 54,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(14),
-                          gradient: LinearGradient(
-                            colors: [
-                              currentTheme.primary,
-                              currentTheme.primary.withRed(255).withGreen(140),
-                            ],
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: currentTheme.primary.withOpacity(0.35),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: ElevatedButton.icon(
-                          onPressed: () => _launchUpdateUrl(storeUrl),
-                          icon: const Icon(Icons.get_app_rounded, size: 22),
-                          label: const Text(
-                            'Update Now on Play Store',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            foregroundColor: Colors.white,
-                            shadowColor: Colors.transparent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      TextButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            _showUpdatePrompt = false;
-                          });
-                        },
-                        icon: Icon(Icons.arrow_forward_rounded, size: 16, color: currentTheme.textSecondary),
-                        label: Text(
-                          'Skip for Now & Continue to App',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: currentTheme.textSecondary,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 
   void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
@@ -737,6 +459,17 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
       _localOfficesData = parsed.cast<Map<String, dynamic>>();
     } catch (e) {
       debugPrint('Error loading local offices JSON: $e');
+    }
+  }
+
+  Future<void> _launchUpdateUrl(String urlString) async {
+    final Uri url = Uri.parse(urlString);
+    try {
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      }
+    } catch (e) {
+      debugPrint('Could not launch URL $urlString: $e');
     }
   }
 
@@ -917,7 +650,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
 
     if (results.isNotEmpty) {
       _searchCount++;
-      if (_searchCount % 10 == 0) {
+      if (_searchCount % 5 == 0) {
         _showInterstitialAdIfAvailable(() {});
       }
     }
@@ -1000,8 +733,8 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
             }
           }
 
-          // Combine: Local data FIRST, then HO, SO, and BO from API, deduplicated for a unique offices list
-          final List<dynamic> combined = _deduplicateOffices([...localMatches, ...apiFilteredOffices]);
+          // Combine: For 6 digits -> API results (HO, SO, BO) first, and other offices at the bottom
+          final List<dynamic> combined = _deduplicateOffices([...apiFilteredOffices, ...localMatches]);
 
           if (combined.isNotEmpty) {
             _setSearchResults(cacheKey, combined);
@@ -1471,9 +1204,6 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_showUpdatePrompt) {
-      return _buildUpdatePromptScreen();
-    }
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -2036,113 +1766,169 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
               ),
             ),
           ),
-          if (_searchController.text.isNotEmpty && !_isLoading && _errorMessage == null) ...[
-            const SizedBox(height: 8),
+          if (_searchController.text.isNotEmpty && !_isLoading && _errorMessage == null && _offices.isNotEmpty) ...[
+            const SizedBox(height: 10),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Showing ${min(_displayOffices.length, 50)} results',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: currentTheme.textHint,
-                    fontStyle: FontStyle.italic,
+                Expanded(
+                  flex: 5,
+                  child: Container(
+                    height: 36,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: currentTheme.primary.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: currentTheme.primary.withOpacity(0.35),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.filter_list_rounded, size: 14, color: currentTheme.primary),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _selectedOfficeTypeFilter,
+                              isDense: true,
+                              isExpanded: true,
+                              icon: Icon(Icons.arrow_drop_down, size: 16, color: currentTheme.primary),
+                              dropdownColor: currentTheme.cardBg,
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.bold,
+                                color: currentTheme.primary,
+                              ),
+                              items: const [
+                                DropdownMenuItem(value: 'All Offices', child: Text('All Offices', overflow: TextOverflow.ellipsis)),
+                                DropdownMenuItem(value: 'NSH', child: Text('NSH', overflow: TextOverflow.ellipsis)),
+                                DropdownMenuItem(value: 'ICH', child: Text('ICH', overflow: TextOverflow.ellipsis)),
+                                DropdownMenuItem(value: 'PH', child: Text('PH', overflow: TextOverflow.ellipsis)),
+                                DropdownMenuItem(value: 'L1 Offices', child: Text('L1 Offices', overflow: TextOverflow.ellipsis)),
+                                DropdownMenuItem(value: 'L2 Offices', child: Text('L2 Offices', overflow: TextOverflow.ellipsis)),
+                                DropdownMenuItem(value: 'Head Office', child: Text('Head Office', overflow: TextOverflow.ellipsis)),
+                                DropdownMenuItem(value: 'Sub Office', child: Text('Sub Office', overflow: TextOverflow.ellipsis)),
+                                DropdownMenuItem(value: 'Branch Office', child: Text('Branch Office', overflow: TextOverflow.ellipsis)),
+                              ],
+                              onChanged: (String? newValue) {
+                                if (newValue != null) {
+                                  setState(() {
+                                    _selectedOfficeTypeFilter = newValue;
+                                  });
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                if (_offices.isNotEmpty)
-                  Wrap(
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    spacing: 4,
-                    runSpacing: 4,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        margin: const EdgeInsets.only(right: 2),
-                        decoration: BoxDecoration(
-                          color: currentTheme.primary.withOpacity(0.08),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: currentTheme.primary.withOpacity(0.3), width: 1),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: _selectedOfficeTypeFilter,
-                            isDense: true,
-                            icon: Icon(Icons.filter_list_rounded, size: 14, color: currentTheme.primary),
-                            dropdownColor: currentTheme.cardBg,
-                            style: TextStyle(
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.bold,
-                              color: currentTheme.primary,
+                const SizedBox(width: 6),
+                Expanded(
+                  flex: 3,
+                  child: Tooltip(
+                    message: 'Export to Excel',
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: _handleExportWithAd,
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: currentTheme.primary.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: currentTheme.primary.withOpacity(0.35),
+                              width: 1,
                             ),
-                            items: const [
-                              DropdownMenuItem(value: 'All Offices', child: Text('All Offices')),
-                              DropdownMenuItem(value: 'NSH', child: Text('NSH')),
-                              DropdownMenuItem(value: 'ICH', child: Text('ICH')),
-                              DropdownMenuItem(value: 'PH', child: Text('PH')),
-                              DropdownMenuItem(value: 'L1 Offices', child: Text('L1 Offices')),
-                              DropdownMenuItem(value: 'L2 Offices', child: Text('L2 Offices')),
-                              DropdownMenuItem(value: 'Head Office', child: Text('Head Office')),
-                              DropdownMenuItem(value: 'Sub Office', child: Text('Sub Office')),
-                              DropdownMenuItem(value: 'Branch Office', child: Text('Branch Office')),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.file_download_outlined, size: 15, color: currentTheme.primary),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  'Export',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: currentTheme.primary,
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
                             ],
-                            onChanged: (String? newValue) {
-                              if (newValue != null) {
-                                setState(() {
-                                  _selectedOfficeTypeFilter = newValue;
-                                });
-                              }
-                            },
                           ),
                         ),
                       ),
-                      TextButton.icon(
-                        onPressed: _handleExportWithAd,
-                        icon: Icon(Icons.file_download, size: 16, color: currentTheme.primary),
-                        label: Text(
-                          'Export to Excel',
-                          style: TextStyle(
-                            color: currentTheme.primary,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                      ),
-                      TextButton.icon(
-                        onPressed: _dictateTableData,
-                        icon: Icon(
-                          _isSpeaking && _currentlyReadingIndex == -1
-                              ? Icons.stop_circle
-                              : Icons.record_voice_over,
-                          size: 16,
-                          color: _isSpeaking && _currentlyReadingIndex == -1
-                              ? Colors.redAccent
-                              : currentTheme.primary,
-                        ),
-                        label: Text(
-                          _isSpeaking && _currentlyReadingIndex == -1
-                              ? 'Stop Dictation'
-                              : 'Read / Dictate Table',
-                          style: TextStyle(
-                            color: _isSpeaking && _currentlyReadingIndex == -1
-                                ? Colors.redAccent
-                                : currentTheme.primary,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  flex: 3,
+                  child: Tooltip(
+                    message: _isSpeaking && _currentlyReadingIndex == -1
+                        ? 'Stop Dictation'
+                        : 'Read / Dictate Table',
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: _dictateTableData,
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: (_isSpeaking && _currentlyReadingIndex == -1)
+                                ? Colors.redAccent.withOpacity(0.12)
+                                : currentTheme.primary.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: (_isSpeaking && _currentlyReadingIndex == -1)
+                                  ? Colors.redAccent.withOpacity(0.5)
+                                  : currentTheme.primary.withOpacity(0.35),
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                _isSpeaking && _currentlyReadingIndex == -1
+                                    ? Icons.stop_circle_outlined
+                                    : Icons.record_voice_over_outlined,
+                                size: 15,
+                                color: _isSpeaking && _currentlyReadingIndex == -1
+                                    ? Colors.redAccent
+                                    : currentTheme.primary,
+                              ),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  _isSpeaking && _currentlyReadingIndex == -1 ? 'Stop' : 'Read',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: _isSpeaking && _currentlyReadingIndex == -1
+                                        ? Colors.redAccent
+                                        : currentTheme.primary,
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ],
@@ -2764,7 +2550,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                 constraints: const BoxConstraints(maxWidth: 480, maxHeight: 540),
                 padding: const EdgeInsets.all(20),
                 child: DefaultTabController(
-                  length: 5,
+                  length: 4,
                   child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -2840,7 +2626,6 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                       Tab(text: 'Themes', icon: Icon(Icons.palette_outlined, size: 18)),
                       Tab(text: 'Privacy', icon: Icon(Icons.privacy_tip_outlined, size: 18)),
                       Tab(text: 'Features', icon: Icon(Icons.featured_play_list_outlined, size: 18)),
-                      Tab(text: 'Updates', icon: Icon(Icons.update_outlined, size: 18)),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -3096,41 +2881,6 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                             ],
                           ),
                         ),
-                        // Tab 3: Updates
-                        SingleChildScrollView(
-                          physics: const BouncingScrollPhysics(),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildUpdateHeader('v1.0.4 (Build 5)', 'Current Version'),
-                              const SizedBox(height: 4),
-                              _buildUpdatePoint('Optimized App Bundle compilation for Play Console distribution.'),
-                              _buildUpdatePoint('Integrated in-app Privacy Policy viewer for Google Play policy compliance.'),
-                              _buildUpdatePoint('Enhanced table data dictation (TTS) and Excel export capabilities.'),
-                              _buildUpdatePoint('General performance optimizations and UI fixes.'),
-                              const SizedBox(height: 14),
-                              _buildUpdateHeader('v1.0.3 (Build 4)', 'Previous Version'),
-                              const SizedBox(height: 4),
-                              _buildUpdatePoint('Integrated dedicated Privacy Policy tab & in-app policy viewer compliant with Play Console rules.'),
-                              _buildUpdatePoint('Added official Privacy Policy (PRIVACY_POLICY.md) document to repository.'),
-                              _buildUpdatePoint('Added direct links to Google Privacy Policy and official India Post portal.'),
-                              _buildUpdatePoint('Optimized App Info dialog layout with responsive scrollable tab navigation.'),
-                              const SizedBox(height: 14),
-                              _buildUpdateHeader('v1.0.2 (Build 3)', 'Previous Version'),
-                              const SizedBox(height: 4),
-                              _buildUpdatePoint('Added Read / Dictate button after download to dictate resulted table data using Text-To-Speech.'),
-                              _buildUpdatePoint('Integrated 9-theme customize engine (with Light/Dark auto).'),
-                              _buildUpdatePoint('Added Excel (.xlsx) file generation and multi-platform sharing.'),
-                              _buildUpdatePoint('Added automatic update detection checks from GitHub version.json.'),
-                              _buildUpdatePoint('Optimized UI with new card layout and rank sorting hierarchy.'),
-                              const SizedBox(height: 14),
-                              _buildUpdateHeader('v1.0.0 (Build 1)', 'Initial Release'),
-                              const SizedBox(height: 4),
-                              _buildUpdatePoint('Search post offices by entering names or pincodes.'),
-                              _buildUpdatePoint('Basic connection handling and list visualization.'),
-                            ],
-                          ),
-                        ),
                       ],
                     ),
                   ),
@@ -3189,61 +2939,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
     );
   }
 
-  Widget _buildUpdateHeader(String version, String dateInfo) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          version,
-          style: TextStyle(
-            color: currentTheme.primary,
-            fontWeight: FontWeight.bold,
-            fontSize: 13.5,
-          ),
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-          decoration: BoxDecoration(
-            color: currentTheme.secondary.withOpacity(0.12),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Text(
-            dateInfo,
-            style: TextStyle(
-              color: currentTheme.secondary,
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 
-  Widget _buildUpdatePoint(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 8.0, top: 4.0, bottom: 2.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '• ',
-            style: TextStyle(color: currentTheme.primary, fontWeight: FontWeight.bold),
-          ),
-          Expanded(
-            child: Text(
-              text,
-              style: TextStyle(
-                color: currentTheme.textSecondary,
-                fontSize: 12,
-                height: 1.3,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildPrivacySubHeading(String text) {
     return Text(

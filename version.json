@@ -1,7 +1,7 @@
 {
-  "latest_version": "1.0.5",
-  "latest_build": 7,
+  "latest_version": "1.1.2",
+  "latest_build": 12,
   "force_update": false,
   "play_store_url": "https://play.google.com/store/apps/details?id=com.oedc.indiaPostOffices",
-  "release_notes": "v1.0.5: Official release featuring Office Type filter dropdown (All Offices, NSH, ICH, PH, L1, L2, HO, SO, BO), 6-digit unique search deduplication, 3+ digit pincode search, local dataset offline search (17,217 offices), full screen ad frequency every 10 searches, and background update checks."
+  "release_notes": "Improved search result ordering prioritizing official post offices at the top for 6-digit pincodes, and streamlined responsive controls for Office Type filter, Excel export, and voice reading across all screen sizes."
 }
