@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +14,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'web_helper.dart';
+import 'ecosystem/services/recommendation_service.dart';
+import 'ecosystem/widgets/you_may_also_like.dart';
 
 class AppThemeConfig {
   final Brightness brightness;
@@ -195,9 +198,556 @@ final Map<String, AppThemeConfig> appThemes = {
   ),
 };
 
+Color customThemeColor = const Color(0xFFFF9933);
+Brightness customThemeBrightness = Brightness.dark;
+
+AppThemeConfig buildCustomTheme(Color color, {Brightness brightness = Brightness.dark}) {
+  final hsv = HSVColor.fromColor(color);
+  final double hue = hsv.hue;
+
+  if (brightness == Brightness.light) {
+    return AppThemeConfig(
+      brightness: Brightness.light,
+      primary: color,
+      secondary: HSVColor.fromAHSV(1.0, (hue + 140) % 360, 0.85, 0.65).toColor(),
+      scaffoldBgStart: HSVColor.fromAHSV(1.0, hue, 0.05, 0.98).toColor(),
+      scaffoldBgEnd: HSVColor.fromAHSV(1.0, hue, 0.10, 0.93).toColor(),
+      cardBg: Colors.white,
+      inputFill: HSVColor.fromAHSV(1.0, hue, 0.04, 0.96).toColor(),
+      border: HSVColor.fromAHSV(1.0, hue, 0.15, 0.84).toColor(),
+      textPrimary: const Color(0xFF0F172A),
+      textSecondary: const Color(0xFF475569),
+      textHint: const Color(0xFF94A3B8),
+      tableHeaderBg: HSVColor.fromAHSV(1.0, hue, 0.10, 0.94).toColor(),
+      shadow: const Color(0x0C000000),
+      textOnPrimary: color.computeLuminance() > 0.55 ? Colors.black87 : Colors.white,
+    );
+  } else {
+    return AppThemeConfig(
+      brightness: Brightness.dark,
+      primary: color,
+      secondary: HSVColor.fromAHSV(1.0, (hue + 140) % 360, 0.85, 0.85).toColor(),
+      scaffoldBgStart: HSVColor.fromAHSV(1.0, hue, 0.45, 0.12).toColor(),
+      scaffoldBgEnd: HSVColor.fromAHSV(1.0, hue, 0.55, 0.07).toColor(),
+      cardBg: HSVColor.fromAHSV(1.0, hue, 0.35, 0.18).toColor(),
+      inputFill: HSVColor.fromAHSV(1.0, hue, 0.45, 0.12).toColor(),
+      border: HSVColor.fromAHSV(1.0, hue, 0.40, 0.30).toColor(),
+      textPrimary: Colors.white,
+      textSecondary: HSVColor.fromAHSV(1.0, hue, 0.20, 0.85).toColor(),
+      textHint: HSVColor.fromAHSV(1.0, hue, 0.45, 0.60).toColor(),
+      tableHeaderBg: HSVColor.fromAHSV(1.0, hue, 0.45, 0.12).toColor(),
+      shadow: const Color(0x4D000000),
+      textOnPrimary: color.computeLuminance() > 0.55 ? Colors.black87 : Colors.white,
+    );
+  }
+}
+
+class _ColorWheelPainter extends CustomPainter {
+  final double thumbX;
+  final double thumbY;
+  final Color selectedColor;
+
+  const _ColorWheelPainter({
+    required this.thumbX,
+    required this.thumbY,
+    required this.selectedColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
+
+    // 1. Draw Hue sweep gradient (spectrum of millions of colors)
+    const sweepGradient = SweepGradient(
+      colors: [
+        Color(0xFFFF0000), // 0 deg - Red
+        Color(0xFFFFFF00), // 60 deg - Yellow
+        Color(0xFF00FF00), // 120 deg - Green
+        Color(0xFF00FFFF), // 180 deg - Cyan
+        Color(0xFF0000FF), // 240 deg - Blue
+        Color(0xFFFF00FF), // 300 deg - Magenta
+        Color(0xFFFF0000), // 360 deg - Red
+      ],
+    );
+
+    final sweepPaint = Paint()
+      ..shader = sweepGradient.createShader(Rect.fromCircle(center: center, radius: radius))
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(center, radius, sweepPaint);
+
+    // 2. Draw Saturation radial gradient (white in center to transparent on outer edge)
+    const saturationGradient = RadialGradient(
+      colors: [
+        Colors.white,
+        Color(0x00FFFFFF),
+      ],
+      stops: [0.0, 1.0],
+    );
+
+    final saturationPaint = Paint()
+      ..shader = saturationGradient.createShader(Rect.fromCircle(center: center, radius: radius))
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(center, radius, saturationPaint);
+
+    // 3. Draw outer border ring
+    final borderPaint = Paint()
+      ..color = Colors.white.withOpacity(0.4)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0;
+    canvas.drawCircle(center, radius, borderPaint);
+
+    // 4. Draw Thumb / Selector Ring on current selected position
+    if (thumbX >= 0 && thumbY >= 0) {
+      final thumbCenter = Offset(thumbX, thumbY);
+
+      // Shadow
+      canvas.drawCircle(
+        thumbCenter,
+        14,
+        Paint()
+          ..color = Colors.black.withOpacity(0.4)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
+      );
+
+      // Outer white ring
+      canvas.drawCircle(
+        thumbCenter,
+        12,
+        Paint()
+          ..color = Colors.white
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2.5,
+      );
+
+      // Inner color preview
+      canvas.drawCircle(
+        thumbCenter,
+        9.5,
+        Paint()
+          ..color = selectedColor
+          ..style = PaintingStyle.fill,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _ColorWheelPainter oldDelegate) {
+    return oldDelegate.thumbX != thumbX ||
+        oldDelegate.thumbY != thumbY ||
+        oldDelegate.selectedColor != selectedColor;
+  }
+}
+
+class CircleColorPicker extends StatefulWidget {
+  final Color initialColor;
+  final ValueChanged<Color> onColorChanged;
+  final double size;
+
+  const CircleColorPicker({
+    super.key,
+    required this.initialColor,
+    required this.onColorChanged,
+    this.size = 180.0,
+  });
+
+  @override
+  State<CircleColorPicker> createState() => _CircleColorPickerState();
+}
+
+class _CircleColorPickerState extends State<CircleColorPicker> {
+  late double _hue;
+  late double _saturation;
+  late double _value;
+  late Color _currentColor;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentColor = widget.initialColor;
+    final hsv = HSVColor.fromColor(widget.initialColor);
+    _hue = hsv.hue;
+    _saturation = hsv.saturation;
+    _value = hsv.value > 0.1 ? hsv.value : 1.0;
+  }
+
+  @override
+  void didUpdateWidget(covariant CircleColorPicker oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialColor != widget.initialColor && widget.initialColor != _currentColor) {
+      _currentColor = widget.initialColor;
+      final hsv = HSVColor.fromColor(widget.initialColor);
+      _hue = hsv.hue;
+      _saturation = hsv.saturation;
+      _value = hsv.value > 0.1 ? hsv.value : 1.0;
+    }
+  }
+
+  void _handleTouch(Offset localPosition, double radius) {
+    final center = Offset(radius, radius);
+    final dx = localPosition.dx - center.dx;
+    final dy = localPosition.dy - center.dy;
+    final distance = (dx * dx + dy * dy);
+    final distSqrt = distance > 0 ? math.sqrt(distance) : 0.0;
+
+    final sat = (distSqrt / radius).clamp(0.0, 1.0);
+
+    var rad = math.atan2(dy, dx);
+    var deg = rad * 180 / math.pi;
+    if (deg < 0) deg += 360;
+
+    setState(() {
+      _hue = deg;
+      _saturation = sat;
+      _currentColor = HSVColor.fromAHSV(1.0, _hue, _saturation, _value).toColor();
+    });
+
+    widget.onColorChanged(_currentColor);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final radius = widget.size / 2;
+    final angleRad = _hue * math.pi / 180.0;
+    final currentDist = _saturation * radius;
+    final thumbX = radius + math.cos(angleRad) * currentDist;
+    final thumbY = radius + math.sin(angleRad) * currentDist;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GestureDetector(
+          onPanDown: (details) => _handleTouch(details.localPosition, radius),
+          onPanUpdate: (details) => _handleTouch(details.localPosition, radius),
+          child: SizedBox(
+            width: widget.size,
+            height: widget.size,
+            child: CustomPaint(
+              size: Size(widget.size, widget.size),
+              painter: _ColorWheelPainter(
+                thumbX: thumbX,
+                thumbY: thumbY,
+                selectedColor: _currentColor,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        // Brightness / Shade slider
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+          child: Row(
+            children: [
+              Icon(Icons.wb_sunny_outlined, size: 16, color: currentTheme.textSecondary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: SliderTheme(
+                  data: SliderThemeData(
+                    trackHeight: 4,
+                    activeTrackColor: _currentColor,
+                    inactiveTrackColor: currentTheme.border,
+                    thumbColor: Colors.white,
+                    thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                    overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
+                  ),
+                  child: Slider(
+                    value: _value,
+                    min: 0.25,
+                    max: 1.0,
+                    onChanged: (val) {
+                      setState(() {
+                        _value = val;
+                        _currentColor = HSVColor.fromAHSV(1.0, _hue, _saturation, _value).toColor();
+                      });
+                      widget.onColorChanged(_currentColor);
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                '${(_value * 100).toInt()}%',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: currentTheme.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+const String appLocalVersion = '1.1.5';
+const int appLocalBuild = 15;
+
 final ValueNotifier<String> themeNotifier = ValueNotifier<String>('dark');
 
 AppThemeConfig get currentTheme => appThemes[themeNotifier.value] ?? appThemes['dark']!;
+
+void changeAppTheme(String key) {
+  if (appThemes.containsKey(key)) {
+    themeNotifier.value = key;
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setString('app_theme', key);
+    });
+  }
+}
+
+void applyAppCustomColor(Color color, {Brightness? brightness}) {
+  customThemeColor = color;
+  if (brightness != null) {
+    customThemeBrightness = brightness;
+  }
+  appThemes['custom'] = buildCustomTheme(customThemeColor, brightness: customThemeBrightness);
+  themeNotifier.value = 'custom';
+  SharedPreferences.getInstance().then((prefs) {
+    prefs.setString('app_theme', 'custom');
+    prefs.setInt('custom_theme_color', customThemeColor.value);
+    prefs.setString('custom_theme_brightness', customThemeBrightness == Brightness.light ? 'light' : 'dark');
+  });
+}
+
+Future<void> launchAppUrl(String urlString) async {
+  final Uri url = Uri.parse(urlString);
+  try {
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    }
+  } catch (e) {
+    debugPrint('Could not launch URL $urlString: $e');
+  }
+}
+
+int getOfficeRank(Map<String, dynamic> po) {
+  final name = (po['Name'] ?? po['name'] ?? '').toString().toUpperCase();
+  final branchType = (po['BranchType'] ?? po['branchType'] ?? '').toString().toUpperCase();
+  final type = (po['Type'] ?? po['type'] ?? '').toString().toUpperCase();
+
+  // 1. Head Offices
+  if (branchType.contains('HEAD') ||
+      type.contains('HEAD') ||
+      name.contains('H.O.') ||
+      name.endsWith(' H.O') ||
+      name.contains(' HPO') ||
+      name.contains('HEAD POST OFFICE')) {
+    return 0;
+  }
+  // 2. Sub Offices
+  if (branchType.contains('SUB') ||
+      type.contains('SUB') ||
+      name.contains('S.O.') ||
+      name.endsWith(' S.O') ||
+      name.contains(' SPO') ||
+      name.contains('SUB POST OFFICE')) {
+    return 1;
+  }
+  // 3. Branch Offices
+  if (branchType.contains('BRANCH') ||
+      type.contains('BRANCH') ||
+      name.contains('B.O.') ||
+      name.endsWith(' B.O') ||
+      name.contains(' BO ') ||
+      name.contains('BRANCH POST OFFICE')) {
+    return 2;
+  }
+  // 4. Other offices associated to the pin code
+  return 3;
+}
+
+String getOfficeTypeLabel(Map<String, dynamic> po) {
+  final rank = getOfficeRank(po);
+  switch (rank) {
+    case 0:
+      return 'Head Office';
+    case 1:
+      return 'Sub Office';
+    case 2:
+      return 'Branch Office';
+    default:
+      if (po['isLocal'] == true) {
+        final hub = po['HubLevel'] ?? '';
+        return hub.isNotEmpty ? 'Local ($hub)' : 'Local Data';
+      }
+      final bType = (po['BranchType'] ?? po['Type'] ?? '').toString().trim();
+      return bType.isNotEmpty ? bType : 'Other Office';
+  }
+}
+
+Color getBadgeColor(String label) {
+  if (label.startsWith('Local')) {
+    return const Color(0xFFAB47BC); // Purple / Magenta for local dataset matches
+  }
+  switch (label) {
+    case 'Head Office':
+      return const Color(0xFFFFB300); // Amber
+    case 'Sub Office':
+      return const Color(0xFF00B0FF); // Light Blue
+    case 'Branch Office':
+      return const Color(0xFF00E676); // Light Green
+    default:
+      return Colors.grey;
+  }
+}
+
+class TopBannerAdWidget extends StatefulWidget {
+  const TopBannerAdWidget({super.key});
+
+  @override
+  State<TopBannerAdWidget> createState() => _TopBannerAdWidgetState();
+}
+
+class _TopBannerAdWidgetState extends State<TopBannerAdWidget> {
+  BannerAd? _ad;
+  bool _isReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAd();
+  }
+
+  void _loadAd() {
+    if (kIsWeb) return;
+    try {
+      if (Platform.isAndroid || Platform.isIOS) {
+        _ad = BannerAd(
+          adUnitId: 'ca-app-pub-1945844675060188/1982074117',
+          request: const AdRequest(),
+          size: AdSize.banner,
+          listener: BannerAdListener(
+            onAdLoaded: (ad) {
+              if (mounted) {
+                setState(() => _isReady = true);
+              }
+            },
+            onAdFailedToLoad: (ad, err) {
+              debugPrint('Top Banner failed to load: ${err.message}');
+              _isReady = false;
+              ad.dispose();
+            },
+          ),
+        );
+        _ad!.load();
+      }
+    } catch (e) {
+      debugPrint('Top Banner load error: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _ad?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_isReady || _ad == null) {
+      return const SizedBox.shrink();
+    }
+    return ValueListenableBuilder<String>(
+      valueListenable: themeNotifier,
+      builder: (context, currentThemeKey, child) {
+        return Container(
+          width: double.infinity,
+          height: _ad!.size.height.toDouble(),
+          margin: const EdgeInsets.only(bottom: 6),
+          decoration: BoxDecoration(
+            color: currentTheme.cardBg,
+            border: Border(
+              bottom: BorderSide(color: currentTheme.border, width: 1),
+            ),
+          ),
+          alignment: Alignment.center,
+          child: AdWidget(ad: _ad!),
+        );
+      },
+    );
+  }
+}
+
+class BottomBannerAdWidget extends StatefulWidget {
+  const BottomBannerAdWidget({super.key});
+
+  @override
+  State<BottomBannerAdWidget> createState() => _BottomBannerAdWidgetState();
+}
+
+class _BottomBannerAdWidgetState extends State<BottomBannerAdWidget> {
+  BannerAd? _ad;
+  bool _isReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAd();
+  }
+
+  void _loadAd() {
+    if (kIsWeb) return;
+    try {
+      if (Platform.isAndroid || Platform.isIOS) {
+        _ad = BannerAd(
+          adUnitId: 'ca-app-pub-1945844675060188/3998004613',
+          request: const AdRequest(),
+          size: AdSize.banner,
+          listener: BannerAdListener(
+            onAdLoaded: (ad) {
+              if (mounted) {
+                setState(() => _isReady = true);
+              }
+            },
+            onAdFailedToLoad: (ad, err) {
+              debugPrint('Bottom Banner failed to load: ${err.message}');
+              _isReady = false;
+              ad.dispose();
+            },
+          ),
+        );
+        _ad!.load();
+      }
+    } catch (e) {
+      debugPrint('Bottom Banner load error: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _ad?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_isReady || _ad == null) {
+      return const SizedBox.shrink();
+    }
+    return ValueListenableBuilder<String>(
+      valueListenable: themeNotifier,
+      builder: (context, currentThemeKey, child) {
+        return Container(
+          width: double.infinity,
+          height: _ad!.size.height.toDouble(),
+          margin: const EdgeInsets.only(top: 8),
+          decoration: BoxDecoration(
+            color: currentTheme.cardBg,
+            border: Border(
+              top: BorderSide(color: currentTheme.border, width: 1),
+            ),
+          ),
+          alignment: Alignment.center,
+          child: AdWidget(ad: _ad!),
+        );
+      },
+    );
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -211,21 +761,54 @@ void main() async {
     }
   }
 
-  // Load saved theme
+  // Load saved theme and custom color
   String savedTheme = 'dark';
+  String savedOfficeFilter = 'All Offices';
   try {
     final prefs = await SharedPreferences.getInstance();
+    final savedColorVal = prefs.getInt('custom_theme_color');
+    final savedBrightnessStr = prefs.getString('custom_theme_brightness');
+    if (savedColorVal != null) {
+      customThemeColor = Color(savedColorVal);
+    }
+    if (savedBrightnessStr == 'light') {
+      customThemeBrightness = Brightness.light;
+    } else {
+      customThemeBrightness = Brightness.dark;
+    }
+    appThemes['custom'] = buildCustomTheme(customThemeColor, brightness: customThemeBrightness);
     savedTheme = prefs.getString('app_theme') ?? 'dark';
+    final filter = prefs.getString('selected_office_type_filter');
+    const validFilters = [
+      'All Offices',
+      'NSH',
+      'ICH',
+      'PH',
+      'L1 Offices',
+      'L2 Offices',
+      'Head Office',
+      'Sub Office',
+      'Branch Office',
+    ];
+    if (filter != null && validFilters.contains(filter)) {
+      savedOfficeFilter = filter;
+    }
   } catch (e) {
     debugPrint('Error loading saved theme: $e');
   }
+
+  if (!appThemes.containsKey('custom')) {
+    appThemes['custom'] = buildCustomTheme(customThemeColor, brightness: customThemeBrightness);
+  }
+
   themeNotifier.value = savedTheme;
 
-  runApp(const MyApp());
+  runApp(MyApp(initialOfficeFilter: savedOfficeFilter));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final String initialOfficeFilter;
+  const MyApp({super.key, this.initialOfficeFilter = 'All Offices'});
 
   @override
   Widget build(BuildContext context) {
@@ -248,7 +831,7 @@ class MyApp extends StatelessWidget {
             ),
             useMaterial3: true,
           ),
-          home: const PostOfficeFinderScreen(),
+          home: PostOfficeFinderScreen(initialOfficeFilter: initialOfficeFilter),
         );
       },
     );
@@ -256,7 +839,8 @@ class MyApp extends StatelessWidget {
 }
 
 class PostOfficeFinderScreen extends StatefulWidget {
-  const PostOfficeFinderScreen({super.key});
+  final String initialOfficeFilter;
+  const PostOfficeFinderScreen({super.key, this.initialOfficeFilter = 'All Offices'});
 
   @override
   State<PostOfficeFinderScreen> createState() => _PostOfficeFinderScreenState();
@@ -269,7 +853,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
   List<dynamic> _offices = [];
   List<Map<String, dynamic>> _localOfficesData = [];
   int _searchCount = 0;
-  String _selectedOfficeTypeFilter = 'All Offices';
+  late String _selectedOfficeTypeFilter;
   bool _isLoading = false;
 
   List<dynamic> get _displayOffices {
@@ -290,7 +874,20 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
         return l1.contains('ICH') || l2.contains('ICH') || name.contains('ICH') || typeLabel.contains('ICH') || branchType.contains('ICH');
       }
       if (_selectedOfficeTypeFilter == 'PH') {
-        return l1.contains('PH') || l2.contains('PH') || name.contains(' PH') || name.endsWith('PH') || typeLabel.contains('PH') || branchType.contains('PH');
+        final bool isPh = l1.contains('PH') ||
+            l2.contains('PH') ||
+            name.contains(' PH') ||
+            name.endsWith('PH') ||
+            name.startsWith('PH ') ||
+            RegExp(r'\bPH\b').hasMatch(name) ||
+            typeLabel.contains('PH') ||
+            branchType.contains('PH');
+        final bool isParcel = name.contains('PARCEL') ||
+            l1.contains('PARCEL') ||
+            l2.contains('PARCEL') ||
+            typeLabel.contains('PARCEL') ||
+            branchType.contains('PARCEL');
+        return isPh || isParcel;
       }
       if (_selectedOfficeTypeFilter == 'L1 Offices') {
         return hub == 'L1' || typeLabel.contains('L1');
@@ -311,9 +908,9 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
     }).toList();
   }
   String? _errorMessage;
+  String? _loadingMessage;
+  (int, int)? _currentRangeQuery;
   Timer? _debounce;
-  BannerAd? _bannerAd;
-  bool _isBannerAdReady = false;
   InterstitialAd? _interstitialAd;
   bool _isInterstitialAdLoaded = false;
 
@@ -323,31 +920,40 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
   int _currentlyReadingIndex = -1;
   Completer<void>? _speechCompleter;
 
-  static const String _localVersion = '1.1.2';
-  static const int _localBuild = 12;
+  late final RecommendationService _recommendationService;
+
+  int min(int a, int b) => a < b ? a : b;
 
   @override
   void initState() {
     super.initState();
+    _selectedOfficeTypeFilter = widget.initialOfficeFilter;
+    _recommendationService = RecommendationService(
+      currentApplicationId: 'com.oedc.indiaPostOffices',
+    );
     themeNotifier.addListener(_onThemeChanged);
     _searchController.addListener(_onSearchChanged);
     _loadLocalOffices();
-    _loadBannerAd();
     _loadInterstitialAd();
+  }
+
+  void _onOfficeTypeFilterChanged(String? newValue) {
+    if (newValue != null) {
+      setState(() {
+        _selectedOfficeTypeFilter = newValue;
+      });
+      SharedPreferences.getInstance().then((prefs) {
+        prefs.setString('selected_office_type_filter', newValue);
+      }).catchError((e) {
+        debugPrint('Error saving office type filter: $e');
+      });
+      _showInterstitialAdIfAvailable(() {});
+    }
   }
 
   void _onThemeChanged() {
     if (mounted) {
       setState(() {});
-    }
-  }
-
-  void _changeTheme(String key) {
-    if (appThemes.containsKey(key)) {
-      themeNotifier.value = key;
-      SharedPreferences.getInstance().then((prefs) {
-        prefs.setString('app_theme', key);
-      });
     }
   }
 
@@ -360,37 +966,8 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     _debounce?.cancel();
-    _bannerAd?.dispose();
     _interstitialAd?.dispose();
     super.dispose();
-  }
-
-  void _loadBannerAd() {
-    if (kIsWeb) return;
-    try {
-      if (Platform.isAndroid || Platform.isIOS) {
-        _bannerAd = BannerAd(
-          adUnitId: 'ca-app-pub-1945844675060188/3998004613',
-          request: const AdRequest(),
-          size: AdSize.banner,
-          listener: BannerAdListener(
-            onAdLoaded: (ad) {
-              setState(() {
-                _isBannerAdReady = true;
-              });
-            },
-            onAdFailedToLoad: (ad, err) {
-              debugPrint('Failed to load a banner ad: ${err.message}');
-              _isBannerAdReady = false;
-              ad.dispose();
-            },
-          ),
-        );
-        _bannerAd!.load();
-      }
-    } catch (e) {
-      debugPrint('AdMob load error: $e');
-    }
   }
 
   void _loadInterstitialAd() {
@@ -462,16 +1039,6 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
     }
   }
 
-  Future<void> _launchUpdateUrl(String urlString) async {
-    final Uri url = Uri.parse(urlString);
-    try {
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-      }
-    } catch (e) {
-      debugPrint('Could not launch URL $urlString: $e');
-    }
-  }
 
   Map<String, dynamic> _formatLocalOffice(Map<String, dynamic> item) {
     final l1 = (item['l1OfficeName'] ?? '').toString().trim();
@@ -558,69 +1125,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
     return results;
   }
 
-  // Classification logic for sorting
-  int getOfficeRank(Map<String, dynamic> po) {
-    if (po['isLocal'] == true) return -2;
-    final name = (po['Name'] ?? '').toString().toUpperCase();
-    final branchType = (po['BranchType'] ?? '').toString().toUpperCase();
-
-    // 1. Head Offices
-    if (branchType.contains('HEAD') ||
-        name.contains('H.O.') ||
-        name.endsWith(' H.O') ||
-        name.contains(' HPO')) {
-      return 0;
-    }
-    // 2. Sub Offices
-    if (branchType.contains('SUB') ||
-        name.contains('S.O.') ||
-        name.endsWith(' S.O') ||
-        name.contains(' SO ')) {
-      return 1;
-    }
-    // 3. Branch Offices
-    if (branchType.contains('BRANCH') ||
-        name.contains('B.O.') ||
-        name.endsWith(' B.O') ||
-        name.contains(' BO ')) {
-      return 2;
-    }
-    return -1; // Excluded types
-  }
-
-  String getOfficeTypeLabel(Map<String, dynamic> po) {
-    if (po['isLocal'] == true) {
-      final hub = po['HubLevel'] ?? '';
-      return hub.isNotEmpty ? 'Local ($hub)' : 'Local Data';
-    }
-    final rank = getOfficeRank(po);
-    switch (rank) {
-      case 0:
-        return 'Head Office';
-      case 1:
-        return 'Sub Office';
-      case 2:
-        return 'Branch Office';
-      default:
-        return po['BranchType'] ?? 'Unknown';
-    }
-  }
-
-  Color _getBadgeColor(String label) {
-    if (label.startsWith('Local')) {
-      return const Color(0xFFAB47BC); // Purple / Magenta for local dataset matches
-    }
-    switch (label) {
-      case 'Head Office':
-        return const Color(0xFFFFB300); // Amber
-      case 'Sub Office':
-        return const Color(0xFF00B0FF); // Light Blue
-      case 'Branch Office':
-        return const Color(0xFF00E676); // Light Green
-      default:
-        return Colors.grey;
-    }
-  }
+  Color _getBadgeColor(String label) => getBadgeColor(label);
 
   List<dynamic> _deduplicateOffices(List<dynamic> list) {
     final List<dynamic> uniqueList = [];
@@ -646,14 +1151,38 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
     setState(() {
       _offices = results;
       _isLoading = false;
+      _loadingMessage = null;
     });
 
     if (results.isNotEmpty) {
       _searchCount++;
-      if (_searchCount % 5 == 0) {
+      if (_searchCount % 20 == 0) {
         _showInterstitialAdIfAvailable(() {});
       }
     }
+  }
+
+  (int, int)? _tryParsePincodeRange(String input) {
+    final trimmed = input.trim();
+    final matches = RegExp(r'(?<!\d)\d{6}(?!\d)').allMatches(trimmed).toList();
+    if (matches.length == 2) {
+      final p1 = int.tryParse(matches[0].group(0)!);
+      final p2 = int.tryParse(matches[1].group(0)!);
+      if (p1 != null && p2 != null && p1 != p2) {
+        final withoutPincodes = trimmed
+            .replaceAll(matches[0].group(0)!, '')
+            .replaceAll(matches[1].group(0)!, '')
+            .trim();
+        final isCleanRange = RegExp(
+          r'^(?:(?:pin(?:code)?|from|to|range|and)\b|[^a-zA-Z0-9]|\s)*$',
+          caseSensitive: false,
+        ).hasMatch(withoutPincodes);
+        if (isCleanRange) {
+          return (math.min(p1, p2), math.max(p1, p2));
+        }
+      }
+    }
+    return null;
   }
 
   Future<void> _performSearch(String query) async {
@@ -663,11 +1192,179 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
         _offices = [];
         _isLoading = false;
         _errorMessage = null;
+        _currentRangeQuery = null;
+        _loadingMessage = null;
       });
       return;
     }
 
+    // If user is actively typing a range separator like "110001 -", wait for them to finish typing second pin
+    final isTypingRange = RegExp(
+      r'^(?:(?:pin(?:code)?|from)\s*:?\s*)?\d{6}\s*(?:[-/]|to|\.\.|,|:)\s*$',
+      caseSensitive: false,
+    ).hasMatch(trimmed);
+    if (isTypingRange) {
+      return;
+    }
+
     await _loadLocalOffices();
+
+    // Check for range of pin codes (e.g. two 6-digit pin codes with delimiter/symbols/space)
+    final range = _tryParsePincodeRange(trimmed);
+    if (range != null) {
+      final (startPin, endPin) = range;
+
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+        _currentRangeQuery = (startPin, endPin);
+        _loadingMessage = 'Searching range $startPin - $endPin in India Post Database...';
+      });
+
+      final cacheKey = 'range_${startPin}_$endPin';
+      if (_cache.containsKey(cacheKey)) {
+        _setSearchResults(cacheKey, _cache[cacheKey]!);
+        return;
+      }
+
+      try {
+        final List<String> pinStrings = [
+          for (int p = startPin; p <= endPin; p++) p.toString().padLeft(6, '0')
+        ];
+
+        final Map<String, List<dynamic>> pinResults = {};
+        const int concurrency = 10;
+        int completedCount = 0;
+
+        for (int i = 0; i < pinStrings.length; i += concurrency) {
+          if (!mounted) return;
+          final batch = pinStrings.sublist(i, math.min(i + concurrency, pinStrings.length));
+          final batchFutures = batch.map((pin) async {
+            final cacheK = pin.toLowerCase();
+            if (_cache.containsKey(cacheK)) {
+              return MapEntry(pin, _cache[cacheK]!);
+            }
+            try {
+              final url = 'https://api.postalpincode.in/pincode/$pin';
+              final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
+              if (response.statusCode == 200) {
+                final List<dynamic> data = jsonDecode(response.body);
+                if (data.isNotEmpty && data[0]['Status'] == 'Success') {
+                  final List<dynamic> postOffices = data[0]['PostOffice'] ?? [];
+                  final filtered = postOffices.where((po) {
+                    final rank = getOfficeRank(po);
+                    return rank >= 0;
+                  }).toList();
+                  _cache[cacheK] = filtered;
+                  return MapEntry(pin, filtered);
+                }
+              }
+            } catch (e) {
+              debugPrint('Error fetching pincode $pin in range: $e');
+            }
+            return MapEntry(pin, <dynamic>[]);
+          });
+
+          final entries = await Future.wait(batchFutures);
+          for (final entry in entries) {
+            pinResults[entry.key] = entry.value;
+          }
+          completedCount += batch.length;
+          if (pinStrings.length > 15 && mounted) {
+            setState(() {
+              _loadingMessage = 'Searching range $startPin - $endPin ($completedCount/${pinStrings.length} pincodes)...';
+            });
+          }
+        }
+
+        final List<Map<String, dynamic>> headOffices = [];
+        final List<Map<String, dynamic>> subOffices = [];
+        final Set<String> usedPincodes = {};
+
+        for (final pin in pinStrings) {
+          final offices = pinResults[pin] ?? [];
+          if (offices.isEmpty) continue;
+
+          Map<String, dynamic>? ho;
+          Map<String, dynamic>? so;
+
+          for (final po in offices) {
+            final rank = getOfficeRank(po);
+            if (rank == 0) {
+              if (ho == null) {
+                ho = Map<String, dynamic>.from(po);
+              } else {
+                final isDelivery = (po['DeliveryStatus'] ?? '').toString().trim().toLowerCase() == 'delivery';
+                final prevDelivery = (ho['DeliveryStatus'] ?? '').toString().trim().toLowerCase() == 'delivery';
+                if (isDelivery && !prevDelivery) {
+                  ho = Map<String, dynamic>.from(po);
+                }
+              }
+            } else if (rank == 1) {
+              if (so == null) {
+                so = Map<String, dynamic>.from(po);
+              } else {
+                final isDelivery = (po['DeliveryStatus'] ?? '').toString().trim().toLowerCase() == 'delivery';
+                final prevDelivery = (so['DeliveryStatus'] ?? '').toString().trim().toLowerCase() == 'delivery';
+                if (isDelivery && !prevDelivery) {
+                  so = Map<String, dynamic>.from(po);
+                }
+              }
+            }
+          }
+
+          if (ho != null) {
+            if (!usedPincodes.contains(pin)) {
+              usedPincodes.add(pin);
+              headOffices.add(ho);
+            }
+          } else if (so != null) {
+            if (!usedPincodes.contains(pin)) {
+              usedPincodes.add(pin);
+              subOffices.add(so);
+            }
+          }
+        }
+
+        headOffices.sort((a, b) {
+          final pA = int.tryParse((a['Pincode'] ?? '').toString()) ?? 0;
+          final pB = int.tryParse((b['Pincode'] ?? '').toString()) ?? 0;
+          if (pA != pB) return pA.compareTo(pB);
+          return (a['Name'] ?? '').toString().compareTo((b['Name'] ?? '').toString());
+        });
+
+        subOffices.sort((a, b) {
+          final pA = int.tryParse((a['Pincode'] ?? '').toString()) ?? 0;
+          final pB = int.tryParse((b['Pincode'] ?? '').toString()) ?? 0;
+          if (pA != pB) return pA.compareTo(pB);
+          return (a['Name'] ?? '').toString().compareTo((b['Name'] ?? '').toString());
+        });
+
+        final List<dynamic> combined = [...headOffices, ...subOffices];
+
+        if (combined.isNotEmpty) {
+          _setSearchResults(cacheKey, combined);
+        } else {
+          setState(() {
+            _offices = [];
+            _errorMessage = 'No Head Offices or Sub Offices found for range $startPin - $endPin';
+            _isLoading = false;
+            _loadingMessage = null;
+          });
+        }
+      } catch (e) {
+        setState(() {
+          _offices = [];
+          _errorMessage = 'Failed to fetch range data. Please check your internet connection.';
+          _isLoading = false;
+          _loadingMessage = null;
+        });
+      }
+      return;
+    }
+
+    _currentRangeQuery = null;
+    _loadingMessage = null;
 
     final isNumeric = RegExp(r'^\d+$').hasMatch(trimmed);
 
@@ -712,29 +1409,28 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
           final url = 'https://api.postalpincode.in/pincode/$trimmed';
           final response = await http.get(Uri.parse(url));
 
-          List<dynamic> apiFilteredOffices = [];
+          List<dynamic> apiOffices = [];
           if (response.statusCode == 200) {
             final List<dynamic> data = jsonDecode(response.body);
             if (data.isNotEmpty && data[0]['Status'] == 'Success') {
               final List<dynamic> postOffices = data[0]['PostOffice'] ?? [];
-              apiFilteredOffices = postOffices.where((po) {
-                final rank = getOfficeRank(po);
-                return rank >= 0;
-              }).toList();
-
-              apiFilteredOffices.sort((a, b) {
-                int rankA = getOfficeRank(a);
-                int rankB = getOfficeRank(b);
-                if (rankA != rankB) {
-                  return rankA.compareTo(rankB);
-                }
-                return (a['Name'] ?? '').toString().compareTo((b['Name'] ?? '').toString());
-              });
+              apiOffices = postOffices;
             }
           }
 
-          // Combine: For 6 digits -> API results (HO, SO, BO) first, and other offices at the bottom
-          final List<dynamic> combined = _deduplicateOffices([...apiFilteredOffices, ...localMatches]);
+          // Combine: API post offices and local database offices associated to this pin code
+          final List<dynamic> combined = _deduplicateOffices([...apiOffices, ...localMatches]);
+
+          // Sort strictly: Head Office (0) -> Sub Office (1) -> Branch Office (2) -> Other Offices (3)
+          // Within each rank, sort alphabetically by Name
+          combined.sort((a, b) {
+            final int rankA = getOfficeRank(a);
+            final int rankB = getOfficeRank(b);
+            if (rankA != rankB) {
+              return rankA.compareTo(rankB);
+            }
+            return (a['Name'] ?? '').toString().compareTo((b['Name'] ?? '').toString());
+          });
 
           if (combined.isNotEmpty) {
             _setSearchResults(cacheKey, combined);
@@ -787,6 +1483,14 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
         }
 
         final List<dynamic> combined = _deduplicateOffices([...localMatches, ...apiFilteredOffices]);
+        combined.sort((a, b) {
+          final int rankA = getOfficeRank(a);
+          final int rankB = getOfficeRank(b);
+          if (rankA != rankB) {
+            return rankA.compareTo(rankB);
+          }
+          return (a['Name'] ?? '').toString().compareTo((b['Name'] ?? '').toString());
+        });
 
         if (combined.isNotEmpty) {
           _setSearchResults(cacheKey, combined);
@@ -804,6 +1508,14 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
           : _searchLocalOfficesByText(trimmed);
 
       final combined = _deduplicateOffices(localMatches);
+      combined.sort((a, b) {
+        final int rankA = getOfficeRank(a);
+        final int rankB = getOfficeRank(b);
+        if (rankA != rankB) {
+          return rankA.compareTo(rankB);
+        }
+        return (a['Name'] ?? '').toString().compareTo((b['Name'] ?? '').toString());
+      });
 
       if (combined.isNotEmpty) {
         _setSearchResults(cacheKey, combined);
@@ -880,7 +1592,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
       }
 
       if (kIsWeb) {
-        final fileName = 'india_post_offices_${DateTime.now().millisecondsSinceEpoch}.xlsx';
+        final fileName = 'India_Post_Offices_${DateTime.now().millisecondsSinceEpoch}.xlsx';
         downloadExcel(fileBytes, fileName);
         
         if (mounted) {
@@ -898,7 +1610,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
       }
 
       final tempDir = await getTemporaryDirectory();
-      final fileName = 'india_post_offices_${DateTime.now().millisecondsSinceEpoch}.xlsx';
+      final fileName = 'India_Post_Offices_${DateTime.now().millisecondsSinceEpoch}.xlsx';
       final file = File('${tempDir.path}/$fileName');
 
       await file.writeAsBytes(fileBytes, flush: true);
@@ -995,8 +1707,9 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
 
   bool _areAllOfficesSamePincode(List<dynamic> list) {
     if (list.length <= 1) return true;
-    final firstPin = list[0]['Pincode'];
-    return list.every((po) => po['Pincode'] == firstPin);
+    final firstPin = (list[0]['Pincode'] ?? '').toString().trim();
+    if (firstPin.isEmpty) return false;
+    return list.every((po) => (po['Pincode'] ?? '').toString().trim() == firstPin);
   }
 
   String _formatPincodeDigitByDigit(String pincode) {
@@ -1024,7 +1737,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
 
   Future<void> _startDictatingTableData() async {
     final int count = _displayOffices.length;
-    final int limit = min(count, 50);
+    final int limit = count;
 
     setState(() {
       _isSpeaking = true;
@@ -1047,87 +1760,213 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
       );
     }
 
-    final bool isSamePincode = _areAllOfficesSamePincode(_displayOffices);
+    final String currentQuery = _searchController.text.trim();
+    final bool is6DigitQuery = RegExp(r'^\d{6}$').hasMatch(currentQuery);
+    final bool isSamePincode = is6DigitQuery || _areAllOfficesSamePincode(_displayOffices);
 
     try {
       if (isSamePincode) {
-        // --- SAME PINCODE LIST ---
-        // Find the primary upper office (Head Office or highest rank office)
-        final upperOffice = _displayOffices.firstWhere(
-          (po) => getOfficeRank(po) <= 1,
-          orElse: () => _displayOffices[0],
-        );
-        final int upperIndex = _displayOffices.indexOf(upperOffice);
+        // Check for Scenario 1 (associated with Head Office) or Scenario 2 (associated with Sub Office)
+        Map<String, dynamic>? headOffice;
+        int headOfficeIndex = -1;
 
-        final String upperName = upperOffice['Name'] ?? '';
-        final String upperPin = upperOffice['Pincode'] ?? '';
-        final String formattedPin = _formatPincodeDigitByDigit(upperPin);
-
-        // Step 1: Read the upper office name then pincode digit-by-digit
-        setState(() {
-          _currentlyReadingIndex = upperIndex;
-        });
-
-        String firstSpeech = upperName;
-        if (formattedPin.isNotEmpty) {
-          firstSpeech += ', Pincode $formattedPin.';
-        } else {
-          firstSpeech += '.';
+        // Check _displayOffices first for Head Office (rank 0)
+        for (int i = 0; i < _displayOffices.length; i++) {
+          if (getOfficeRank(_displayOffices[i]) == 0) {
+            headOfficeIndex = i;
+            headOffice = _displayOffices[i];
+            break;
+          }
         }
-
-        _speechCompleter = Completer<void>();
-        await _flutterTts.speak(firstSpeech);
-        await _speechCompleter!.future.timeout(
-          const Duration(seconds: 12),
-          onTimeout: () {},
-        );
-
-        if (!_isSpeaking || !mounted) return;
-        await Future.delayed(const Duration(seconds: 1));
-
-        // Step 2: Read lower office name then upper office name sequentially for each record
-        for (int i = 0; i < limit; i++) {
-          if (!_isSpeaking || !mounted) break;
-
-          final po = _displayOffices[i];
-          if (po == upperOffice) continue; // Upper office was already read first with pincode
-
-          setState(() {
-            _currentlyReadingIndex = i;
-          });
-
-          final String lowerName = po['Name'] ?? '';
-          String assocUpperName = upperName;
-
-          final String pincode = po['Pincode'] ?? '';
-          final cacheKey = pincode.toLowerCase();
-          List<dynamic>? searchList = _cache[cacheKey] ?? _displayOffices;
-
-          for (final item in searchList) {
-            if (item['Pincode'] == pincode && item['Name'] != lowerName) {
-              final rank = getOfficeRank(item);
-              if (rank < getOfficeRank(po)) {
-                assocUpperName = item['Name'] ?? upperName;
-                break;
-              }
+        // If not in _displayOffices (e.g. filtered view), check _offices
+        if (headOffice == null) {
+          for (final po in _offices) {
+            if (getOfficeRank(po) == 0) {
+              headOffice = po;
+              break;
             }
           }
+        }
 
-          String speechText = '$lowerName, $assocUpperName.';
+        if (headOffice != null) {
+          // =========================================================
+          // SCENARIO 1: Pincode is associated with Head Office
+          // Read: Head Office name then pincode, then sub office name 1 then
+          // head office name, then sub office name 2 then head office name, ...
+          // The pincode is read once only and associated to Head Office only.
+          // =========================================================
+          final String hoName = headOffice['Name'] ?? '';
+          final String hoPin = (headOffice['Pincode'] ?? (is6DigitQuery ? currentQuery : '')).toString().trim();
+          final String formattedPin = _formatPincodeDigitByDigit(hoPin);
+
+          // Step 1: Read Head Office name then pincode
+          if (headOfficeIndex != -1) {
+            setState(() {
+              _currentlyReadingIndex = headOfficeIndex;
+            });
+          }
+
+          String firstSpeech = hoName;
+          if (formattedPin.isNotEmpty) {
+            firstSpeech += ', Pincode $formattedPin.';
+          } else {
+            firstSpeech += '.';
+          }
 
           _speechCompleter = Completer<void>();
-          await _flutterTts.speak(speechText);
+          await _flutterTts.speak(firstSpeech);
           await _speechCompleter!.future.timeout(
             const Duration(seconds: 12),
             onTimeout: () {},
           );
 
-          if (!_isSpeaking || !mounted) break;
+          if (!_isSpeaking || !mounted) return;
           await Future.delayed(const Duration(seconds: 1));
+
+          // Step 2: Read next in the list as sub office name then head office name
+          for (int i = 0; i < min(_displayOffices.length, limit); i++) {
+            if (!_isSpeaking || !mounted) break;
+            if (i == headOfficeIndex) continue; // Already read the Head Office in Step 1
+
+            setState(() {
+              _currentlyReadingIndex = i;
+            });
+
+            final po = _displayOffices[i];
+            final String subOfficeName = po['Name'] ?? '';
+            final String speechText = hoName.isNotEmpty
+                ? '$subOfficeName, $hoName.'
+                : subOfficeName;
+
+            _speechCompleter = Completer<void>();
+            await _flutterTts.speak(speechText);
+            await _speechCompleter!.future.timeout(
+              const Duration(seconds: 12),
+              onTimeout: () {},
+            );
+
+            if (!_isSpeaking || !mounted) break;
+            await Future.delayed(const Duration(seconds: 1));
+          }
+        } else {
+          // =========================================================
+          // SCENARIO 2: Pincode is associated with Sub Office
+          // Read: Sub Office name then pincode, then branch office name 1
+          // then sub office name, then branch office name 2 then sub office name, ...
+          // =========================================================
+          Map<String, dynamic>? subOffice;
+          int subOfficeIndex = -1;
+
+          // Check _displayOffices first for Sub Office (rank 1)
+          for (int i = 0; i < _displayOffices.length; i++) {
+            if (getOfficeRank(_displayOffices[i]) == 1) {
+              subOfficeIndex = i;
+              subOffice = _displayOffices[i];
+              break;
+            }
+          }
+          // If not in _displayOffices (e.g. filtered view), check _offices
+          if (subOffice == null) {
+            for (final po in _offices) {
+              if (getOfficeRank(po) == 1) {
+                subOffice = po;
+                break;
+              }
+            }
+          }
+          // Fallback if no Sub Office found (e.g. only Branch Offices)
+          if (subOffice == null && _displayOffices.isNotEmpty) {
+            subOfficeIndex = 0;
+            subOffice = _displayOffices[0];
+          }
+
+          final String soName = subOffice != null ? (subOffice['Name'] ?? '') : '';
+          final String soPin = (subOffice != null ? (subOffice['Pincode'] ?? (is6DigitQuery ? currentQuery : '')) : (is6DigitQuery ? currentQuery : '')).toString().trim();
+          final String formattedPin = _formatPincodeDigitByDigit(soPin);
+
+          // Step 1: Read Sub Office name then pincode
+          if (subOfficeIndex != -1) {
+            setState(() {
+              _currentlyReadingIndex = subOfficeIndex;
+            });
+          }
+
+          String firstSpeech = soName;
+          if (formattedPin.isNotEmpty) {
+            firstSpeech += ', Pincode $formattedPin.';
+          } else {
+            firstSpeech += '.';
+          }
+
+          _speechCompleter = Completer<void>();
+          await _flutterTts.speak(firstSpeech);
+          await _speechCompleter!.future.timeout(
+            const Duration(seconds: 12),
+            onTimeout: () {},
+          );
+
+          if (!_isSpeaking || !mounted) return;
+          await Future.delayed(const Duration(seconds: 1));
+
+          // Step 2: Read next in the list as branch office name then sub office name
+          for (int i = 0; i < min(_displayOffices.length, limit); i++) {
+            if (!_isSpeaking || !mounted) break;
+            if (i == subOfficeIndex) continue; // Already read the Sub Office in Step 1
+
+            setState(() {
+              _currentlyReadingIndex = i;
+            });
+
+            final po = _displayOffices[i];
+            final String branchOfficeName = po['Name'] ?? '';
+            final String speechText = soName.isNotEmpty
+                ? '$branchOfficeName, $soName.'
+                : branchOfficeName;
+
+            _speechCompleter = Completer<void>();
+            await _flutterTts.speak(speechText);
+            await _speechCompleter!.future.timeout(
+              const Duration(seconds: 12),
+              onTimeout: () {},
+            );
+
+            if (!_isSpeaking || !mounted) break;
+            await Future.delayed(const Duration(seconds: 1));
+          }
         }
       } else {
         // --- DIFFERENT PINCODES LIST ---
-        // Read office name and associated pincode (digit by digit) for each office record
+        // Helper to find associated parent office (Head Office if present, else Sub Office) for a given pincode
+        String findParentOfficeName(String pin) {
+          // First check for Head Office
+          for (final po in _offices) {
+            if (po['Pincode'] == pin && getOfficeRank(po) == 0) {
+              return po['Name'] ?? '';
+            }
+          }
+          final cached = _cache[pin.toLowerCase()];
+          if (cached != null) {
+            for (final po in cached) {
+              if (getOfficeRank(po) == 0) return po['Name'] ?? '';
+            }
+          }
+          // Second check for Sub Office
+          for (final po in _offices) {
+            if (po['Pincode'] == pin && getOfficeRank(po) == 1) {
+              return po['Name'] ?? '';
+            }
+          }
+          if (cached != null) {
+            for (final po in cached) {
+              if (getOfficeRank(po) == 1) return po['Name'] ?? '';
+            }
+          }
+          return '';
+        }
+
+        // For each item in the list:
+        // If it's a Head Office or Sub Office: read office name then pincode
+        // If it's a Branch Office: read branch office name then parent office name
         for (int i = 0; i < limit; i++) {
           if (!_isSpeaking || !mounted) break;
 
@@ -1139,12 +1978,27 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
           final String name = po['Name'] ?? '';
           final String pincode = po['Pincode'] ?? '';
           final String formattedPin = _formatPincodeDigitByDigit(pincode);
+          final int rank = getOfficeRank(po);
 
-          String speechText = name;
-          if (formattedPin.isNotEmpty) {
-            speechText += ', Pincode $formattedPin.';
+          String speechText;
+          if (rank == 0 || rank == 1) {
+            // Head Office or Sub Office: office name then pincode
+            speechText = name;
+            if (formattedPin.isNotEmpty) {
+              speechText += ', Pincode $formattedPin.';
+            } else {
+              speechText += '.';
+            }
           } else {
-            speechText += '.';
+            // Branch Office: branch office name then parent office name
+            final String parentOffice = findParentOfficeName(pincode);
+            if (parentOffice.isNotEmpty && parentOffice != name) {
+              speechText = '$name, $parentOffice.';
+            } else if (formattedPin.isNotEmpty) {
+              speechText = '$name, Pincode $formattedPin.';
+            } else {
+              speechText = '$name.';
+            }
           }
 
           _speechCompleter = Completer<void>();
@@ -1219,6 +2073,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
         child: SafeArea(
           child: Column(
             children: [
+              const TopBannerAdWidget(),
               _buildHeader(),
               Expanded(
                 child: Padding(
@@ -1234,7 +2089,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                   ),
                 ),
               ),
-              _buildAdBanner(),
+              const BottomBannerAdWidget(),
             ],
           ),
         ),
@@ -1242,392 +2097,10 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
     );
   }
 
-  Widget _buildThemeSelector() {
-    final themes = [
-      {'key': 'light', 'color': const Color(0xFFF1F5F9), 'label': 'Light'},
-      {'key': 'dark', 'color': const Color(0xFF0F172A), 'label': 'Dark'},
-      {'key': 'blue', 'color': const Color(0xFF0EA5E9), 'label': 'Blue'},
-      {'key': 'green', 'color': const Color(0xFF00C853), 'label': 'Green'},
-      {'key': 'orange', 'color': const Color(0xFFFF9933), 'label': 'Orange'},
-      {'key': 'red', 'color': const Color(0xFFEF4444), 'label': 'Red'},
-      {'key': 'yellow', 'color': const Color(0xFFFBBF24), 'label': 'Yellow'},
-      {'key': 'violet', 'color': const Color(0xFFC084FC), 'label': 'Violet'},
-      {'key': 'indigo', 'color': const Color(0xFF6366F1), 'label': 'Indigo'},
-    ];
-
-    return ValueListenableBuilder<String>(
-      valueListenable: themeNotifier,
-      builder: (context, currentKey, child) {
-        return Wrap(
-          alignment: WrapAlignment.center,
-          spacing: 6,
-          runSpacing: 6,
-          children: themes.map((theme) {
-            final String key = theme['key'] as String;
-            final Color color = theme['color'] as Color;
-            final String label = theme['label'] as String;
-            final bool isSelected = currentKey == key;
-
-            return GestureDetector(
-              onTap: () => _changeTheme(key),
-              child: Container(
-                padding: const EdgeInsets.all(3.0),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: isSelected ? currentTheme.primary : Colors.transparent,
-                    width: 2.0,
-                  ),
-                ),
-                child: Tooltip(
-                  message: '$label Theme',
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    width: 26,
-                    height: 26,
-                    decoration: BoxDecoration(
-                      color: color,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: key == 'light' ? const Color(0xFF94A3B8) : Colors.transparent,
-                        width: 1,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.15),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: isSelected
-                        ? Icon(
-                            Icons.check,
-                            size: 14,
-                            color: key == 'light' ? Colors.black : Colors.white,
-                          )
-                        : null,
-                  ),
-                ),
-              ),
-            );
-          }).toList(),
-        );
-      },
-    );
-  }
-
-  Widget _buildThemeSelectorGrid() {
-    final themesList = [
-      {'key': 'light', 'name': 'Light Mode', 'color': const Color(0xFFF8FAFC), 'primary': const Color(0xFFFF9933)},
-      {'key': 'dark', 'name': 'Dark Slate', 'color': const Color(0xFF0F172A), 'primary': const Color(0xFFFF9933)},
-      {'key': 'blue', 'name': 'Ocean Blue', 'color': const Color(0xFF03253A), 'primary': const Color(0xFF0EA5E9)},
-      {'key': 'green', 'name': 'Emerald Green', 'color': const Color(0xFF04211A), 'primary': const Color(0xFF00C853)},
-      {'key': 'orange', 'name': 'Amber Orange', 'color': const Color(0xFF2E1205), 'primary': const Color(0xFFFF9933)},
-      {'key': 'red', 'name': 'Crimson Red', 'color': const Color(0xFF2C0F10), 'primary': const Color(0xFFEF4444)},
-      {'key': 'yellow', 'name': 'Royal Yellow', 'color': const Color(0xFF241C03), 'primary': const Color(0xFFFBBF24)},
-      {'key': 'violet', 'name': 'Deep Violet', 'color': const Color(0xFF200F35), 'primary': const Color(0xFFC084FC)},
-      {'key': 'indigo', 'name': 'Indigo Blue', 'color': const Color(0xFF071F30), 'primary': const Color(0xFF6366F1)},
-    ];
-
-    return ValueListenableBuilder<String>(
-      valueListenable: themeNotifier,
-      builder: (context, currentKey, child) {
-        return GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
-            childAspectRatio: 1.05,
-          ),
-          itemCount: themesList.length,
-          itemBuilder: (context, index) {
-            final item = themesList[index];
-            final String key = item['key'] as String;
-            final String name = item['name'] as String;
-            final Color bgColor = item['color'] as Color;
-            final Color primaryColor = item['primary'] as Color;
-            final bool isSelected = currentKey == key;
-
-            return InkWell(
-              onTap: () => _changeTheme(key),
-              borderRadius: BorderRadius.circular(12),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                decoration: BoxDecoration(
-                  color: bgColor,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isSelected ? primaryColor : currentTheme.border,
-                    width: isSelected ? 2.5 : 1,
-                  ),
-                  boxShadow: isSelected
-                      ? [
-                          BoxShadow(
-                            color: primaryColor.withOpacity(0.3),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          )
-                        ]
-                      : [],
-                ),
-                child: Stack(
-                  children: [
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 22,
-                            height: 22,
-                            decoration: BoxDecoration(
-                              color: primaryColor,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
-                                  blurRadius: 3,
-                                )
-                              ],
-                            ),
-                            child: isSelected
-                                ? const Icon(Icons.check, size: 13, color: Colors.white)
-                                : null,
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            name,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 10.5,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                              color: key == 'light' ? Colors.black87 : Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (isSelected)
-                      Positioned(
-                        top: 4,
-                        right: 4,
-                        child: Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            color: primaryColor,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.star, size: 9, color: Colors.white),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
   void _showThemeSelectorDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return ValueListenableBuilder<String>(
-          valueListenable: themeNotifier,
-          builder: (context, currentKey, child) {
-            return Dialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-              backgroundColor: currentTheme.cardBg,
-              insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 440),
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: currentTheme.primary.withOpacity(0.12),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.palette_outlined,
-                            color: currentTheme.primary,
-                            size: 22,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Color Themes',
-                                style: TextStyle(
-                                  color: currentTheme.textPrimary,
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                'Tap any theme to update immediately',
-                                style: TextStyle(
-                                  color: currentTheme.textSecondary,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.close, color: currentTheme.textHint),
-                          onPressed: () => Navigator.of(context).pop(),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    Divider(color: currentTheme.border, height: 1),
-                    const SizedBox(height: 14),
-                    _buildThemeSelectorGrid(),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildAdBanner() {
-    if (_isBannerAdReady && _bannerAd != null) {
-      return Container(
-        width: double.infinity,
-        height: _bannerAd!.size.height.toDouble(),
-        margin: const EdgeInsets.only(top: 8),
-        decoration: BoxDecoration(
-          color: currentTheme.cardBg,
-          border: Border(
-            top: BorderSide(color: currentTheme.border, width: 1),
-          ),
-        ),
-        alignment: Alignment.center,
-        child: SizedBox(
-          width: _bannerAd!.size.width.toDouble(),
-          height: _bannerAd!.size.height.toDouble(),
-          child: AdWidget(ad: _bannerAd!),
-        ),
-      );
-    }
-
-    return Container(
-      width: double.infinity,
-      height: 60,
-      margin: const EdgeInsets.only(top: 8),
-      decoration: BoxDecoration(
-        color: currentTheme.cardBg,
-        border: Border(
-          top: BorderSide(color: currentTheme.border, width: 1),
-        ),
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            left: 8,
-            top: 6,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-              decoration: BoxDecoration(
-                border: Border.all(color: currentTheme.primary, width: 1),
-                borderRadius: BorderRadius.circular(3),
-              ),
-              child: Text(
-                'Ad',
-                style: TextStyle(
-                  color: currentTheme.primary,
-                  fontSize: 8,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 36.0, vertical: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.campaign,
-                    color: currentTheme.primary,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'India Post Speed Post Logistics',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: currentTheme.brightness == Brightness.light ? currentTheme.textPrimary : Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          'Fast, reliable parcel delivery across India. Send now!',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: currentTheme.textSecondary,
-                            fontSize: 9,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Mock ad click
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: currentTheme.secondary,
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                    child: const Text(
-                      'BOOK',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const ThemeSelectorScreen(),
       ),
     );
   }
@@ -1711,8 +2184,6 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
               color: currentTheme.textSecondary,
             ),
           ),
-          const SizedBox(height: 12),
-          _buildThemeSelector(),
         ],
       ),
     );
@@ -1740,6 +2211,11 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
         children: [
           TextField(
             controller: _searchController,
+            textInputAction: TextInputAction.search,
+            onSubmitted: (val) {
+              if (_debounce?.isActive ?? false) _debounce!.cancel();
+              _performSearch(val);
+            },
             style: TextStyle(color: currentTheme.textPrimary, fontSize: 16),
             decoration: InputDecoration(
               hintText: 'Enter 3+ digit Pincode or Office Name...',
@@ -1750,6 +2226,10 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                       icon: Icon(Icons.clear, color: currentTheme.textSecondary),
                       onPressed: () {
                         _searchController.clear();
+                        setState(() {
+                          _currentRangeQuery = null;
+                          _loadingMessage = null;
+                        });
                       },
                     )
                   : null,
@@ -1766,6 +2246,35 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
               ),
             ),
           ),
+          if (_currentRangeQuery != null && _offices.isNotEmpty && !_isLoading && _errorMessage == null) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: currentTheme.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: currentTheme.primary.withOpacity(0.35), width: 1),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.linear_scale_rounded, size: 14, color: currentTheme.primary),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      'Pincode Range: ${_currentRangeQuery!.$1} - ${_currentRangeQuery!.$2} (${_displayOffices.length} unique offices)',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.bold,
+                        color: currentTheme.primary,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           if (_searchController.text.isNotEmpty && !_isLoading && _errorMessage == null && _offices.isNotEmpty) ...[
             const SizedBox(height: 10),
             Row(
@@ -1811,13 +2320,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                                 DropdownMenuItem(value: 'Sub Office', child: Text('Sub Office', overflow: TextOverflow.ellipsis)),
                                 DropdownMenuItem(value: 'Branch Office', child: Text('Branch Office', overflow: TextOverflow.ellipsis)),
                               ],
-                              onChanged: (String? newValue) {
-                                if (newValue != null) {
-                                  setState(() {
-                                    _selectedOfficeTypeFilter = newValue;
-                                  });
-                                }
-                              },
+                              onChanged: _onOfficeTypeFilterChanged,
                             ),
                           ),
                         ),
@@ -1948,7 +2451,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Searching India Post Database...',
+              _loadingMessage ?? 'Searching India Post Database...',
               style: TextStyle(
                 color: currentTheme.textPrimary.withOpacity(0.8),
                 fontSize: 14,
@@ -1981,39 +2484,47 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
     }
 
     if (_searchController.text.isEmpty) {
-      return Center(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.search_off_outlined,
-                color: Colors.white.withOpacity(0.15),
-                size: 80,
+      return SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 32),
+            Icon(
+              Icons.search_off_outlined,
+              color: Colors.white.withOpacity(0.15),
+              size: 80,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Ready to Search',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.8),
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
-              const SizedBox(height: 16),
-              Text(
-                'Ready to Search',
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32.0),
+              child: Text(
+                'Enter at least 6 digits to search by Pincode, or 3 letters to search by Post Office Name.',
+                textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.8),
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  color: Colors.white.withOpacity(0.5),
+                  fontSize: 13,
                 ),
               ),
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                child: Text(
-                  'Enter at least 6 digits to search by Pincode, or 3 letters to search by Post Office Name.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.5),
-                    fontSize: 13,
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 24),
+            // Cross-application discovery section
+            YouMayAlsoLikeWidget(
+              recommendationService: _recommendationService,
+              primaryColor: currentTheme.primary,
+              cardBgColor: currentTheme.cardBg,
+              borderColor: currentTheme.border,
+              textColor: currentTheme.textPrimary,
+              subtextColor: currentTheme.textSecondary,
+            ),
+          ],
         ),
       );
     }
@@ -2113,12 +2624,6 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                           style: TextStyle(color: currentTheme.primary, fontWeight: FontWeight.bold, fontSize: 13),
                         ),
                       ),
-                      DataColumn(
-                        label: Text(
-                          'Dictate',
-                          style: TextStyle(color: currentTheme.primary, fontWeight: FontWeight.bold, fontSize: 13),
-                        ),
-                      ),
                     ],
                     rows: _displayOffices.asMap().entries.map((entry) {
                       final int index = entry.key;
@@ -2131,11 +2636,13 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                       final String typeLabel = getOfficeTypeLabel(po);
                       final Color badgeColor = _getBadgeColor(typeLabel);
                       final bool isBranchOffice = typeLabel == 'Branch Office';
-                      final bool isNonDelivery = (po['DeliveryStatus'] ?? '').toString().trim().toLowerCase() == 'non-delivery';
-                      final bool canTriggerPopup = isBranchOffice || isNonDelivery;
+                      final bool canTriggerPopup = isBranchOffice;
                       final bool isRowSpeaking = _isSpeaking && _currentlyReadingIndex == index;
 
                       return DataRow(
+                        color: isRowSpeaking
+                            ? MaterialStateProperty.all(currentTheme.primary.withOpacity(0.15))
+                            : null,
                         cells: [
                           DataCell(
                             Row(
@@ -2207,17 +2714,6 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                           DataCell(Text(division, style: TextStyle(color: currentTheme.textSecondary, fontSize: 13))),
                           DataCell(Text(region, style: TextStyle(color: currentTheme.textSecondary, fontSize: 13))),
                           DataCell(Text(circle, style: TextStyle(color: currentTheme.textSecondary, fontSize: 13))),
-                          DataCell(
-                            IconButton(
-                              icon: Icon(
-                                isRowSpeaking ? Icons.stop_circle : Icons.volume_up_rounded,
-                                color: isRowSpeaking ? Colors.redAccent : currentTheme.primary,
-                                size: 18,
-                              ),
-                              tooltip: isRowSpeaking ? 'Stop Dictating' : 'Dictate this office',
-                              onPressed: () => _dictateSingleOffice(po, index),
-                            ),
-                          ),
                         ],
                       );
                     }).toList(),
@@ -2341,149 +2837,456 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
   }
 
   void _displayOfficeDialog(BuildContext context, Map<String, dynamic> po) {
-    final String name = po['Name'] ?? 'Unknown';
-    final String pincode = po['Pincode'] ?? '';
-    final String type = getOfficeTypeLabel(po);
-    final String division = po['Division'] ?? 'N/A';
-    final String region = po['Region'] ?? 'N/A';
-    final String circle = po['Circle'] ?? 'N/A';
-    final String district = po['District'] ?? 'N/A';
-    final String state = po['State'] ?? 'N/A';
-    final String delivery = po['DeliveryStatus'] ?? 'N/A';
-    final Color badgeColor = _getBadgeColor(type);
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => AssociatedOfficeScreen(
+          po: po,
+          onDictate: () => _dictateSingleOffice(po, -2),
+        ),
+      ),
+    );
+  }
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return ValueListenableBuilder<String>(
-          valueListenable: themeNotifier,
-          builder: (context, themeKey, child) {
-            return Dialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              backgroundColor: currentTheme.cardBg,
-              insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 500),
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
+  void _showAppInfoDialog() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const AppInfoScreen(),
+      ),
+    );
+  }
+}
+
+class ThemeSelectorScreen extends StatelessWidget {
+  const ThemeSelectorScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<String>(
+      valueListenable: themeNotifier,
+      builder: (context, currentKey, child) {
+        return Scaffold(
+          body: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  currentTheme.scaffoldBgStart,
+                  currentTheme.scaffoldBgEnd,
+                ],
+              ),
+            ),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  const TopBannerAdWidget(),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    child: Row(
                       children: [
+                        IconButton(
+                          icon: Icon(Icons.arrow_back, color: currentTheme.textPrimary),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
                         Container(
-                          padding: const EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: currentTheme.primary.withOpacity(0.1),
+                            color: currentTheme.primary.withOpacity(0.12),
                             shape: BoxShape.circle,
                           ),
-                      child: Icon(
-                        Icons.account_balance,
-                        color: currentTheme.primary,
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Associated Main Office',
-                            style: TextStyle(
-                              color: currentTheme.textSecondary,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            name,
-                            style: TextStyle(
-                              color: currentTheme.textPrimary,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.close, color: currentTheme.textHint),
-                      onPressed: () => Navigator.of(context).pop(),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 18),
-                Divider(color: currentTheme.border, height: 1),
-                const SizedBox(height: 18),
-                _buildDialogRow('Office Type', type, badgeColor: badgeColor),
-                const SizedBox(height: 12),
-                _buildDialogRow('Pincode', pincode, valueColor: currentTheme.primary),
-                const SizedBox(height: 12),
-                _buildDialogRow('Delivery Status', delivery, 
-                  valueColor: delivery.toLowerCase() == 'delivery' ? currentTheme.secondary : const Color(0xFFEF4444)),
-                const SizedBox(height: 12),
-                _buildDialogRow('District', district),
-                const SizedBox(height: 12),
-                _buildDialogRow('State', state),
-                const SizedBox(height: 12),
-                _buildDialogRow('Division', division),
-                const SizedBox(height: 12),
-                _buildDialogRow('Region', region),
-                const SizedBox(height: 12),
-                _buildDialogRow('Circle', circle),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          _dictateSingleOffice(po, -2);
-                        },
-                        icon: const Icon(Icons.record_voice_over, size: 18),
-                        label: const Text('Dictate Office'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: currentTheme.secondary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                          child: Icon(
+                            Icons.palette_outlined,
+                            color: currentTheme.primary,
+                            size: 22,
                           ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: currentTheme.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Color Palette & Themes',
+                                style: TextStyle(
+                                  color: currentTheme.textPrimary,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                'Choose millions of colors or preset themes',
+                                style: TextStyle(
+                                  color: currentTheme.textSecondary,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        child: const Text('Close', style: TextStyle(fontWeight: FontWeight.bold)),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                  Divider(color: currentTheme.border, height: 1),
+                  const Expanded(
+                    child: SingleChildScrollView(
+                      physics: BouncingScrollPhysics(),
+                      padding: EdgeInsets.all(16),
+                      child: ThemePaletteContent(),
+                    ),
+                  ),
+                  const BottomBannerAdWidget(),
+                ],
+              ),
             ),
           ),
         );
       },
     );
-  },
-);
+  }
 }
 
-  Widget _buildDialogRow(String label, String value, {Color? valueColor, Color? badgeColor}) {
+class ThemePaletteContent extends StatelessWidget {
+  const ThemePaletteContent({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<String>(
+      valueListenable: themeNotifier,
+      builder: (context, currentKey, child) {
+        final isCustom = currentKey == 'custom';
+        final hexString = '#${customThemeColor.value.toRadixString(16).substring(2).toUpperCase()}';
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Section 1: Millions of Colors Circle Picker Card
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: currentTheme.inputFill.withOpacity(0.6),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: isCustom ? currentTheme.primary : currentTheme.border,
+                  width: isCustom ? 2 : 1,
+                ),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: const SweepGradient(
+                                colors: [
+                                  Colors.red,
+                                  Colors.yellow,
+                                  Colors.green,
+                                  Colors.cyan,
+                                  Colors.blue,
+                                  Colors.purple,
+                                  Colors.red,
+                                ],
+                              ),
+                              border: Border.all(color: Colors.white, width: 1.5),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Millions of Colors Wheel',
+                            style: TextStyle(
+                              color: currentTheme.textPrimary,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3.5),
+                        decoration: BoxDecoration(
+                          color: customThemeColor,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: customThemeColor.withOpacity(0.4),
+                              blurRadius: 4,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          hexString,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: customThemeColor.computeLuminance() > 0.55 ? Colors.black87 : Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Touch or drag across the circle to choose any custom theme color.',
+                    style: TextStyle(
+                      color: currentTheme.textSecondary,
+                      fontSize: 11.5,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Center(
+                    child: CircleColorPicker(
+                      initialColor: customThemeColor,
+                      size: 170,
+                      onColorChanged: (color) {
+                        applyAppCustomColor(color);
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            applyAppCustomColor(customThemeColor, brightness: Brightness.dark);
+                          },
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 6),
+                            decoration: BoxDecoration(
+                              color: isCustom && customThemeBrightness == Brightness.dark
+                                  ? currentTheme.primary.withOpacity(0.2)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: isCustom && customThemeBrightness == Brightness.dark
+                                    ? currentTheme.primary
+                                    : currentTheme.border,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.dark_mode_outlined, size: 14, color: currentTheme.textPrimary),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Dark Style',
+                                  style: TextStyle(
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w600,
+                                    color: currentTheme.textPrimary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            applyAppCustomColor(customThemeColor, brightness: Brightness.light);
+                          },
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 6),
+                            decoration: BoxDecoration(
+                              color: isCustom && customThemeBrightness == Brightness.light
+                                  ? currentTheme.primary.withOpacity(0.2)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: isCustom && customThemeBrightness == Brightness.light
+                                    ? currentTheme.primary
+                                    : currentTheme.border,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.light_mode_outlined, size: 14, color: currentTheme.textPrimary),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Light Style',
+                                  style: TextStyle(
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w600,
+                                    color: currentTheme.textPrimary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Icon(Icons.palette_outlined, size: 16, color: currentTheme.primary),
+                const SizedBox(width: 6),
+                Text(
+                  'Preset Curated Themes',
+                  style: TextStyle(
+                    color: currentTheme.textPrimary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13.5,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            const PresetThemesGrid(),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class PresetThemesGrid extends StatelessWidget {
+  const PresetThemesGrid({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final themesList = [
+      {'key': 'light', 'name': 'Light Mode', 'color': const Color(0xFFF8FAFC), 'primary': const Color(0xFFFF9933)},
+      {'key': 'dark', 'name': 'Dark Slate', 'color': const Color(0xFF0F172A), 'primary': const Color(0xFFFF9933)},
+      {'key': 'blue', 'name': 'Ocean Blue', 'color': const Color(0xFF03253A), 'primary': const Color(0xFF0EA5E9)},
+      {'key': 'green', 'name': 'Emerald Green', 'color': const Color(0xFF04211A), 'primary': const Color(0xFF00C853)},
+      {'key': 'orange', 'name': 'Amber Orange', 'color': const Color(0xFF2E1205), 'primary': const Color(0xFFFF9933)},
+      {'key': 'red', 'name': 'Crimson Red', 'color': const Color(0xFF2C0F10), 'primary': const Color(0xFFEF4444)},
+      {'key': 'yellow', 'name': 'Royal Yellow', 'color': const Color(0xFF241C03), 'primary': const Color(0xFFFBBF24)},
+      {'key': 'violet', 'name': 'Deep Violet', 'color': const Color(0xFF200F35), 'primary': const Color(0xFFC084FC)},
+      {'key': 'indigo', 'name': 'Indigo Blue', 'color': const Color(0xFF071F30), 'primary': const Color(0xFF6366F1)},
+    ];
+
+    return ValueListenableBuilder<String>(
+      valueListenable: themeNotifier,
+      builder: (context, currentKey, child) {
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 8,
+            childAspectRatio: 1.05,
+          ),
+          itemCount: themesList.length,
+          itemBuilder: (context, index) {
+            final item = themesList[index];
+            final String key = item['key'] as String;
+            final String name = item['name'] as String;
+            final Color bgColor = item['color'] as Color;
+            final Color primaryColor = item['primary'] as Color;
+            final bool isSelected = currentKey == key;
+
+            return InkWell(
+              onTap: () => changeAppTheme(key),
+              borderRadius: BorderRadius.circular(12),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                decoration: BoxDecoration(
+                  color: bgColor,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isSelected ? primaryColor : currentTheme.border,
+                    width: isSelected ? 2.5 : 1,
+                  ),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: primaryColor.withOpacity(0.3),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          )
+                        ]
+                      : [],
+                ),
+                child: Stack(
+                  children: [
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 22,
+                            height: 22,
+                            decoration: BoxDecoration(
+                              color: primaryColor,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  blurRadius: 3,
+                                )
+                              ],
+                            ),
+                            child: isSelected
+                                ? const Icon(Icons.check, size: 13, color: Colors.white)
+                                : null,
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            name,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                              color: key == 'light' ? Colors.black87 : Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (isSelected)
+                      Positioned(
+                        top: 4,
+                        right: 4,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: primaryColor,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.star, size: 9, color: Colors.white),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class AssociatedOfficeScreen extends StatelessWidget {
+  final Map<String, dynamic> po;
+  final VoidCallback onDictate;
+
+  const AssociatedOfficeScreen({
+    super.key,
+    required this.po,
+    required this.onDictate,
+  });
+
+  Widget _buildRow(String label, String value, {Color? valueColor, Color? badgeColor}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -2532,351 +3335,81 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
     );
   }
 
-  // Quick helper to limit shown items to prevent rendering lag with huge datasets
-  int min(int a, int b) => a < b ? a : b;
+  @override
+  Widget build(BuildContext context) {
+    final String name = po['Name'] ?? 'Unknown';
+    final String pincode = po['Pincode'] ?? '';
+    final String type = getOfficeTypeLabel(po);
+    final String division = po['Division'] ?? 'N/A';
+    final String region = po['Region'] ?? 'N/A';
+    final String circle = po['Circle'] ?? 'N/A';
+    final String district = po['District'] ?? 'N/A';
+    final String state = po['State'] ?? 'N/A';
+    final String delivery = po['DeliveryStatus'] ?? 'N/A';
+    final Color badgeColor = getBadgeColor(type);
 
-  void _showAppInfoDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return ValueListenableBuilder<String>(
-          valueListenable: themeNotifier,
-          builder: (context, themeKey, child) {
-            return Dialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-              backgroundColor: currentTheme.cardBg,
-              insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 480, maxHeight: 540),
-                padding: const EdgeInsets.all(20),
-                child: DefaultTabController(
-                  length: 4,
-                  child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+    return ValueListenableBuilder<String>(
+      valueListenable: themeNotifier,
+      builder: (context, themeKey, child) {
+        return Scaffold(
+          body: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  currentTheme.scaffoldBgStart,
+                  currentTheme.scaffoldBgEnd,
+                ],
+              ),
+            ),
+            child: SafeArea(
+              child: Column(
                 children: [
-                  // Dialog Header
-                  Row(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: currentTheme.primary,
-                            width: 1.5,
-                          ),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(18),
-                          child: Image.asset(
-                            'assets/images/logo.jpg',
-                            width: 36,
-                            height: 36,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'India Post Offices',
-                              style: TextStyle(
-                                color: currentTheme.textPrimary,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              'Version $_localVersion (Build $_localBuild)',
-                              style: TextStyle(
-                                color: currentTheme.textHint,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.close, color: currentTheme.textHint),
-                        onPressed: () => Navigator.of(context).pop(),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Divider(color: currentTheme.border, height: 1),
-                  const SizedBox(height: 8),
-                  
-                  // TabBar
-                  TabBar(
-                    isScrollable: true,
-                    tabAlignment: TabAlignment.start,
-                    labelColor: currentTheme.primary,
-                    unselectedLabelColor: currentTheme.textSecondary,
-                    indicatorColor: currentTheme.primary,
-                    dividerColor: Colors.transparent,
-                    labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5),
-                    tabs: const [
-                      Tab(text: 'About', icon: Icon(Icons.description_outlined, size: 18)),
-                      Tab(text: 'Themes', icon: Icon(Icons.palette_outlined, size: 18)),
-                      Tab(text: 'Privacy', icon: Icon(Icons.privacy_tip_outlined, size: 18)),
-                      Tab(text: 'Features', icon: Icon(Icons.featured_play_list_outlined, size: 18)),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  
-                  // TabBarView
-                  Expanded(
-                    child: TabBarView(
+                  const TopBannerAdWidget(),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    child: Row(
                       children: [
-                        // Tab 1: About
-                        SingleChildScrollView(
-                          physics: const BouncingScrollPhysics(),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Overview',
-                                style: TextStyle(
-                                  color: currentTheme.textPrimary,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                'India Post Offices is a highly optimized utility app that acts as a comprehensive directory for post offices across India. It connects directly to the Indian Postal API to verify, search, and catalog details about Head, Sub, and Branch post offices.',
-                                style: TextStyle(
-                                  color: currentTheme.textSecondary,
-                                  fontSize: 13,
-                                  height: 1.4,
-                                ),
-                              ),
-                              const SizedBox(height: 14),
-                              Text(
-                                'Data Sources',
-                                style: TextStyle(
-                                  color: currentTheme.textPrimary,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                'This app fetches official data under the Open Government Data Platform India (data.gov.in) via the open API protocol.',
-                                style: TextStyle(
-                                  color: currentTheme.textSecondary,
-                                  fontSize: 13,
-                                  height: 1.4,
-                                ),
-                              ),
-                              const SizedBox(height: 14),
-                              Text(
-                                'Privacy & Security Summary',
-                                style: TextStyle(
-                                  color: currentTheme.textPrimary,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                '• Developer: Shree Lakshmi Ventures (SLV)\n• Effective Date: August 2, 2026\n• Package Name: com.oedc.indiaPostOffices\n• We do not collect or store personal identity data, bank details, or GPS location.\n• Switch to the "Privacy" tab for the full Privacy Policy.',
-                                style: TextStyle(
-                                  color: currentTheme.textSecondary,
-                                  fontSize: 12.5,
-                                  height: 1.4,
-                                ),
-                              ),
-                            ],
+                        IconButton(
+                          icon: Icon(Icons.arrow_back, color: currentTheme.textPrimary),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: currentTheme.primary.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.account_balance,
+                            color: currentTheme.primary,
+                            size: 22,
                           ),
                         ),
-                        // Tab 2: Themes
-                        SingleChildScrollView(
-                          physics: const BouncingScrollPhysics(),
+                        const SizedBox(width: 12),
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Color Palette & Themes',
-                                style: TextStyle(
-                                  color: currentTheme.textPrimary,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Select any color theme below to update the app colors in real-time.',
+                                'Associated Main Office',
                                 style: TextStyle(
                                   color: currentTheme.textSecondary,
                                   fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.5,
                                 ),
                               ),
-                              const SizedBox(height: 12),
-                              _buildThemeSelectorGrid(),
-                            ],
-                          ),
-                        ),
-                        // Tab 2: Privacy Policy
-                        SingleChildScrollView(
-                          physics: const BouncingScrollPhysics(),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: currentTheme.primary.withOpacity(0.08),
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: currentTheme.primary.withOpacity(0.2)),
+                              Text(
+                                name,
+                                style: TextStyle(
+                                  color: currentTheme.textPrimary,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Privacy Policy for India Post Offices',
-                                      style: TextStyle(
-                                        color: currentTheme.primary,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 13.5,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Effective Date: August 2, 2026\nDeveloper: Shree Lakshmi Ventures (SLV)\nPackage Name: com.oedc.indiaPostOffices',
-                                      style: TextStyle(
-                                        color: currentTheme.textSecondary,
-                                        fontSize: 11.5,
-                                        height: 1.3,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              _buildPrivacySubHeading('1. Overview'),
-                              _buildPrivacyText(
-                                'Shree Lakshmi Ventures ("we", "our", or "us") developed the India Post Offices application to help users search and access information about India Post Offices across India. We value your privacy and are committed to protecting your information.',
-                              ),
-                              const SizedBox(height: 10),
-                              _buildPrivacySubHeading('2. Information We Collect'),
-                              _buildPrivacyText(
-                                '• Account Registration: Not required.\n'
-                                '• Personal Data: We DO NOT collect personal information such as Name, Email, Phone number, Postal address, Aadhaar number, PAN number, Bank details, or Payment info.\n'
-                                '• Location Data: The app does not access your device GPS location.\n'
-                                '• Device Technical Info: Limited technical info (Android version, device model, app version, crash reports) may be collected automatically to improve performance and reliability.',
-                              ),
-                              const SizedBox(height: 10),
-                              _buildPrivacySubHeading('3. Advertisements (Google AdMob)'),
-                              _buildPrivacyText(
-                                'The app may display advertisements using Google AdMob. Google AdMob may collect Advertising ID, device information, approximate location, and ad interactions in accordance with Google\'s Privacy Policy.',
-                              ),
-                              const SizedBox(height: 6),
-                              OutlinedButton.icon(
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                  side: BorderSide(color: currentTheme.primary.withOpacity(0.5)),
-                                ),
-                                icon: Icon(Icons.open_in_new, size: 14, color: currentTheme.primary),
-                                label: Text(
-                                  'Google Privacy Policy',
-                                  style: TextStyle(fontSize: 11.5, color: currentTheme.primary),
-                                ),
-                                onPressed: () => _launchUpdateUrl('https://policies.google.com/privacy'),
-                              ),
-                              const SizedBox(height: 10),
-                              _buildPrivacySubHeading('4. Data Storage & Sharing'),
-                              _buildPrivacyText(
-                                'User preferences and settings are stored locally on your device. No personal information is stored on our servers. We do not sell, rent, or share personal information with third parties. Information is only processed by trusted services like Google Play Services and Google AdMob.',
-                              ),
-                              const SizedBox(height: 10),
-                              _buildPrivacySubHeading('5. Permissions'),
-                              _buildPrivacyText(
-                                'The app requests basic Internet and Network Access permissions solely for fetching post office data via API and displaying advertisements.',
-                              ),
-                              const SizedBox(height: 10),
-                              _buildPrivacySubHeading('6. Children\'s Privacy & Security'),
-                              _buildPrivacyText(
-                                'Intended for general audiences. We do not knowingly collect personal information from children under the age of 13. Reasonable technical measures are implemented to safeguard application processing.',
-                              ),
-                              const SizedBox(height: 10),
-                              _buildPrivacySubHeading('7. Government Disclaimer'),
-                              _buildPrivacyText(
-                                'India Post Offices is NOT an official Government of India application. It provides publicly available information for user convenience.',
-                              ),
-                              const SizedBox(height: 6),
-                              OutlinedButton.icon(
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                  side: BorderSide(color: currentTheme.secondary.withOpacity(0.5)),
-                                ),
-                                icon: Icon(Icons.language, size: 14, color: currentTheme.secondary),
-                                label: Text(
-                                  'Official India Post Website',
-                                  style: TextStyle(fontSize: 11.5, color: currentTheme.secondary),
-                                ),
-                                onPressed: () => _launchUpdateUrl('https://www.indiapost.gov.in'),
-                              ),
-                              const SizedBox(height: 10),
-                              _buildPrivacySubHeading('8. Contact Us'),
-                              _buildPrivacyText(
-                                'Developer: Shree Lakshmi Ventures\nEmail: madhusmita852011@gmail.com',
-                              ),
-                              const SizedBox(height: 10),
-                              ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: currentTheme.primary,
-                                  foregroundColor: currentTheme.textOnPrimary,
-                                  minimumSize: const Size(double.infinity, 36),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                ),
-                                icon: const Icon(Icons.open_in_browser, size: 16),
-                                label: const Text('View PRIVACY_POLICY.md on GitHub', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                                onPressed: () => _launchUpdateUrl('https://github.com/Lokanath862001/India-Post-Offices/blob/main/PRIVACY_POLICY.md'),
-                              ),
-                            ],
-                          ),
-                        ),
-                        // Tab 2: Features
-                        SingleChildScrollView(
-                          physics: const BouncingScrollPhysics(),
-                          child: Column(
-                            children: [
-                              _buildFeatureItem(
-                                Icons.search_rounded,
-                                'Instant Search',
-                                'Query post offices by Pincode or Office Name instantly.',
-                              ),
-                              _buildFeatureItem(
-                                Icons.filter_alt_rounded,
-                                'Smart Hierarchy Classification',
-                                'Ranks and badges Offices into Head, Sub, and Branch categories.',
-                              ),
-                              _buildFeatureItem(
-                                Icons.download_for_offline_rounded,
-                                'Excel Export & Sharing',
-                                'Export search tables to Excel files & share with colleagues.',
-                              ),
-                              _buildFeatureItem(
-                                Icons.record_voice_over_rounded,
-                                'Read & Dictate Table',
-                                'Reads resulted table data out loud using built-in Text-To-Speech audio dictation.',
-                              ),
-                              _buildFeatureItem(
-                                Icons.palette_rounded,
-                                'Beautiful Custom Themes',
-                                'Choose from Light, Dark, or 7 vivid accent modes.',
-                              ),
-                              _buildFeatureItem(
-                                Icons.offline_bolt_rounded,
-                                'Dynamic Query Cache',
-                                'Caches results locally to fetch repeat queries offline.',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ],
                           ),
@@ -2884,6 +3417,90 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                       ],
                     ),
                   ),
+                  Divider(color: currentTheme.border, height: 1),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.all(16),
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: currentTheme.cardBg,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: currentTheme.border),
+                          boxShadow: [
+                            BoxShadow(
+                              color: currentTheme.shadow,
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _buildRow('Office Type', type, badgeColor: badgeColor),
+                            const SizedBox(height: 12),
+                            _buildRow('Pincode', pincode, valueColor: currentTheme.primary),
+                            const SizedBox(height: 12),
+                            _buildRow(
+                              'Delivery Status',
+                              delivery,
+                              valueColor: delivery.toLowerCase() == 'delivery'
+                                  ? currentTheme.secondary
+                                  : const Color(0xFFEF4444),
+                            ),
+                            const SizedBox(height: 12),
+                            _buildRow('District', district),
+                            const SizedBox(height: 12),
+                            _buildRow('State', state),
+                            const SizedBox(height: 12),
+                            _buildRow('Division', division),
+                            const SizedBox(height: 12),
+                            _buildRow('Region', region),
+                            const SizedBox(height: 12),
+                            _buildRow('Circle', circle),
+                            const SizedBox(height: 24),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: ElevatedButton.icon(
+                                    onPressed: onDictate,
+                                    icon: const Icon(Icons.record_voice_over, size: 18),
+                                    label: const Text('Dictate Office'),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: currentTheme.secondary,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(vertical: 14),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () => Navigator.of(context).pop(),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: currentTheme.primary,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(vertical: 14),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    child: const Text('Back to Search', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const BottomBannerAdWidget(),
                 ],
               ),
             ),
@@ -2891,9 +3508,11 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
         );
       },
     );
-  },
-);
+  }
 }
+
+class AppInfoScreen extends StatelessWidget {
+  const AppInfoScreen({super.key});
 
   Widget _buildFeatureItem(IconData icon, String title, String desc) {
     return Padding(
@@ -2939,8 +3558,6 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
     );
   }
 
-
-
   Widget _buildPrivacySubHeading(String text) {
     return Text(
       text,
@@ -2960,6 +3577,345 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
         fontSize: 12,
         height: 1.35,
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<String>(
+      valueListenable: themeNotifier,
+      builder: (context, themeKey, child) {
+        return DefaultTabController(
+          length: 4,
+          child: Scaffold(
+            body: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    currentTheme.scaffoldBgStart,
+                    currentTheme.scaffoldBgEnd,
+                  ],
+                ),
+              ),
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    const TopBannerAdWidget(),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.arrow_back, color: currentTheme.textPrimary),
+                            onPressed: () => Navigator.of(context).pop(),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: currentTheme.primary,
+                                width: 1.5,
+                              ),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(18),
+                              child: Image.asset(
+                                'assets/images/logo.jpg',
+                                width: 36,
+                                height: 36,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'India Post Offices',
+                                  style: TextStyle(
+                                    color: currentTheme.textPrimary,
+                                    fontSize: 16.5,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  'Version $appLocalVersion (Build $appLocalBuild)',
+                                  style: TextStyle(
+                                    color: currentTheme.textHint,
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Divider(color: currentTheme.border, height: 1),
+                    TabBar(
+                      isScrollable: true,
+                      tabAlignment: TabAlignment.start,
+                      labelColor: currentTheme.primary,
+                      unselectedLabelColor: currentTheme.textSecondary,
+                      indicatorColor: currentTheme.primary,
+                      dividerColor: Colors.transparent,
+                      labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5),
+                      tabs: const [
+                        Tab(text: 'About', icon: Icon(Icons.description_outlined, size: 18)),
+                        Tab(text: 'Themes', icon: Icon(Icons.palette_outlined, size: 18)),
+                        Tab(text: 'Privacy', icon: Icon(Icons.privacy_tip_outlined, size: 18)),
+                        Tab(text: 'Features', icon: Icon(Icons.featured_play_list_outlined, size: 18)),
+                      ],
+                    ),
+                    Divider(color: currentTheme.border, height: 1),
+                    Expanded(
+                      child: TabBarView(
+                        children: [
+                          // Tab 1: About
+                          SingleChildScrollView(
+                            physics: const BouncingScrollPhysics(),
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Overview',
+                                  style: TextStyle(
+                                    color: currentTheme.textPrimary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'India Post Offices is a highly optimized utility app that acts as a comprehensive directory for post offices across India. It connects directly to the Indian Postal API to verify, search, and catalog details about Head, Sub, and Branch post offices.',
+                                  style: TextStyle(
+                                    color: currentTheme.textSecondary,
+                                    fontSize: 13,
+                                    height: 1.4,
+                                  ),
+                                ),
+                                const SizedBox(height: 14),
+                                Text(
+                                  'Data Sources',
+                                  style: TextStyle(
+                                    color: currentTheme.textPrimary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'This app fetches official data under the Open Government Data Platform India (data.gov.in) via the open API protocol.',
+                                  style: TextStyle(
+                                    color: currentTheme.textSecondary,
+                                    fontSize: 13,
+                                    height: 1.4,
+                                  ),
+                                ),
+                                const SizedBox(height: 14),
+                                Text(
+                                  'Privacy & Security Summary',
+                                  style: TextStyle(
+                                    color: currentTheme.textPrimary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  '• Developer: Shree Lakshmi Ventures (SLV)\n• Effective Date: August 2, 2026\n• Package Name: com.oedc.indiaPostOffices\n• We do not collect or store personal identity data, bank details, or GPS location.\n• Switch to the "Privacy" tab for the full Privacy Policy.',
+                                  style: TextStyle(
+                                    color: currentTheme.textSecondary,
+                                    fontSize: 12.5,
+                                    height: 1.4,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          // Tab 2: Themes
+                          const SingleChildScrollView(
+                            physics: BouncingScrollPhysics(),
+                            padding: EdgeInsets.all(16),
+                            child: ThemePaletteContent(),
+                          ),
+                          // Tab 3: Privacy Policy
+                          SingleChildScrollView(
+                            physics: const BouncingScrollPhysics(),
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: currentTheme.primary.withOpacity(0.08),
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: currentTheme.primary.withOpacity(0.2)),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Privacy Policy for India Post Offices',
+                                        style: TextStyle(
+                                          color: currentTheme.primary,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 13.5,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Effective Date: August 2, 2026\nDeveloper: Shree Lakshmi Ventures (SLV)\nPackage Name: com.oedc.indiaPostOffices',
+                                        style: TextStyle(
+                                          color: currentTheme.textSecondary,
+                                          fontSize: 11.5,
+                                          height: 1.3,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                _buildPrivacySubHeading('1. Overview'),
+                                _buildPrivacyText(
+                                  'Shree Lakshmi Ventures ("we", "our", or "us") developed the India Post Offices application to help users search and access information about India Post Offices across India. We value your privacy and are committed to protecting your information.',
+                                ),
+                                const SizedBox(height: 10),
+                                _buildPrivacySubHeading('2. Information We Collect'),
+                                _buildPrivacyText(
+                                  '• Account Registration: Not required.\n'
+                                  '• Personal Data: We DO NOT collect personal information such as Name, Email, Phone number, Postal address, Aadhaar number, PAN number, Bank details, or Payment info.\n'
+                                  '• Location Data: The app does not access your device GPS location.\n'
+                                  '• Device Technical Info: Limited technical info (Android version, device model, app version, crash reports) may be collected automatically to improve performance and reliability.',
+                                ),
+                                const SizedBox(height: 10),
+                                _buildPrivacySubHeading('3. Advertisements (Google AdMob)'),
+                                _buildPrivacyText(
+                                  'The app may display advertisements using Google AdMob. Google AdMob may collect Advertising ID, device information, approximate location, and ad interactions in accordance with Google\'s Privacy Policy.',
+                                ),
+                                const SizedBox(height: 6),
+                                OutlinedButton.icon(
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                    side: BorderSide(color: currentTheme.primary.withOpacity(0.5)),
+                                  ),
+                                  icon: Icon(Icons.open_in_new, size: 14, color: currentTheme.primary),
+                                  label: Text(
+                                    'Google Privacy Policy',
+                                    style: TextStyle(fontSize: 11.5, color: currentTheme.primary),
+                                  ),
+                                  onPressed: () => launchAppUrl('https://policies.google.com/privacy'),
+                                ),
+                                const SizedBox(height: 10),
+                                _buildPrivacySubHeading('4. Data Storage & Sharing'),
+                                _buildPrivacyText(
+                                  'User preferences and settings are stored locally on your device. No personal information is stored on our servers. We do not sell, rent, or share personal information with third parties. Information is only processed by trusted services like Google Play Services and Google AdMob.',
+                                ),
+                                const SizedBox(height: 10),
+                                _buildPrivacySubHeading('5. Permissions'),
+                                _buildPrivacyText(
+                                  'The app requests basic Internet and Network Access permissions solely for fetching post office data via API and displaying advertisements.',
+                                ),
+                                const SizedBox(height: 10),
+                                _buildPrivacySubHeading('6. Children\'s Privacy & Security'),
+                                _buildPrivacyText(
+                                  'Intended for general audiences. We do not knowingly collect personal information from children under the age of 13. Reasonable technical measures are implemented to safeguard application processing.',
+                                ),
+                                const SizedBox(height: 10),
+                                _buildPrivacySubHeading('7. Government Disclaimer'),
+                                _buildPrivacyText(
+                                  'India Post Offices is NOT an official Government of India application. It provides publicly available information for user convenience.',
+                                ),
+                                const SizedBox(height: 6),
+                                OutlinedButton.icon(
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                    side: BorderSide(color: currentTheme.secondary.withOpacity(0.5)),
+                                  ),
+                                  icon: Icon(Icons.language, size: 14, color: currentTheme.secondary),
+                                  label: Text(
+                                    'Official India Post Website',
+                                    style: TextStyle(fontSize: 11.5, color: currentTheme.secondary),
+                                  ),
+                                  onPressed: () => launchAppUrl('https://www.indiapost.gov.in'),
+                                ),
+                                const SizedBox(height: 10),
+                                _buildPrivacySubHeading('8. Contact Us'),
+                                _buildPrivacyText(
+                                  'Developer: Shree Lakshmi Ventures\nEmail: madhusmita852011@gmail.com',
+                                ),
+                                const SizedBox(height: 10),
+                                ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: currentTheme.primary,
+                                    foregroundColor: currentTheme.textOnPrimary,
+                                    minimumSize: const Size(double.infinity, 36),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  ),
+                                  icon: const Icon(Icons.open_in_browser, size: 16),
+                                  label: const Text('View PRIVACY_POLICY.md on GitHub', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                  onPressed: () => launchAppUrl('https://github.com/Lokanath862001/India-Post-Offices/blob/main/PRIVACY_POLICY.md'),
+                                ),
+                              ],
+                            ),
+                          ),
+                          // Tab 4: Features
+                          SingleChildScrollView(
+                            physics: const BouncingScrollPhysics(),
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              children: [
+                                _buildFeatureItem(
+                                  Icons.search_rounded,
+                                  'Instant Search',
+                                  'Query post offices by Pincode or Office Name instantly.',
+                                ),
+                                _buildFeatureItem(
+                                  Icons.filter_alt_rounded,
+                                  'Smart Hierarchy Classification',
+                                  'Ranks and badges Offices into Head, Sub, and Branch categories.',
+                                ),
+                                _buildFeatureItem(
+                                  Icons.download_for_offline_rounded,
+                                  'Excel Export & Sharing',
+                                  'Export search tables to Excel files & share with colleagues.',
+                                ),
+                                _buildFeatureItem(
+                                  Icons.record_voice_over_rounded,
+                                  'Read & Dictate Table',
+                                  'Reads resulted table data out loud using built-in Text-To-Speech audio dictation.',
+                                ),
+                                _buildFeatureItem(
+                                  Icons.palette_rounded,
+                                  'Beautiful Custom Themes',
+                                  'Choose from Light, Dark, or 7 vivid accent modes.',
+                                ),
+                                _buildFeatureItem(
+                                  Icons.offline_bolt_rounded,
+                                  'Dynamic Query Cache',
+                                  'Caches results locally to fetch repeat queries offline.',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const BottomBannerAdWidget(),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

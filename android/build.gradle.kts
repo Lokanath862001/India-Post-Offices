@@ -31,7 +31,7 @@ subprojects {
                 val getNamespace = android.javaClass.getMethod("getNamespace")
                 val setNamespace = android.javaClass.getMethod("setNamespace", String::class.java)
                 if (getNamespace.invoke(android) == null) {
-                    val ns = "com.example.${project.name.replace("-", "_").replace(".", "_")}"
+                    val ns = "com.oedc.${project.name.replace("-", "_").replace(".", "_")}"
                     setNamespace.invoke(android, ns)
                 }
             } catch (e: Exception) {

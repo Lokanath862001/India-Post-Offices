@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "publisher": "SLV \u00d7 OEDC",
+  "generatedAt": "2026-10-08T10:38:52.502054+00:00",
+  "apps": [
+    {
+      "packageName": "com.oedc.indiaPostOffices",
+      "name": "India Post Offices Directory",
+      "shortDescription": "Search PIN codes and post offices across India in real-time.",
+      "description": "Comprehensive India Post directory with offline support.",
+      "iconUrl": "https://lh3.googleusercontent.com/d/com.oedc.indiaPostOffices-icon",
+      "playStoreUrl": "https://play.google.com/store/apps/details?id=com.oedc.indiaPostOffices",
+      "availability": "PUBLIC_PRODUCTION",
+      "category": "Productivity",
+      "track": "production",
+      "releaseStatus": "completed",
+      "discoverable": true,
+      "discoverableInClosedTesting": false
+    },
+    {
+      "packageName": "com.slv.pdfreaderpro",
+      "name": "SLV PDF Reader Pro",
+      "shortDescription": "Fast, lightweight PDF viewer and document tools.",
+      "description": "High performance PDF document viewer with annotation and export capabilities.",
+      "iconUrl": "https://lh3.googleusercontent.com/d/com.slv.pdfreaderpro-icon",
+      "playStoreUrl": "https://play.google.com/store/apps/details?id=com.slv.pdfreaderpro",
+      "availability": "PUBLIC_PRODUCTION",
+      "category": "Productivity",
+      "track": "production",
+      "releaseStatus": "completed",
+      "discoverable": true,
+      "discoverableInClosedTesting": false
+    },
+    {
+      "packageName": "com.oedc.calcsuite",
+      "name": "OEDC Calculator Suite",
+      "shortDescription": "Smart scientific & financial calculations made simple.",
+      "description": "All-in-one financial, unit converter, and scientific calculation utility.",
+      "iconUrl": "https://lh3.googleusercontent.com/d/com.oedc.calcsuite-icon",
+      "playStoreUrl": "https://play.google.com/store/apps/details?id=com.oedc.calcsuite",
+      "availability": "PUBLIC_PRODUCTION",
+      "category": "Tools",
+      "track": "production",
+      "releaseStatus": "completed",
+      "discoverable": true,
+      "discoverableInClosedTesting": false
+    },
+    {
+      "packageName": "com.slv.notesmaster",
+      "name": "Notes Master SLV",
+      "shortDescription": "Quick notes, checklists, and private offline notebook.",
+      "description": "Privacy-focused quick note taker with instant offline sync and dark mode.",
+      "iconUrl": "https://lh3.googleusercontent.com/d/com.slv.notesmaster-icon",
+      "playStoreUrl": "https://play.google.com/store/apps/details?id=com.slv.notesmaster",
+      "availability": "PUBLIC_PRODUCTION",
+      "category": "Productivity",
+      "track": "production",
+      "releaseStatus": "completed",
+      "discoverable": true,
+      "discoverableInClosedTesting": false
+    },
+    {
+      "packageName": "com.universalapps.fileexplorer",
+      "name": "Universal File Explorer",
+      "shortDescription": "Modern file manager with archive support and storage analyzer.",
+      "description": "Fast and clean file management without clutter.",
+      "iconUrl": "https://lh3.googleusercontent.com/d/com.universalapps.fileexplorer-icon",
+      "playStoreUrl": "https://play.google.com/store/apps/details?id=com.universalapps.fileexplorer",
+      "availability": "PUBLIC_PRODUCTION",
+      "category": "Tools",
+      "track": "production",
+      "releaseStatus": "completed",
+      "discoverable": true,
+      "discoverableInClosedTesting": false
+    },
+    {
+      "packageName": "com.nextgen.scannerai",
+      "name": "NextGen Doc Scanner",
+      "shortDescription": "OCR document scanner and camera digitizer.",
+      "description": "High resolution scanner with edge detection and OCR.",
+      "iconUrl": "https://lh3.googleusercontent.com/d/com.nextgen.scannerai-icon",
+      "playStoreUrl": "https://play.google.com/store/apps/details?id=com.nextgen.scannerai",
+      "availability": "CLOSED_TESTING",
+      "category": "Productivity",
+      "track": "closed",
+      "releaseStatus": "inProgress",
+      "discoverable": true,
+      "discoverableInClosedTesting": true
+    }
+  ]
+}
