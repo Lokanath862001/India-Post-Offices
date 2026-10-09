@@ -1,141 +1,131 @@
-Privacy Policy for India Post Offices
+# Privacy Policy for India Post Offices
 
-Effective Date: August 2, 2026
+**Effective Date:** October 9, 2026  
+**Application Name:** India Post Offices  
+**Package Name:** `com.oedc.indiaPostOffices`  
+**Developer:** Shree Lakshmi Ventures (SLV)  
 
-App Name: India Post Offices
-Package Name: com.oedc.indiaPostOffices
-Developer: Shree Lakshmi Ventures (SLV)
+---
 
-Privacy Policy
+## 1. Overview & Non-Affiliation Disclaimer
 
-Shree Lakshmi Ventures ("we", "our", or "us") developed the India Post Offices application to help users search and access information about India Post Offices across India.
+**Shree Lakshmi Ventures** ("we", "our", or "us") developed the **India Post Offices** application as an independent utility directory to help users search, explore, and access postal PIN code information across India.
 
-We value your privacy and are committed to protecting your personal information. This Privacy Policy explains what information the app collects, how it is used, and your rights regarding that information.
+> ### **Government Non-Affiliation Disclaimer**
+> **India Post Offices is an independent utility application developed by Shree Lakshmi Ventures. This application is NOT affiliated with, endorsed by, sponsored by, authorized by, or in any way officially connected with India Post (Department of Posts, Ministry of Communications), the Government of India, or any state government entity.**  
+>
+> **The application does not represent any government entity and does not provide official government services (such as parcel booking, speed post tracking, financial services, or official government registrations).**
 
-Information We Collect
-Personal Information
+---
 
-The India Post Offices app does not require users to create an account or register.
+## 2. Information Sources & Data Provenance
 
-We do not collect personal information such as:
+In compliance with Google Play Developer policies regarding government information transparency, all postal directory information presented within this application is compiled from publicly accessible data repositories:
 
-Name
-Email address
-Phone number
-Postal address
-Aadhaar number
-PAN number
-Bank account details
-Payment information
-Location Information
+1. **Department of Posts, Ministry of Communications, Government of India**  
+   - **Authority:** Official nodal agency for postal services, circles, and PIN code allocation in India.  
+   - **Official Website:** [https://www.indiapost.gov.in](https://www.indiapost.gov.in)  
+   - **Coverage:** Reference authority for postal circles, head offices, and nationwide postal hierarchy.
 
-The app does not access your device's GPS location unless you explicitly grant permission (if applicable in future versions).
+2. **Open Government Data (OGD) Platform India (`data.gov.in`)**  
+   - **Dataset:** All India Pincode Directory published under the *Government Open Data License - India (GODL)*.  
+   - **Official Portal:** [https://data.gov.in](https://data.gov.in)  
+   - **Coverage:** Publicly released dataset of PIN codes, post office names, administrative districts, and postal circles.
 
-Device Information
+3. **Postal PIN Code API (`api.postalpincode.in`)**  
+   - **Service:** Public community REST API aggregating open postal data for directory lookups.  
+   - **Service Endpoint:** [https://api.postalpincode.in](https://api.postalpincode.in)  
+   - **Field Coverage:** Post Office Name, PIN Code, Branch Type (`HO` / `SO` / `BO`), Delivery Status (`Delivery` / `Non-Delivery`), District, Division, Region, Circle, Taluk/Block, and State.
 
-The app may automatically receive limited technical information required for proper operation, including:
+4. **Department of Posts Sortation Hub Directory**  
+   - **Dataset:** Catchment parcel routing and sortation plan master schema.  
+   - **Coverage:** Routing PIN code ranges (`From Pin` – `To Pin`), Level 1 Parcel Hubs (L1), Level 2 Parcel Hubs (L2), National Sorting Hubs (NSH), and Intra-Circle Hubs (ICH).
 
-Android version
-Device model
-App version
-Crash reports (if applicable)
+> **Verification Notice:** Data within this application is compiled for convenience and reference purposes only. Individual records are not individually certified or officially verified by India Post. Users seeking authoritative postal bookings or government services should visit the official Department of Posts portal at [https://www.indiapost.gov.in](https://www.indiapost.gov.in).
 
-This information is used only to improve app performance and reliability.
+---
 
-Advertisements
+## 3. Information We Collect
 
-The app may display advertisements using Google AdMob.
+### A. Personal Information
+The **India Post Offices** application does **not** require account creation, registration, or sign-in. We do **NOT** collect, transmit, store, or sell any personal information, including:
+- Names, email addresses, or phone numbers
+- Physical postal or street addresses
+- Government identity numbers (Aadhaar, PAN, Voter ID, etc.)
+- Bank details, payment cards, or financial credentials
 
-Google AdMob may collect certain information, including:
+### B. Location Data
+The app does **not** access, request, or track your device's GPS or precise location.
 
-Advertising ID
-Device information
-Approximate location
-Interaction with advertisements
+### C. Technical & Diagnostic Information
+The app may automatically receive limited non-personally identifiable technical diagnostic data strictly necessary for app stability and performance:
+- Device model and manufacturer
+- Operating system version (Android / iOS)
+- Application version and build number
+- Crash logs and performance diagnostics (via Google Play Console)
 
-This information is collected directly by Google in accordance with Google's Privacy Policy.
+---
 
-Google Privacy Policy:
+## 4. Advertisements (Google AdMob)
 
-https://policies.google.com/privacy
+The application displays advertisements provided by **Google AdMob** to support maintenance and ongoing development.
 
-Google AdMob:
+Google AdMob may collect and process pseudonymous identifiers and device metrics, including:
+- Google Advertising ID (GAID) / Identifier for Advertisers (IDFA)
+- Device model, operating system, and hardware identifiers
+- Approximate (network-level) location
+- Ad interaction and performance events
 
-https://support.google.com/admob
+This data collection is managed directly by Google under Google's Privacy Policies:
+- **Google Privacy Policy:** [https://policies.google.com/privacy](https://policies.google.com/privacy)
+- **Google AdMob Support & Data Practices:** [https://support.google.com/admob/answer/6128543](https://support.google.com/admob/answer/6128543)
 
-Data Storage
+---
 
-The app may store user preferences and settings locally on your device.
+## 5. Local Storage & Offline Usage
 
-No personal information is stored on our servers.
+- **Local Storage:** User preferences (such as selected color themes and recent search caching) are stored exclusively in the private app sandbox on your device using `SharedPreferences`.
+- **No Cloud Account Storage:** We do not maintain user databases or upload your search queries to external private servers. Search results are cached locally on your device to facilitate rapid offline lookups.
 
-Data Sharing
+---
 
-We do not sell, rent, or share your personal information with third parties.
+## 6. Permissions
 
-Information may be processed by trusted third-party services such as:
+The application requests only minimal, standard system permissions:
+- **`android.permission.INTERNET`**: Required to query the postal directory API, fetch app updates, and display advertisements.
+- **`android.permission.ACCESS_NETWORK_STATE`**: Required to check network connectivity before dispatching network requests.
 
-Google Play Services
-Google AdMob
+---
 
-only for providing app functionality and advertisements.
+## 7. Children's Privacy
 
-Permissions
+The application is designed for a general audience and is completely family-safe. We do not knowingly collect or solicit personal data from children under the age of 13. If you believe any personal data has inadvertently reached us, please contact us immediately for deletion.
 
-Depending on app features, the app may request permissions such as:
+---
 
-Internet access
-Network access
+## 8. Third-Party Services
 
-These permissions are used solely for app functionality.
+The application integrates the following third-party libraries and SDKs:
+- **Google Play Services** (Core functionality and app delivery)
+- **Google AdMob SDK** (Ad monetization)
+- **Flutter & Dart Packages** (`shared_preferences`, `url_launcher`, `share_plus`, `flutter_tts`, `excel`)
 
-Children's Privacy
+Each third-party provider operates under its respective privacy terms and compliance standards.
 
-The India Post Offices app is intended for general audiences.
+---
 
-We do not knowingly collect personal information from children under the age of 13.
+## 9. Changes to This Privacy Policy
 
-If you believe a child has provided personal information, please contact us so we can promptly remove it.
+We may periodically revise this Privacy Policy to reflect changes in our practices or relevant regulatory requirements. Any updates will be committed to the official repository at:  
+[https://github.com/Lokanath862001/India-Post-Offices/blob/main/PRIVACY_POLICY.md](https://github.com/Lokanath862001/India-Post-Offices/blob/main/PRIVACY_POLICY.md)  
+with an updated Effective Date.
 
-Security
+---
 
-We take reasonable measures to protect information processed by the application.
+## 10. Contact Us
 
-However, no method of electronic storage or transmission over the Internet is completely secure.
+If you have questions, feedback, or concerns regarding this Privacy Policy or the application, please contact:
 
-Third-Party Services
-
-The application may use the following third-party services:
-
-Google Play Services
-Google AdMob
-
-These services have their own privacy policies governing the handling of user data.
-
-Government Information Disclaimer
-
-India Post Offices is not an official Government of India application.
-
-The app provides publicly available information for user convenience.
-
-Official India Post website:
-
-https://www.indiapost.gov.in
-
-Users should refer to the official India Post website for the latest and authoritative information.
-
-Changes to This Privacy Policy
-
-We may update this Privacy Policy from time to time.
-
-Any changes will be published on this page with an updated Effective Date.
-
-Contact Us
-
-If you have any questions about this Privacy Policy, please contact:
-
-Shree Lakshmi Ventures
-
-Email: madhusmita852011@gmail.com
-
-Replace the email above with your official support email before publishing.
+**Developer:** Shree Lakshmi Ventures  
+**Contact Email:** `madhusmita852011@gmail.com`  
+**GitHub Repository:** [https://github.com/Lokanath862001/India-Post-Offices](https://github.com/Lokanath862001/India-Post-Offices)  

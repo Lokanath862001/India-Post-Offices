@@ -1218,7 +1218,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
         _isLoading = true;
         _errorMessage = null;
         _currentRangeQuery = (startPin, endPin);
-        _loadingMessage = 'Searching range $startPin - $endPin in India Post Database...';
+        _loadingMessage = 'Searching range $startPin - $endPin in postal directory...';
       });
 
       final cacheKey = 'range_${startPin}_$endPin';
@@ -2178,10 +2178,19 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
           ),
           const SizedBox(height: 8),
           Text(
+            'Independent Directory & PIN Code Finder • By Shree Lakshmi Ventures',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: currentTheme.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
             'Search offices by Name or Pincode in real-time',
             style: TextStyle(
-              fontSize: 13,
-              color: currentTheme.textSecondary,
+              fontSize: 11.5,
+              color: currentTheme.textHint,
             ),
           ),
         ],
@@ -2451,7 +2460,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              _loadingMessage ?? 'Searching India Post Database...',
+              _loadingMessage ?? 'Searching postal database...',
               style: TextStyle(
                 color: currentTheme.textPrimary.withOpacity(0.8),
                 fontSize: 14,
@@ -2512,6 +2521,32 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
                   color: Colors.white.withOpacity(0.5),
                   fontSize: 13,
                 ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 24),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: currentTheme.primary.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: currentTheme.primary.withOpacity(0.2)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline, size: 20, color: currentTheme.primary),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Independent Directory App. Not affiliated with, endorsed by, or representing India Post or the Government of India.',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: currentTheme.textSecondary,
+                        height: 1.3,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 24),
@@ -3460,7 +3495,66 @@ class AssociatedOfficeScreen extends StatelessWidget {
                             _buildRow('Region', region),
                             const SizedBox(height: 12),
                             _buildRow('Circle', circle),
-                            const SizedBox(height: 24),
+                            const SizedBox(height: 18),
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: currentTheme.scaffoldBgStart.withOpacity(0.5),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: currentTheme.border),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(Icons.source_outlined, size: 16, color: currentTheme.primary),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        'Data Source Attribution',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                          color: currentTheme.textPrimary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    po['isLocal'] == true
+                                        ? 'Source: Department of Posts Sortation Hub Directory (Catchment Parcel Routing).'
+                                        : 'Source: Public Postal Directory via api.postalpincode.in (derived from Open Government Data Platform India, data.gov.in).',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: currentTheme.textSecondary,
+                                      height: 1.3,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  InkWell(
+                                    onTap: () => launchAppUrl('https://www.indiapost.gov.in'),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.open_in_new, size: 12, color: currentTheme.secondary),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'Verify on Official India Post: indiapost.gov.in',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                            color: currentTheme.secondary,
+                                            decoration: TextDecoration.underline,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 20),
                             Row(
                               children: [
                                 Expanded(
@@ -3683,6 +3777,43 @@ class AppInfoScreen extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFEF4444).withOpacity(0.08),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: const Color(0xFFEF4444).withOpacity(0.3)),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: const [
+                                          Icon(Icons.gavel, color: Color(0xFFEF4444), size: 18),
+                                          SizedBox(width: 8),
+                                          Text(
+                                            'Non-Affiliation Disclaimer',
+                                            style: TextStyle(
+                                              color: Color(0xFFEF4444),
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        'India Post Offices is an independent utility application developed by Shree Lakshmi Ventures. This app is NOT affiliated with, endorsed by, sponsored by, or an official application of India Post or the Government of India. The application does not represent any government entity and does not provide official government services.',
+                                        style: TextStyle(
+                                          color: currentTheme.textSecondary,
+                                          fontSize: 12,
+                                          height: 1.4,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 14),
                                 Text(
                                   'Overview',
                                   style: TextStyle(
@@ -3693,7 +3824,7 @@ class AppInfoScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
-                                  'India Post Offices is a highly optimized utility app that acts as a comprehensive directory for post offices across India. It connects directly to the Indian Postal API to verify, search, and catalog details about Head, Sub, and Branch post offices.',
+                                  'India Post Offices is a lookup utility that helps users find postal PIN codes, office names, delivery statuses, branch types, and postal administrative divisions across India.',
                                   style: TextStyle(
                                     color: currentTheme.textSecondary,
                                     fontSize: 13,
@@ -3702,7 +3833,7 @@ class AppInfoScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 14),
                                 Text(
-                                  'Data Sources',
+                                  'Information Sources & Field Coverage',
                                   style: TextStyle(
                                     color: currentTheme.textPrimary,
                                     fontWeight: FontWeight.bold,
@@ -3711,11 +3842,141 @@ class AppInfoScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
-                                  'This app fetches official data under the Open Government Data Platform India (data.gov.in) via the open API protocol.',
+                                  'Government-related postal information in this application is compiled from publicly accessible open sources:',
                                   style: TextStyle(
                                     color: currentTheme.textSecondary,
-                                    fontSize: 13,
-                                    height: 1.4,
+                                    fontSize: 12.5,
+                                    height: 1.3,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                // Source 1: India Post
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  margin: const EdgeInsets.only(bottom: 8),
+                                  decoration: BoxDecoration(
+                                    color: currentTheme.scaffoldBgStart.withOpacity(0.5),
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: currentTheme.border),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '1. Department of Posts (India Post)',
+                                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5, color: currentTheme.textPrimary),
+                                      ),
+                                      const SizedBox(height: 3),
+                                      Text(
+                                        'Official authority for PIN code allocation, postal circles, and administrative divisions.',
+                                        style: TextStyle(fontSize: 11.5, color: currentTheme.textSecondary),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      InkWell(
+                                        onTap: () => launchAppUrl('https://www.indiapost.gov.in'),
+                                        child: Text(
+                                          'URL: https://www.indiapost.gov.in',
+                                          style: TextStyle(fontSize: 11, color: currentTheme.primary, decoration: TextDecoration.underline),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                // Source 2: Open Government Data
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  margin: const EdgeInsets.only(bottom: 8),
+                                  decoration: BoxDecoration(
+                                    color: currentTheme.scaffoldBgStart.withOpacity(0.5),
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: currentTheme.border),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '2. Open Government Data (OGD) Platform India',
+                                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5, color: currentTheme.textPrimary),
+                                      ),
+                                      const SizedBox(height: 3),
+                                      Text(
+                                        'Publisher of the All India Pincode Directory dataset under Government Open Data License - India (GODL).',
+                                        style: TextStyle(fontSize: 11.5, color: currentTheme.textSecondary),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      InkWell(
+                                        onTap: () => launchAppUrl('https://data.gov.in'),
+                                        child: Text(
+                                          'URL: https://data.gov.in',
+                                          style: TextStyle(fontSize: 11, color: currentTheme.primary, decoration: TextDecoration.underline),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                // Source 3: Postal PIN Code API
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  margin: const EdgeInsets.only(bottom: 8),
+                                  decoration: BoxDecoration(
+                                    color: currentTheme.scaffoldBgStart.withOpacity(0.5),
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: currentTheme.border),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '3. Postal PIN Code API (Community API)',
+                                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5, color: currentTheme.textPrimary),
+                                      ),
+                                      const SizedBox(height: 3),
+                                      Text(
+                                        'Public directory API endpoint supplying search records: Post Office Name, PIN Code, Branch Type (HO/SO/BO), Delivery Status, Circle, District, Division, Region, Taluk/Block, and State.',
+                                        style: TextStyle(fontSize: 11.5, color: currentTheme.textSecondary),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      InkWell(
+                                        onTap: () => launchAppUrl('https://api.postalpincode.in'),
+                                        child: Text(
+                                          'URL: https://api.postalpincode.in',
+                                          style: TextStyle(fontSize: 11, color: currentTheme.primary, decoration: TextDecoration.underline),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                // Source 4: Department of Posts Sortation Hub Directory
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  margin: const EdgeInsets.only(bottom: 8),
+                                  decoration: BoxDecoration(
+                                    color: currentTheme.scaffoldBgStart.withOpacity(0.5),
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: currentTheme.border),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '4. Department of Posts Sortation Hub Directory',
+                                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5, color: currentTheme.textPrimary),
+                                      ),
+                                      const SizedBox(height: 3),
+                                      Text(
+                                        'Offline parcel sortation master schema mapping PIN code ranges to Level 1 / Level 2 Parcel Hubs and Circles (Sortplan Id, L1 Office Name, L2 Office Name, Hub Level, Circle Name, From Pin, To Pin).',
+                                        style: TextStyle(fontSize: 11.5, color: currentTheme.textSecondary),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'Note: Individual records in this app are provided for informational reference and are not individually certified or officially verified by India Post. For official postal bookings or services, visit indiapost.gov.in.',
+                                  style: TextStyle(
+                                    color: currentTheme.textHint,
+                                    fontSize: 11,
+                                    fontStyle: FontStyle.italic,
                                   ),
                                 ),
                                 const SizedBox(height: 14),
@@ -3829,22 +4090,45 @@ class AppInfoScreen extends StatelessWidget {
                                   'Intended for general audiences. We do not knowingly collect personal information from children under the age of 13. Reasonable technical measures are implemented to safeguard application processing.',
                                 ),
                                 const SizedBox(height: 10),
-                                _buildPrivacySubHeading('7. Government Disclaimer'),
+                                _buildPrivacySubHeading('7. Government Disclaimer & Information Sources'),
                                 _buildPrivacyText(
-                                  'India Post Offices is NOT an official Government of India application. It provides publicly available information for user convenience.',
+                                  'India Post Offices is an independent utility application developed by Shree Lakshmi Ventures and is NOT affiliated with, endorsed by, sponsored by, or an official application of India Post or the Government of India. The application does not represent any government entity or provide official government services.\n\n'
+                                  'Government-related postal directory information presented within the app is sourced from public data platforms:\n'
+                                  '• Department of Posts, Government of India: https://www.indiapost.gov.in (Official postal administration authority)\n'
+                                  '• Open Government Data (OGD) Platform India: https://data.gov.in (All India Pincode Directory dataset under GODL-India)\n'
+                                  '• Postal PIN Code API: https://api.postalpincode.in (Public community API)\n'
+                                  '• Department of Posts Sortation Hub Directory (Catchment Parcel Routing master dataset)',
                                 ),
                                 const SizedBox(height: 6),
-                                OutlinedButton.icon(
-                                  style: OutlinedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                    side: BorderSide(color: currentTheme.secondary.withOpacity(0.5)),
-                                  ),
-                                  icon: Icon(Icons.language, size: 14, color: currentTheme.secondary),
-                                  label: Text(
-                                    'Official India Post Website',
-                                    style: TextStyle(fontSize: 11.5, color: currentTheme.secondary),
-                                  ),
-                                  onPressed: () => launchAppUrl('https://www.indiapost.gov.in'),
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 6,
+                                  children: [
+                                    OutlinedButton.icon(
+                                      style: OutlinedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                        side: BorderSide(color: currentTheme.secondary.withOpacity(0.5)),
+                                      ),
+                                      icon: Icon(Icons.language, size: 14, color: currentTheme.secondary),
+                                      label: Text(
+                                        'Official India Post Website',
+                                        style: TextStyle(fontSize: 11.5, color: currentTheme.secondary),
+                                      ),
+                                      onPressed: () => launchAppUrl('https://www.indiapost.gov.in'),
+                                    ),
+                                    OutlinedButton.icon(
+                                      style: OutlinedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                        side: BorderSide(color: currentTheme.primary.withOpacity(0.5)),
+                                      ),
+                                      icon: Icon(Icons.open_in_new, size: 14, color: currentTheme.primary),
+                                      label: Text(
+                                        'Data.gov.in Portal',
+                                        style: TextStyle(fontSize: 11.5, color: currentTheme.primary),
+                                      ),
+                                      onPressed: () => launchAppUrl('https://data.gov.in'),
+                                    ),
+                                  ],
                                 ),
                                 const SizedBox(height: 10),
                                 _buildPrivacySubHeading('8. Contact Us'),
