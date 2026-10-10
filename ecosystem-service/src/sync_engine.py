@@ -136,7 +136,7 @@ class PlayPublisherSyncEngine:
     def _simulate_verified_publisher_app(self, package_name: str) -> Optional[Dict[str, Any]]:
         mock_db = {
             "com.oedc.indiaPostOffices": {
-                "name": "India Post Offices Directory",
+                "name": "OEDC India Post Offices Finder",
                 "shortDescription": "Search PIN codes and post offices across India in real-time.",
                 "description": "Comprehensive India Post directory with offline support.",
                 "availability": "PUBLIC_PRODUCTION",

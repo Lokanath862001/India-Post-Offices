@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="India Post Offices"
+        android:label="OEDC India Post Offices Finder"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <meta-data

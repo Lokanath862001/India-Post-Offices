@@ -817,7 +817,7 @@ class MyApp extends StatelessWidget {
       builder: (context, themeKey, child) {
         final themeConfig = appThemes[themeKey] ?? appThemes['dark']!;
         return MaterialApp(
-          title: 'India Post Offices',
+          title: 'OEDC India Post Offices Finder',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             brightness: themeConfig.brightness,
@@ -1545,7 +1545,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
 
     try {
       final excel = Excel.createExcel();
-      final Sheet sheet = excel['India Post Offices'];
+      final Sheet sheet = excel['OEDC India Post Offices Finder'];
       excel.delete('Sheet1');
 
       // Add header row
@@ -1592,7 +1592,7 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
       }
 
       if (kIsWeb) {
-        final fileName = 'India_Post_Offices_${DateTime.now().millisecondsSinceEpoch}.xlsx';
+        final fileName = 'OEDC_India_Post_Offices_Finder_${DateTime.now().millisecondsSinceEpoch}.xlsx';
         downloadExcel(fileBytes, fileName);
         
         if (mounted) {
@@ -1610,13 +1610,13 @@ class _PostOfficeFinderScreenState extends State<PostOfficeFinderScreen> {
       }
 
       final tempDir = await getTemporaryDirectory();
-      final fileName = 'India_Post_Offices_${DateTime.now().millisecondsSinceEpoch}.xlsx';
+      final fileName = 'OEDC_India_Post_Offices_Finder_${DateTime.now().millisecondsSinceEpoch}.xlsx';
       final file = File('${tempDir.path}/$fileName');
 
       await file.writeAsBytes(fileBytes, flush: true);
 
       final xFile = XFile(file.path);
-      await Share.shareXFiles([xFile], text: 'Exported India Post Offices Search Results');
+      await Share.shareXFiles([xFile], text: 'Exported OEDC India Post Offices Finder Search Results');
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -3729,7 +3729,7 @@ class AppInfoScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'India Post Offices',
+                                  'OEDC India Post Offices Finder',
                                   style: TextStyle(
                                     color: currentTheme.textPrimary,
                                     fontSize: 16.5,
@@ -3803,7 +3803,7 @@ class AppInfoScreen extends StatelessWidget {
                                       ),
                                       const SizedBox(height: 6),
                                       Text(
-                                        'India Post Offices is an independent utility application developed by Shree Lakshmi Ventures. This app is NOT affiliated with, endorsed by, sponsored by, or an official application of India Post or the Government of India. The application does not represent any government entity and does not provide official government services.',
+                                        'OEDC India Post Offices Finder is an independent utility application developed by Shree Lakshmi Ventures. This app is NOT affiliated with, endorsed by, sponsored by, or an official application of India Post or the Government of India. The application does not represent any government entity and does not provide official government services.',
                                         style: TextStyle(
                                           color: currentTheme.textSecondary,
                                           fontSize: 12,
@@ -3824,7 +3824,7 @@ class AppInfoScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
-                                  'India Post Offices is a lookup utility that helps users find postal PIN codes, office names, delivery statuses, branch types, and postal administrative divisions across India.',
+                                  'OEDC India Post Offices Finder is a lookup utility that helps users find postal PIN codes, office names, delivery statuses, branch types, and postal administrative divisions across India.',
                                   style: TextStyle(
                                     color: currentTheme.textSecondary,
                                     fontSize: 13,
@@ -4024,7 +4024,7 @@ class AppInfoScreen extends StatelessWidget {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Privacy Policy for India Post Offices',
+                                        'Privacy Policy for OEDC India Post Offices Finder',
                                         style: TextStyle(
                                           color: currentTheme.primary,
                                           fontWeight: FontWeight.bold,
@@ -4046,7 +4046,7 @@ class AppInfoScreen extends StatelessWidget {
                                 const SizedBox(height: 12),
                                 _buildPrivacySubHeading('1. Overview'),
                                 _buildPrivacyText(
-                                  'Shree Lakshmi Ventures ("we", "our", or "us") developed the India Post Offices application to help users search and access information about India Post Offices across India. We value your privacy and are committed to protecting your information.',
+                                  'Shree Lakshmi Ventures ("we", "our", or "us") developed the OEDC India Post Offices Finder application to help users search and access information about India Post Offices across India. We value your privacy and are committed to protecting your information.',
                                 ),
                                 const SizedBox(height: 10),
                                 _buildPrivacySubHeading('2. Information We Collect'),
@@ -4092,7 +4092,7 @@ class AppInfoScreen extends StatelessWidget {
                                 const SizedBox(height: 10),
                                 _buildPrivacySubHeading('7. Government Disclaimer & Information Sources'),
                                 _buildPrivacyText(
-                                  'India Post Offices is an independent utility application developed by Shree Lakshmi Ventures and is NOT affiliated with, endorsed by, sponsored by, or an official application of India Post or the Government of India. The application does not represent any government entity or provide official government services.\n\n'
+                                  'OEDC India Post Offices Finder is an independent utility application developed by Shree Lakshmi Ventures and is NOT affiliated with, endorsed by, sponsored by, or an official application of India Post or the Government of India. The application does not represent any government entity or provide official government services.\n\n'
                                   'Government-related postal directory information presented within the app is sourced from public data platforms:\n'
                                   '• Department of Posts, Government of India: https://www.indiapost.gov.in (Official postal administration authority)\n'
                                   '• Open Government Data (OGD) Platform India: https://data.gov.in (All India Pincode Directory dataset under GODL-India)\n'

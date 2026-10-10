@@ -5,7 +5,7 @@
   "apps": [
     {
       "packageName": "com.oedc.indiaPostOffices",
-      "name": "India Post Offices Directory",
+      "name": "OEDC India Post Offices Finder",
       "shortDescription": "Search PIN codes and post offices across India in real-time.",
       "description": "Comprehensive India Post directory with offline support.",
       "iconUrl": "https://lh3.googleusercontent.com/d/com.oedc.indiaPostOffices-icon",

@@ -1,7 +1,7 @@
-# Privacy Policy for India Post Offices
+# Privacy Policy for OEDC India Post Offices Finder
 
 **Effective Date:** October 9, 2026  
-**Application Name:** India Post Offices  
+**Application Name:** OEDC India Post Offices Finder  
 **Package Name:** `com.oedc.indiaPostOffices`  
 **Developer:** Shree Lakshmi Ventures (SLV)  
 
@@ -9,10 +9,10 @@
 
 ## 1. Overview & Non-Affiliation Disclaimer
 
-**Shree Lakshmi Ventures** ("we", "our", or "us") developed the **India Post Offices** application as an independent utility directory to help users search, explore, and access postal PIN code information across India.
+**Shree Lakshmi Ventures** ("we", "our", or "us") developed the **OEDC India Post Offices Finder** application as an independent utility directory to help users search, explore, and access postal PIN code information across India.
 
 > ### **Government Non-Affiliation Disclaimer**
-> **India Post Offices is an independent utility application developed by Shree Lakshmi Ventures. This application is NOT affiliated with, endorsed by, sponsored by, authorized by, or in any way officially connected with India Post (Department of Posts, Ministry of Communications), the Government of India, or any state government entity.**  
+> **OEDC India Post Offices Finder is an independent utility application developed by Shree Lakshmi Ventures. This application is NOT affiliated with, endorsed by, sponsored by, authorized by, or in any way officially connected with India Post (Department of Posts, Ministry of Communications), the Government of India, or any state government entity.**  
 >
 > **The application does not represent any government entity and does not provide official government services (such as parcel booking, speed post tracking, financial services, or official government registrations).**
 
@@ -48,7 +48,7 @@ In compliance with Google Play Developer policies regarding government informati
 ## 3. Information We Collect
 
 ### A. Personal Information
-The **India Post Offices** application does **not** require account creation, registration, or sign-in. We do **NOT** collect, transmit, store, or sell any personal information, including:
+The **OEDC India Post Offices Finder** application does **not** require account creation, registration, or sign-in. We do **NOT** collect, transmit, store, or sell any personal information, including:
 - Names, email addresses, or phone numbers
 - Physical postal or street addresses
 - Government identity numbers (Aadhaar, PAN, Voter ID, etc.)

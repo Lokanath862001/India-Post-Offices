@@ -15,7 +15,7 @@ class CrossPromotionApp {
 /// Absolutely NO dynamic generation, NO external discovery, and NO modified URLs.
 const List<CrossPromotionApp> crossPromotionApps = [
   CrossPromotionApp(
-    name: 'India Post Offices',
+    name: 'OEDC India Post Offices Finder',
     applicationId: 'com.oedc.indiaPostOffices',
     playStoreUrl:
         'https://play.google.com/store/apps/details?id=com.oedc.indiaPostOffices',

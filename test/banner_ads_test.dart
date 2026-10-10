@@ -35,7 +35,7 @@ void main() {
 
     expect(find.byType(TopBannerAdWidget), findsOneWidget);
     expect(find.byType(BottomBannerAdWidget), findsOneWidget);
-    expect(find.text('India Post Offices'), findsOneWidget);
+    expect(find.text('OEDC India Post Offices Finder'), findsOneWidget);
     expect(find.byType(TabBar), findsOneWidget);
   });
 

@@ -23,5 +23,5 @@ plugins {
     id("org.jetbrains.kotlin.android") version "2.2.20" apply false
 }
 
-rootProject.name = "India Post Offices"
+rootProject.name = "OEDC India Post Offices Finder"
 include(":app")

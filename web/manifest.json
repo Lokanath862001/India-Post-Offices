@@ -1,11 +1,11 @@
 {
-    "name": "India Post Offices",
-    "short_name": "India Post Offices",
+    "name": "OEDC India Post Offices Finder",
+    "short_name": "OEDC India Post Offices Finder",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "India Post Offices - Search and access post office details across India by PIN code or Office Name.",
+    "description": "OEDC India Post Offices Finder - Search and access post office details across India by PIN code or Office Name.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

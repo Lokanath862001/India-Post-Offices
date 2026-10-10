@@ -9,11 +9,11 @@ void main() {
       expect(crossPromotionApps.length, 4);
     });
 
-    test('1. India Post Offices exact URL mapping', () {
+    test('1. OEDC India Post Offices Finder exact URL mapping', () {
       final app = crossPromotionApps.firstWhere(
         (a) => a.applicationId == 'com.oedc.indiaPostOffices',
       );
-      expect(app.name, 'India Post Offices');
+      expect(app.name, 'OEDC India Post Offices Finder');
       expect(
         app.playStoreUrl,
         'https://play.google.com/store/apps/details?id=com.oedc.indiaPostOffices',
@@ -73,7 +73,7 @@ void main() {
 
   group('Current App Exclusion & Integrity Tests', () {
     test(
-      'Current app = com.oedc.indiaPostOffices -> excludes India Post Offices, returns other 3',
+      'Current app = com.oedc.indiaPostOffices -> excludes OEDC India Post Offices Finder, returns other 3',
       () {
         final service = RecommendationService(
           currentApplicationId: 'com.oedc.indiaPostOffices',
