@@ -483,8 +483,8 @@ class _CircleColorPickerState extends State<CircleColorPicker> {
   }
 }
 
-const String appLocalVersion = '1.1.7';
-const int appLocalBuild = 17;
+const String appLocalVersion = '1.1.8';
+const int appLocalBuild = 18;
 
 final ValueNotifier<String> themeNotifier = ValueNotifier<String>('dark');
 
